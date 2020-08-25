@@ -1,7 +1,7 @@
 const ytdl = require('ytdl-core');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { log, sendmessage} = require('./helpers.js')
+const { log, sendmessage, randomnoise, Perms} = require('./helpers.js')
 const urlmetadata = require('url-metadata');
 let dispatcher = '';
 
@@ -26,15 +26,21 @@ async function sendplaymessage(msg, info, queue)
     const url_search = new URL(queue);
     const search = new URLSearchParams(url_search.searchParams).get('t')
 
+    const views =  `👀 ${vc} views`;
+    const dashes = `▬▬▬▬▬▬▬▬▬▬▬`;       // Embeds are a fixed length (was doing this based off views length but it newlined)
+    const likes = `👍 ${lr} Likes`;
+    const dislikes = `👎 ${dlr} Dislikes`;
+    const shortdesc = `${metadata['shortDescription'].substr(0, 125)}\u2026`;
+
     const embed = new discord.MessageEmbed()
     .setAuthor(`${author['name']}`, author['avatar'])
     .setColor(process.env.BOT_COLOR)
     .setTitle(`${metadata['title']}`)
     .setURL(queue)
     .addFields(
-        {name: `👀 ${vc}`, value: `Views`, inline: true},
-        {name: `👍 ${lr} Likes`, value: `👎 ${dlr} Dislikes`, inline: true},
-        {name: `Description`, value: `${metadata['shortDescription'].substr(0, 125)}\u2026`}
+        {name: views, value: dashes, inline: true},
+        {name: likes, value: dislikes, inline: true},
+        {name: `Description`, value: shortdesc}
     )
     .setImage(tn)
     .setFooter(`${msg.author.username}#${msg.author.discriminator}`, msg.author.displayAvatarURL())
@@ -73,6 +79,9 @@ async function sendplaymessage(msg, info, queue)
     }
 
     msg.channel.send(embed);
+    // Getting all the data for the message is the thing that'll take the longest
+    // so we delete the message after the play event occurs
+    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 module.exports.play = async (msg, args) =>
@@ -173,15 +182,37 @@ module.exports.disconnect = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `Leaving the voice chat`)
     msg.guild.me.voice.channel.leave();
+    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 module.exports.queue = async (msg) =>
 {
+    let music_arr = videoqueue[msg.guild.id];
+    let guildqueue = music_arr === undefined ? '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : Array();
+    let data = null;
     log(msg, `Got queue for this server.`)
-    let garray = videoqueue[msg.guild.id];
-    let guildqueue = garray == undefined || garray.length == 0 ? '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : garray;
-    let link = `https:\/\/cdn.discordapp.com\/icons\/${msg.guild.id}\/${msg.guild.icon}.webp?size=128`
-    sendmessage(msg, guildqueue)
+    if(music_arr !== undefined && music_arr.length <= 0)
+    {
+        const garray = [].concat(music_arr).toString().replace(/\,/gi, '\n');
+        guildqueue = garray == undefined || garray.length == 0 ? '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : garray;
+        data = await urlmetadata(music_arr[0])   
+    }
+
+    const embed = new discord.MessageEmbed()
+    .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+    .setColor(process.env.BOT_COLOR)
+    .setTimestamp()
+    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
+
+    if(data)
+    {
+        const title = `Up next: ${data['title']}`.substr(0, 125)
+        embed.setTitle(title);
+        embed.setThumbnail(data['image'])
+    }
+    embed.addField(`Queue`,`${guildqueue}`)
+    msg.channel.send(embed);
+    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 module.exports.skip = async (msg) =>
@@ -190,6 +221,7 @@ module.exports.skip = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `${msg.author.username}#${msg.author.discriminator} skipped the video`)
     dispatcher.end();
+    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 module.exports.stop = async (msg) =>
@@ -202,8 +234,8 @@ module.exports.stop = async (msg) =>
         {
             videoqueue[msg.guild.id].splice(i, 1);
         }
-        sendmessage(msg, `You're stupid.`)
         msg.guild.me.voice.channel.leave()
         dispatcher.end();
     }
+    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
