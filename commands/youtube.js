@@ -23,6 +23,8 @@ async function sendplaymessage(msg, info, queue)
     const vc = metadata['viewCount'] == null ? 'none' : intwithcommas(metadata['viewCount']);
     const lr = metadata['likes'] == null ? 'none' : intwithcommas(metadata['likes']);
     const dlr = metadata['dislikes'] == null ? 'none' : intwithcommas(metadata['dislikes']);
+    const url_search = new URL(queue);
+    const search = new URLSearchParams(url_search.searchParams).get('t')
 
     const embed = new discord.MessageEmbed()
     .setAuthor(`${author['name']}`, author['avatar'])
@@ -37,6 +39,17 @@ async function sendplaymessage(msg, info, queue)
     .setImage(tn)
     .setFooter(`${msg.author.username}#${msg.author.discriminator}`, msg.author.displayAvatarURL())
     .setTimestamp();
+
+    if(search)
+    {
+        const timestamp = new Date(search.replace(/[a-z]/gi, '') * 1000).toISOString().substr(11, 8);   // Dont think there's a cleaner way to do this
+        const arr = timestamp.split(':').map(x=>+x);            // Split 01:01:01 --> [01,01,01] map removes the leading 0s --> [1,1,1]
+        const hours = arr[0] <= 0 ? `` :  `${arr[0]}hours`;     // Formatting hours, check to see if hours are appliciable
+        const mins = arr[1] <= 0 ? `` :  `${arr[1]}mins`;      
+        const secs = arr[2] <= 0 ? `` :  `${arr[2]}secs`;
+        const formatted = `${hours} ${mins} ${secs}`
+        embed.addField('🕒 Started at', formatted);
+    }
 
     if(metadata['media'])
     {
