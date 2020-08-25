@@ -38,6 +38,11 @@ module.exports.Perms = class Perms
      * @description Returns boolean if the user is allowed to send messages
      * @returns {boolean} 
      */
+    /**
+     * @description Returns boolean if the user is allowed to add reactions to a message
+     * @returns {boolean} 
+     */
+    react(){return this.msg.member.hasPermission('ADD_REACTIONS')}
     msg(){return this.msg.member.guild.me.hasPermission(['SEND_MESSAGES'])}
     /**
      * @description Returns boolean if the user is allowed to view the current channel
@@ -78,6 +83,11 @@ module.exports.UserPerms = class UserPerms
      * @returns {boolean} 
      */
     attach(){return this.msg.member.hasPermission(['ATTACH_FILES'])}
+    /**
+     * @description Returns boolean if the user is allowed to add reactions to a message
+     * @returns {boolean} 
+     */
+    react(){return this.msg.member.hasPermission('ADD_REACTIONS')}
     /**
      * @description Returns boolean if the user is allowed to send messages
      * @returns {boolean} 

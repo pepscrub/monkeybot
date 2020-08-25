@@ -11,27 +11,54 @@ function intwithcommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-function sendplaymessage(msg, info, queue)
+async function sendplaymessage(msg, info, queue)
 {
     const metadata = info['videoDetails']
-    console.log(metadata);
+
+    // console.log(metadata['media']);
+
     const author = metadata['author']
     const tnl = metadata['thumbnail']['thumbnails'];
     const tn = tnl[tnl.length-1]['url'];
-    const vc = intwithcommas(metadata['viewCount']);
-    const lr = intwithcommas(metadata['likes'])
-    const dlr = intwithcommas(metadata['dislikes'])
+    const vc = metadata['viewCount'] == null ? 'none' : intwithcommas(metadata['viewCount']);
+    const lr = metadata['likes'] == null ? 'none' : intwithcommas(metadata['likes']);
+    const dlr = metadata['dislikes'] == null ? 'none' : intwithcommas(metadata['dislikes']);
 
     const embed = new discord.MessageEmbed()
     .setAuthor(`${author['name']}`, author['avatar'])
     .setColor(process.env.BOT_COLOR)
     .setTitle(`${metadata['title']}`)
     .setURL(queue)
-    .setDescription(`🔴 ${vc} 👍 ${lr} Likes 👎 ${dlr} Dislikes
-     ${metadata['shortDescription'].substr(0, 125)}\u2026`)
+    .addFields(
+        {name: `👀 ${vc}`, value: `Views`, inline: true},
+        {name: `👍 ${lr} Likes`, value: `👎 ${dlr} Dislikes`, inline: true},
+        {name: `Description`, value: `${metadata['shortDescription'].substr(0, 125)}\u2026`}
+    )
     .setImage(tn)
     .setFooter(`${msg.author.username}#${msg.author.discriminator}`, msg.author.displayAvatarURL())
     .setTimestamp();
+
+    if(metadata['media'])
+    {
+        switch(metadata['media']['category'])
+        {
+            case 'Music':
+                const url_search = new URL(queue);
+                const search = new URLSearchParams(url_search.searchParams).get('t')
+                if(search)
+                {
+                    embed.setDescription(`Music is unrealiable for sharing with a start time`)
+                }
+            break;
+            case 'Gaming':
+                const arr = metadata['media']['thumbnails'];
+                const img = `https:${arr[arr.length-1]['url']}`;
+                embed.setThumbnail(img)
+            break;
+        }
+
+    }
+
     msg.channel.send(embed);
 }
 
@@ -50,21 +77,22 @@ module.exports.play = async (msg, args) =>
             // Get video info from URL
             ytdl.getBasicInfo(queue)
             .then(res=>{sendplaymessage(msg, res, queue)})
-            .catch(e=>console.log)
+            .catch(e=>console.log(e))
 
             const url_search = new URL(queue);                      // Convert url into url object
             const timer = new URLSearchParams(url_search.search);   // Grab the search queries (we can target later)
             let options = {filter : 'audioonly'};                   // Default options
             if(timer.get('t'))                                      // See if the timer in url is set to anything
             {
-                const format = `${timer.get('t')}s`;                // Format so ytdl-core can read it (yes it accepts this)
+                const time = timer.get('t').replace(/[a-zA-Z]/, '');
+                const format = new Date(time * 1000).toISOString().substr(11, 8);
                 options = {filter : 'audio', begin: format};        // audioonly and videoonly do not work with 'begin' for some reason
             }
 
             const stream = ytdl(queue, options); // Play the first video in queue
             // No fucking clue what this code does besides play the audio
             log(msg, `Playing video`)
-            dispatcher = connection.play(stream).catch(e=>console.log(e));
+            dispatcher = connection.play(stream);
 
             videoqueue[msg.guild.id].shift();
 
@@ -83,6 +111,7 @@ module.exports.play = async (msg, args) =>
             })
         }catch(err)
         {
+            console.log(err);
             errh(err, msg);
             videoqueue[msg.guild.id].shift();
             if(videoqueue.length === 0) 

@@ -58,7 +58,7 @@ let vote = [];
 async function sendMessage(msg, res)
 {
     const perms = new Perms(msg);
-    if(perms.del()) // Check to see if we have permissions to modify chat
+    if(perms.del() && perms.react()) // Check to see if we have permissions to modify chat and add reactions
     {
         const expirey = timer/1000; // Timer in seconds
         google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
@@ -84,7 +84,7 @@ async function sendMessage(msg, res)
 
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-        .setDescription('Missing permissions for voting. Selected random rating')
+        .setDescription('Missing permissions for voting. Selected random rating (Random ranking will be replaced with smart ranking... eventually)')
         .setColor(ran_colour)
         .setTitle(`${res['title']}`)
         .setURL(res['link'])
@@ -114,6 +114,7 @@ async function Reaction_Result(msg, e, res)
     vote[msg.guild.id] = false;
     output.sort((a,b)=>{return b[1] - a[1]})
 
+    console.log(output[0][2]);
     output[0][2].cache.forEach(user=>{!user.bot ? users.push(`${user.username}`) : ''})
     users = users.join(", ");
 
