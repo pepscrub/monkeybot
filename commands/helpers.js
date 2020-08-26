@@ -9,7 +9,11 @@ module.exports.timestamp = () =>new Date().toLocaleTimeString([],{hour: '2-digit
  * @param {Object} msg 
  * @param {String} text
  */
-module.exports.log = (msg, text) => console.log(`${'[Monkey]'.bold.green} ${`${msg.guild.name}`.italic.cyan} ${this.timestamp()} ${text}`)
+module.exports.log = (msg = null, text) =>
+{
+    if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
+    else console.log(`${'[Monkey]'.bold.green} ${`${msg.guild.name}`.italic.cyan} ${this.timestamp()} ${text}`)
+}
 /**
  * @description Bot specific permissions
  */
