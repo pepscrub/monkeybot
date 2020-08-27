@@ -3,8 +3,8 @@ const mongo = require('mongodb');
 const assert = require('assert');
 const password = process.env.DBPASS || 'Your password here'
 const clustername = process.env.DBCLUSTER || 'Your cluster here'
-const dbname = process.env.DBNAME || 'Your db here'
-const {log} = require('../commands/helpers.js');
+const dbname = process.env.DBNAME || 'Your db name here'
+const { log } = require('../commands/helpers.js');
 
 const url = `mongodb+srv://admin:${password}@${dbname}.xbm61.mongodb.net/${clustername}?retryWrites=true&w=majority`
 
@@ -22,16 +22,20 @@ module.exports.DB = class DB
      * Accepts:
      *  - Tables
      * @param {String} args what to grab
-     * @param {String} options Optional
+     * @param {String[]} options Optional arguments
      * @example DB.get('tables')
      */
     async get(args, ...options)
     {
+        const test = (query) => {return (new RegExp(`^${query}$`)).test(args)}
         console.log(options)
         switch(true)
         {
-            case /^tables$/i.test(args):
+            case test('tables'):
                 return await this.tables();
+            break;
+            case test('table'):
+                return await this.table(args, options);
             break;
             default:
                 return null;
@@ -46,10 +50,22 @@ module.exports.DB = class DB
      */
     async tables()
     {
-        this.get('', 'asdasdaasd', 'cool', 'epic')
-        const arrays =  await this.db.listCollections().toArray();
-        console.log(arrays)
         return await this.db.listCollections().toArray();
+    }
+
+    /**
+     * 
+     * @param {*} collection Table to query
+     * @param  {{}} query Query selector
+     */
+    table(collection, query = {})
+    {
+        this.db.collection.find(collection, query);
+    }
+
+    insertinto(collection, data)
+    {
+        // Todo add code
     }
     
 
@@ -63,11 +79,10 @@ module.exports.DB = class DB
         {
             log(null,'Connected to database') // Default null for log
             this.db = res.db();
-            this.get('tables');
         })
     }
 
-    async close()
+    close()
     {
         this.client.close();
     }
