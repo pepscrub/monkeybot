@@ -6,8 +6,10 @@ const clustername = process.env.DBCLUSTER || 'Your cluster here'
 const dbname = process.env.DBNAME || 'Your db name here'
 const { log } = require('../commands/helpers.js');
 
+
 const url = `mongodb+srv://admin:${password}@${dbname}.xbm61.mongodb.net/${clustername}?retryWrites=true&w=majority`
 
+console.log(url);
 
 module.exports.DB = class DB
 {
@@ -75,8 +77,10 @@ module.exports.DB = class DB
      */
     connect()
     {
+        console.log('connecting...')
         this.client.connect((err, res)=>
         {
+            if(err) throw err
             log(null,'Connected to database') // Default null for log
             this.db = res.db();
         })
