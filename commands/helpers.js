@@ -9,8 +9,9 @@ module.exports.timestamp = () =>new Date().toLocaleTimeString([],{hour: '2-digit
  * @param {Object} msg 
  * @param {String} text
  */
-module.exports.log = (msg = null, text) =>
+module.exports.log = (text, msg = null) =>
 {
+    if(typeof(text) == 'object') text = JSON.stringify(text);
     if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
     else console.log(`${'[Monkey]'.bold.green} ${`${msg.guild.name}`.italic.cyan} ${this.timestamp()} ${text}`)
 }
@@ -162,7 +163,7 @@ module.exports.err = (e, msg) =>
 module.exports.delreact = (msg) =>
 {
     const perms = new this.Perms(msg);
-    if(perms.del()) return;     // Check to see if we have manage_messages
+    if(!perms.del()) return;     // Check to see if we have manage_messages
     msg.react('❌');                                                                                 // React to our msg with X
     const filter = (reaction, user) => '❌' === reaction.emoji.name && user.id === msg.author.id;    // Some filter shit ??
     msg.awaitReactions(filter, {time: 5000}).then(result=>

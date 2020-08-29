@@ -94,7 +94,7 @@ module.exports.play = async (msg, args) =>
         {
             // Test to see if our bot can even speak
             let queue = videoqueue[msg.guild.id][0];
-            log(msg, `Getting ${queue}`)
+            log(`Getting ${queue}`, msg)
 
             // Get video info from URL
             ytdl.getBasicInfo(queue)
@@ -113,7 +113,7 @@ module.exports.play = async (msg, args) =>
 
             const stream = ytdl(queue, options); // Play the first video in queue
             // No fucking clue what this code does besides play the audio
-            log(msg, `Playing video`)
+            log(`Playing video`, msg)
             dispatcher = connection.play(stream);
 
             videoqueue[msg.guild.id].shift();
@@ -125,7 +125,7 @@ module.exports.play = async (msg, args) =>
                 {
                     if(videoqueue[msg.guild.id][0]) play(connection, msg)
                     else {
-                        log(msg, `Leaving voice chat`)
+                        log(`Leaving voice chat`, msg)
                         sendmessage(msg, `Leaving the voice chat`)
                         connection.disconnect();
                     }
@@ -178,7 +178,7 @@ module.exports.play = async (msg, args) =>
 
 module.exports.disconnect = async (msg) =>
 {
-    log(msg, `Disconnecting from voice chat.`);
+    log(`Disconnecting from voice chat.`, msg);
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `Leaving the voice chat`)
     msg.guild.me.voice.channel.leave();
@@ -190,7 +190,7 @@ module.exports.queue = async (msg) =>
     let music_arr = videoqueue[msg.guild.id];
     let guildqueue = music_arr === undefined ? '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : Array();
     let data = null;
-    log(msg, `Got queue for this server.`)
+    log(`Got queue for this server.`, msg)
     if(music_arr !== undefined && music_arr.length <= 0)
     {
         const garray = [].concat(music_arr).toString().replace(/\,/gi, '\n');
@@ -217,7 +217,7 @@ module.exports.queue = async (msg) =>
 
 module.exports.skip = async (msg) =>
 {
-    log(msg, `Skipping video for this server.`)
+    log(`Skipping video for this server.`, msg)
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `${msg.author.username}#${msg.author.discriminator} skipped the video`)
     dispatcher.end();
@@ -226,7 +226,7 @@ module.exports.skip = async (msg) =>
 
 module.exports.stop = async (msg) =>
 {
-    log(msg, `Stopping music for this server.`)
+    log(`Stopping music for this server.`, msg)
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     if(msg.guild.voice.connection)
     {

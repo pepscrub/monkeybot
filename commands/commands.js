@@ -10,7 +10,7 @@ module.exports.bcommand = async (msg) =>
 {
     try
     {
-        log(msg, `Logging commands`);
+        log(`Logging commands`, msg);
         // Can't use sendmessage since it's infelxiable when it comes to more complex messages
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())

@@ -9,15 +9,26 @@ const { log } = require('../commands/helpers.js');
 
 const url = `mongodb+srv://admin:${password}@${dbname}.xbm61.mongodb.net/${clustername}?retryWrites=true&w=majority`
 
-console.log(url);
-
-module.exports.DB = class DB
+/**
+ * @classdesc Wrapper for MongoDB because I hate the mongoose wrapper. Why do you need schemas??????????
+ */
+module.exports.DataBase = class DataBase
 {
     constructor()
     {
         this.client = mongo.MongoClient(url, { useUnifiedTopology: true } );
         this.db = null;
         this.dbinfo = null;
+    }
+
+    connected()
+    {
+        return this.db === null ? false : true;
+    }
+
+    async db()
+    {
+        return this.client;
     }
 
     /**
@@ -30,7 +41,6 @@ module.exports.DB = class DB
     async get(args, ...options)
     {
         const test = (query) => {return (new RegExp(`^${query}$`)).test(args)}
-        console.log(options)
         switch(true)
         {
             case test('tables'):
@@ -55,19 +65,37 @@ module.exports.DB = class DB
         return await this.db.listCollections().toArray();
     }
 
+
+    async update(coll, query = {}, update = {}, options = {})
+    {
+        coll.findOneAndUpdate(query,update,options);
+    }
+
+    async table(coll)
+    {
+        return await this.db.collection(coll);
+    }
+
     /**
      * 
      * @param {*} collection Table to query
      * @param  {{}} query Query selector
      */
-    table(collection, query = {})
+     async tablequery(coll, query = {})
     {
-        this.db.collection.find(collection, query);
+        return await this.db.collection(coll).find(query);
     }
 
-    insertinto(collection, data)
+    /**
+     * 
+     * @param {String} collection name of collection 
+     * @param {Array} data 
+     */
+    insertinto(collection = null, data = null)
     {
-        // Todo add code
+        if(!(collection || data)) throw collection || data;
+        const coll = this.getCollection(collection);
+        this.db.coll.insert(data)
     }
     
 
@@ -75,13 +103,12 @@ module.exports.DB = class DB
      * @description Connects our worker to an Atlas Server
      * @augments this.db With database entry point
      */
-    connect()
+    conn()
     {
-        console.log('connecting...')
         this.client.connect((err, res)=>
         {
             if(err) throw err
-            log(null,'Connected to database') // Default null for log
+            log('Connected to database')
             this.db = res.db();
         })
     }

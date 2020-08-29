@@ -3,25 +3,22 @@ const discord = require('discord.js');
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
 const { log, randomnoise, Perms } = require('./helpers.js')
+const {DataBase} = require('../db');
+const DB = new DataBase();
 const timer = 20000;        // Timer in ms
+
 /**
  * Reaction emojis to add to a monkey result
  * @type {String[]}
  */
-const reactions = ['🟧','🟥','🟪','🟦','⬜', '❌'];
+let reactions = null;
 /**
  * Reaction colors and description
  * @type {String[][]}
  */
-const colors = {
-    '🟧': ["#ff7b00", "★ Contraband"],
-    '🟥': ["#f21331", "Covert "],
-    '🟪': ["#ed1ad8", "Classified"],
-    '🟦': ["#2ea2e6", "Uncommon"],
-    '⬜': ["#fafafa", "Common"], 
-    "❌": ["#474747", "Delete"]
-};
+let colors = null;
 
+DB.conn()
 // --------------------
 // Modifiable globals
 
@@ -47,6 +44,42 @@ let quote_reached = 0;
  */
 let vote = [];
 
+
+async function updateVote(msg, bool = false)
+{
+    const table = await DB.table('vote');
+    const docs = await table.find({"s_id": msg.guild.id})
+    const update = () =>
+    {
+        table.update(
+            {"s_id": msg.guild.id},
+            {"$set":{"vote": bool}},
+        )
+    }
+
+    if(!docs) update();
+
+    const server_vote = await table.findOneAndUpdate(
+        {"s_id": msg.guild.id},
+        {"$set":{"vote": bool}},
+    );
+}
+
+// Promise the DB.connect() function???
+// Fucking promises
+const t = setInterval(async ()=>
+{
+    if(DB.connected())
+    {
+        clearInterval(t)
+        const coll = await DB.tablequery("settings");
+        coll.forEach(doc=>{
+            colors = doc['colors']
+            reactions = doc['reactions']
+        })
+    }
+},500)
+
 /**
  * @description 'Endpoint' for our monkey image searcher sends a message for voting
  * and then sends a final message.
@@ -60,6 +93,9 @@ async function sendMessage(msg, res)
     const perms = new Perms(msg);
     if(perms.del() && perms.react()) // Check to see if we have permissions to modify chat and add reactions
     {
+
+        updateVote(msg, true);
+
         const expirey = timer/1000; // Timer in seconds
         google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
         vote[msg.guild.id] = true;  // Voting is in progress
@@ -105,16 +141,16 @@ async function sendMessage(msg, res)
 async function Reaction_Result(msg, e, res)
 {
     reactions.forEach(square=>{e.react(square)})                                                                    // Reacting with the voting squares 
+
     const filter = async (reaction, user) => reactions.includes(reaction.emoji.name) && user.id === msg.author.id;  // Some filtering shit?
     const result = await e.awaitReactions(filter, {time: timer})                                                    // Reactions from users
+    updateVote(msg, false);
 
     let output = [], i = 0, users = [];                                                                                 // Settings up objects for next 
     result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
 
-    vote[msg.guild.id] = false;
     output.sort((a,b)=>{return b[1] - a[1]})
 
-    console.log(output[0][2]);
     output[0][2].cache.forEach(user=>{!user.bot ? users.push(`${user.username}`) : ''})
     users = users.join(", ");
 
@@ -122,7 +158,7 @@ async function Reaction_Result(msg, e, res)
     if(output[0][0] === '❌') return;         // If we didn't like the monkey we delete the message
     if(output[0][1] - 1 == 0) return;
 
-    log(msg, `Sending result`)
+    log(`Sending result`, msg)
 
     const embed = new discord.MessageEmbed()                                  // Creating a new embed
     .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
@@ -154,7 +190,7 @@ function getmonkey(msg)
     try
     {
         const perms = new Perms(msg)
-        log(msg, `Checking to see if it's an image`)
+        log(`Checking to see if it's an image`, msg)
         if(perms.del()) msg.delete().catch();
         // If we really messed up badly we try it all over again.
         if(google_results.length == 0) return Math.round(Math.random()) ? monkeygoogle(msg) : monkeyreddit(msg);
@@ -186,13 +222,13 @@ async function monkeyreddit(msg)
     const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics']                                                             // Subreddits
     const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
     const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(res=>res.json());                    // Request reddit json list
-    log(msg, `Fetching from reddit https://www.reddit.com/r/${random_sr}`)
+    log(`Fetching from reddit https://www.reddit.com/r/${random_sr}`, msg)
 
     const valid = body['data']['children'].filter(post=>!post.data.over_18);                                                    // Make sure the post is PG
     const rm = Math.floor(Math.random()*valid.length);
     const rp = valid[rm]['data'];                                                                                               // Grab random POST
 
-    log(msg, `Got post ${rm} out of ${valid.length}`);
+    log(`Got post ${rm} out of ${valid.length}`, msg);
 
     const media =   rp['media'] === null ?  rp['url'] : 
                     (/mp4|gifv/.test(rp['media']['fallback_url']) ? null : 
@@ -239,18 +275,18 @@ async function monkeygoogle(msg)
     const url = `https://www.googleapis.com/customsearch/v1?key=${token}&cx=${searchengine}&q=${monkey}&searchType=image&start=${randomstart}`;
 
     if(google_results.length > 0) return getmonkey(msg);                        // No results? We recall this function
-    log(msg, `Fetching using key: ${quote_reached} and searching ${monkey}`)
+    log(`Fetching using key: ${quote_reached} and searching ${monkey}`, msg)
     fetch(url)                                                                  // Fetch API
     .then(res=>{return res.json()})
     .then((res)=>
     {
-        log(msg, `Got a result from fetch`)
+        log(`Got a result from fetch`, msg)
         if(res['error'])
         {
             switch(res['error']['code'])
             {
                 case 429:   // Quota exhausted
-                    log(msg, `Quota maxed out on key number: ${quote_reached}`)
+                    log(`Quota maxed out on key number: ${quote_reached}`, msg)
                     const d = new Date();                                                           // Creating new date to get PT time off of
                     const PT = d.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });  // Getting PT time (string)
                     let time = PT.split(':');                                                       // Splitting on :
@@ -281,9 +317,12 @@ module.exports.monkey = async (msg) =>
 {
     try
     {
-        if((msg.channel === undefined || vote[msg.guild.id]) && msg.member.guild.me.hasPermission(['MANAGE_MESSAGES'])) return msg.delete().catch();
+        const table = await DB.table('vote');
+        const server_vote = await table.findOne({"s_id": msg.guild.id}) == null ? DB.insertinto(table, {"s_id": msg.guild.id, "vote": false}) : this;
+        
+        if((msg.channel === undefined || server_vote['vote']) && msg.member.guild.me.hasPermission(['MANAGE_MESSAGES'])) return msg.delete().catch();
         const random = Math.round(Math.random())
-        log(msg, `RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}`)
+        log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}`, msg)
         random ? monkeygoogle(msg) : monkeyreddit(msg);        
     }catch(e)
     {

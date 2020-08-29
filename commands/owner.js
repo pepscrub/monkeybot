@@ -42,7 +42,7 @@ module.exports.status = (msg, args) =>
             status: active
         })
         .then(()=>{
-            log(msg, `Updated status`)
+            log(`Updated status`, msg)
         })
         return;
     }
@@ -56,7 +56,7 @@ module.exports.status = (msg, args) =>
         status: active
     })
     .then(()=>{
-        log(msg, `Updated status`)
+        log(`Updated status`, msg)
     })
 
 
