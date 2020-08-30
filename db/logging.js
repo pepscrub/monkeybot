@@ -43,9 +43,7 @@ module.exports.log_commands = async (msg) =>
                     "id": `${msg.author.id}`,
                     "name": `${msg.author.username}#${msg.author.discriminator}`,
                     "pfp": msg.author.avatarURL(),
-                    "commandusage": {
-                        entry:[msg.content, date]
-                    }
+                    "commandusage": [msg.content, date]
                 }]
             }}
         )

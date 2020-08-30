@@ -5,6 +5,7 @@ const { log, sendmessage, randomnoise, Perms, empty} = require('./helpers.js')
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 let dispatcher = '';
+
 function intwithcommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
@@ -76,21 +77,17 @@ async function sendplaymessage(msg, info, queue)
     msg.channel.send(embed);
     // Getting all the data for the message is the thing that'll take the longest
     // so we delete the message after the play event occurs
-    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
-async function shiftqueue (msg)
+async function shiftqueue(msg)
 {
     const table =await DB.table('music');
     table.updateOne({"id": msg.guild.id}, {$unset: {"queue.0": 1}});
-    table.updateOne({"id": msg.guild.id}, {$pull: {queue: null}});
+    table.updateOne({"id": msg.guild.id}, {$pull: {"queue": null}});
 }
 
 module.exports.play = async (msg, args) =>
 {
-    
-    const table = await DB.table('music');
-    const queue = await table.find({"id": msg.guild.id}).toArray()
     // Play music and shit
     const play = async (connection, msg) =>
     {
@@ -98,12 +95,12 @@ module.exports.play = async (msg, args) =>
         try
         {
             // Test to see if our bot can even speak
-            const table =await DB.tablequery('music', {"id": msg.guild.id})
+            const table = await DB.tablequery('music', {"id": msg.guild.id})
             const query = await table.toArray();
+            if(query[0]['queue'][0] == null || query[0]['queue'][0][0] == null) shiftqueue(msg);
+            if(empty(query[0]['queue'])) return;
 
-            if(query[0]['queue'][0] == null)shiftqueue(msg);
-
-            const queue = query[0]['queue'].length > 0 && query[0]['queue'][0] != null  ? query[0]['queue'][0][0] : query[0]['queue'][0];
+            const queue = query[0]['queue'][0][0];
             log(`Getting ${queue}`, msg)
 
             // Get video info from URL
@@ -122,18 +119,21 @@ module.exports.play = async (msg, args) =>
             }
 
             const stream = ytdl(queue, options); // Play the first video in queue
-            // No fucking clue what this code does besides play the audio
             log(`Playing video`, msg)
             dispatcher = connection.play(stream);
 
-            shiftqueue(msg)
+            shiftqueue(msg) // Remove this entry
 
             // on.('end') depreciated ?
-            dispatcher.on('speaking', (e)=>                                 // Event for when the bot is speaking
+            dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
             {                                                               // speaking is true so if we look for the
                 if(!e)                                                      // instance it's not we can assume we've 'skipped'
                 {
-                    if(empty(queue)) play(connection, msg)
+                    const table =await DB.tablequery('music', {"id": msg.guild.id})
+                    const query = await table.toArray();
+                    const queue = query[0]['queue']
+
+                    if(!empty(queue)) play(connection, msg)
                     else {
                         log(`Leaving voice chat`, msg)
                         sendmessage(msg, `Leaving the voice chat`)
@@ -143,9 +143,13 @@ module.exports.play = async (msg, args) =>
             })
         }catch(err)
         {
+            const table = await DB.table('music');
+            const queue = await table.find({"id": msg.guild.id})
+            const query = await queue.toArray();
+
             console.log(err);
             errh(err, msg);
-            shiftqueue();
+            shiftqueue(msg);
             if(query.length === 0) 
             {
                 connection.disconnect();
@@ -176,13 +180,17 @@ module.exports.play = async (msg, args) =>
         }
     }
 
+    const table =await DB.table('music')
+    const query = await table.find({"id": msg.guild.id})
+    const array = await query.toArray();
+
     // Actual logic
-    if(!args[0]) return await sendmessage(msg, `${msg.author.username} Where's the video?`);                                       //  If there's no link (args[0] is our actual first argument)
+    if(!args[0] && empty(array)) return await sendmessage(msg, `${msg.author.username} Where's the video?`);                       //  If there's no link (args[0] is our actual first argument)
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);              //  Test to see if the user is in a channel or not
     if(!msg.member.guild.me.hasPermission(['SPEAK'])) return sendmessage(msg, 'Monkey can\'t speak! (Missing permissions');        //  Missing permissions
 
-    if(empty(queue))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})        // Insert into DB if server entry doesn't exist
-    else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})      // Update existing entry
+    if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})                                  // Insert into DB if server entry doesn't exist
+    else if(ytdl.validateURL(args[0])) table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
 
 
     joinvc(msg);    // Wow 1 line 
@@ -194,7 +202,6 @@ module.exports.disconnect = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `Leaving the voice chat`)
     msg.guild.me.voice.channel.leave();
-    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 module.exports.queue = async (msg) =>
@@ -205,7 +212,6 @@ module.exports.queue = async (msg) =>
     if(music_arr[0] == null) shiftqueue(msg); 
     let guildqueue = music_arr === undefined || empty(music_arr) ? '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : music_arr.toString().replace(/\,/gi, '\n');
     log(`Got queue for this server.`, msg)
-
 
     const data = empty(music_arr) ? '' : await urlmetadata(music_arr[0][0]);   
     const embed = new discord.MessageEmbed()
@@ -219,9 +225,8 @@ module.exports.queue = async (msg) =>
         embed.setTitle(title);
         embed.setThumbnail(data['image'])
     }
-    embed.addField(`Queue`,`${guildqueue}`)
+    embed.addField(`Queue ${music_arr.length}`,`${guildqueue}`)
     msg.channel.send(embed);
-    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 module.exports.skip = async (msg) =>
@@ -230,7 +235,6 @@ module.exports.skip = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `${msg.author.username}#${msg.author.discriminator} skipped the video`)
     dispatcher.end();
-    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 module.exports.stop = async (msg) =>
@@ -242,9 +246,11 @@ module.exports.stop = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     if(msg.guild.voice.connection)
     {
-        table.update({"id": msg.guild.id}, {$set: {"queue": []}})
-        msg.guild.me.voice.channel.leave()
-        dispatcher.end();
+        table.updateOne({"id": msg.guild.id}, {$set: {"queue": []}})
+        .then(()=>
+        {
+            msg.guild.me.voice.channel.leave()
+            dispatcher.end();
+        })
     }
-    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
