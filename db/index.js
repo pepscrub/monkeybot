@@ -47,7 +47,7 @@ module.exports.DataBase = class DataBase
                 return await this.tables();
             break;
             case test('table'):
-                return await this.table(args, options);
+                return await this.table(args);
             break;
             default:
                 return null;

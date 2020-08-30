@@ -27,6 +27,7 @@ DB.conn().then(async (res)=>
             reactions = doc['reactions']
         })
     }
+    DB.close();
 })
 // --------------------
 // Modifiable globals
