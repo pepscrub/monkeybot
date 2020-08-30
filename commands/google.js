@@ -3,8 +3,7 @@ const discord = require('discord.js');
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
 const { log, randomnoise, Perms } = require('./helpers.js')
-const {DataBase} = require('../db');
-const DB = new DataBase();
+const { DB } = require('../index.js');
 const timer = 20000;        // Timer in ms
 
 /**
@@ -18,7 +17,17 @@ let reactions = null;
  */
 let colors = null;
 
-DB.conn()
+DB.conn().then(async (res)=>
+{
+    if(res)
+    {
+        const coll = await DB.tablequery("settings");
+        coll.forEach(doc=>{
+            colors = doc['colors']
+            reactions = doc['reactions']
+        })
+    }
+})
 // --------------------
 // Modifiable globals
 
@@ -64,21 +73,6 @@ async function updateVote(msg, bool = false)
         {"$set":{"vote": bool}},
     );
 }
-
-// Promise the DB.connect() function???
-// Fucking promises
-const t = setInterval(async ()=>
-{
-    if(DB.connected())
-    {
-        clearInterval(t)
-        const coll = await DB.tablequery("settings");
-        coll.forEach(doc=>{
-            colors = doc['colors']
-            reactions = doc['reactions']
-        })
-    }
-},500)
 
 /**
  * @description 'Endpoint' for our monkey image searcher sends a message for voting

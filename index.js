@@ -3,6 +3,10 @@ const client = new discord.Client();                                            
 const colors = require('colors');
 const { networkInterfaces } = require('os'); // Needed for mongodb / heroku setup
 const { log } = require('./commands/helpers.js');
+const { DataBase } = require('./db');
+
+module.exports.DB = new DataBase();
+
 
 // Commands index.js
 const commands = require('./commands');                                                                             // Importing  commands index.js
@@ -30,7 +34,7 @@ log(JSON.stringify(results))
 
 client.login(process.env.token);                                                            // Logging into our bot (Token is supplied in .env)
 client.on('ready', async ()=>{
-    log(`Logged in as ${`${client.user.username}`.underline}.`)                       // Logging that our login was successfull
+    log(`Logged in as ${`${client.user.username}`.underline}.`)                             // Logging that our login was successfull
     client.user.setPresence({activity:{name: "`help",type: "LISTENING"},status: "online"})
     log(`Set to default status`)
 }) 

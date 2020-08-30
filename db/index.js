@@ -94,8 +94,7 @@ module.exports.DataBase = class DataBase
     insertinto(collection = null, data = null)
     {
         if(!(collection || data)) throw collection || data;
-        const coll = this.getCollection(collection);
-        this.db.coll.insert(data)
+        this.db.collection(collection).insertOne(data)
     }
     
 
@@ -105,16 +104,23 @@ module.exports.DataBase = class DataBase
      */
     conn()
     {
-        this.client.connect((err, res)=>
+        return new Promise((resolve, rej)=>
         {
-            if(err) throw err
-            log('Connected to database')
-            this.db = res.db();
+            this.client.connect((err, res)=>
+            {
+                if(err) throw err
+                resolve(true)
+                log('Connected to database')
+                this.db = res.db();
+            })
         })
     }
 
     close()
     {
-        this.client.close();
+        this.client.close(()=>
+        {
+            log('Disconnected from database')
+        });
     }
 }

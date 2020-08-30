@@ -3,7 +3,7 @@ const discord = require('discord.js');
 /**
  * @description gets the current date in a 12 hour format
  */
-module.exports.timestamp = () =>new Date().toLocaleTimeString([],{hour: '2-digit', minute:'2-digit'})
+module.exports.timestamp = () =>new Date().toLocaleString()
 /**
  * @description It's just a fancier console.log
  * @param {Object} msg 

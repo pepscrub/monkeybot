@@ -4,13 +4,18 @@ const { play, skip, stop, queue, disconnect} = require('./youtube');
 const { monkey } = require('./google');
 const { bcommand } = require('./commands');
 const { invite } = require('./invite');
+const { log_commands } = require('../db/logging.js');
 const del = require('./admin.js').delete;
+
+
+
 const prefix = process.env.PREFIX || '`';                                  // Import prefix from 
 
 module.exports = async (msg) =>
 {
     const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
     if(args.length == 0 || args[0].charAt(0) !== prefix) return;
+    log_commands(msg);
     const command = args.shift().substr(1);
     switch(command)
     {
