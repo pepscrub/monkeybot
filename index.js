@@ -5,6 +5,7 @@ const { log } = require('./commands/helpers.js');
 const { DataBase } = require('./db');
 module.exports.DB = new DataBase();
 
+this.DB.conn()
 
 // Commands index.js
 const commands = require('./commands');                                                                             // Importing  commands index.js
