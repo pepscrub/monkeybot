@@ -1,14 +1,5 @@
 const { DB } = require('../index');
-const { log } = require('../commands/helpers.js')
-
-function empty(obj)
-{
-    for(const key in obj)
-    {
-        if(obj.hasOwnProperty(key)) return false;
-    }
-    return true;
-}
+const { log, empty } = require('../commands/helpers.js')
 
 
 module.exports.log_commands = async (msg) =>

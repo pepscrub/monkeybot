@@ -193,3 +193,13 @@ module.exports.sendmessage = (msg, desc) => {
     .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
     msg.channel.send(embed);
 }
+
+
+module.exports.empty = (obj) =>
+{
+    for(const key in obj)
+    {
+        if(obj.hasOwnProperty(key)) return false;
+    }
+    return true;
+}
