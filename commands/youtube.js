@@ -76,7 +76,7 @@ async function sendplaymessage(msg, info, queue)
     msg.channel.send(embed);
     // Getting all the data for the message is the thing that'll take the longest
     // so we delete the message after the play event occurs
-    // if(new Perms(msg).del()) msg.delete(); // House cleaning
+    if(new Perms(msg).del()) msg.delete(); // House cleaning
 }
 
 async function shiftqueue (msg)
