@@ -1,5 +1,5 @@
 const discord = require('discord.js');
-const { status } = require('./owner.js');
+const { status, servers } = require('./owner.js');
 const { play, skip, stop, queue, disconnect} = require('./youtube');
 const { monkey } = require('./google');
 const { bcommand } = require('./commands');
@@ -53,11 +53,16 @@ module.exports = async (msg) =>
         case 'invite':
             invite(msg);
         break;
+        case 'leaderboard':
+            leaderboard(msg, args);
+        break;
+
+        // Owner only stuff
         case 'status':
             status(msg, args);
         break;
-        case 'top':
-            leaderboard(msg);
+        case 'servers':
+            servers(msg, args)    
         break;
     }
 }

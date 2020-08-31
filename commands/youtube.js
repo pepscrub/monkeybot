@@ -1,9 +1,13 @@
 const ytdl = require('ytdl-core');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { log, sendmessage, randomnoise, Perms, empty, intwithcommas} = require('./helpers.js')
+const { log, sendmessage, randomnoise, Perms, empty, intwithcommas} = require('./helpers.js');
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
+const icy = require('icy'); // Might want to look into this for more music bot capabilities
+const lame = require('node-lame').Lame;
+
+
 let dispatcher = '';
 
 async function sendplaymessage(msg, info, queue)
@@ -96,47 +100,70 @@ module.exports.play = async (msg, args) =>
             if(query[0]['queue'][0] == null || query[0]['queue'][0][0] == null) shiftqueue(msg);
             if(empty(query[0]['queue'])) return;
 
+            console.log(query[0]['queue'])
+
             const queue = query[0]['queue'][0][0];
+            const url_search = new URL(queue);                      // Create url object from string
             log(`Getting ${queue}`, msg)
 
-            // Get video info from URL
-            ytdl.getBasicInfo(queue)
-            .then(res=>{sendplaymessage(msg, res, queue)})
-            .catch(e=>console.log(e))
+            console.log(url_search.host.includes('soundcloud'))
 
-            const url_search = new URL(queue);                      // Convert url into url object
-            const timer = new URLSearchParams(url_search.search);   // Grab the search queries (we can target later)
-            let options = {filter : 'audioonly'};                   // Default options
-            if(timer.get('t'))                                      // See if the timer in url is set to anything
+            switch(true)
             {
-                const time = timer.get('t').replace(/[a-zA-Z]/, '');
-                const format = new Date(time * 1000).toISOString().substr(11, 8);
-                options = {filter : 'audio', begin: format};        // audioonly and videoonly do not work with 'begin' for some reason
-            }
+                case url_search.host.includes('youtube'):
+                    // Get video info from URL
+                    ytdl.getBasicInfo(queue)
+                    .then(res=>{sendplaymessage(msg, res, queue)})
+                    .catch(e=>console.log(e))
 
-            const stream = ytdl(queue, options); // Play the first video in queue
-            log(`Playing video`, msg)
-            dispatcher = connection.play(stream);
+                    const timer = new URLSearchParams(url_search.search);   // Grab the search queries (we can target later)
+                    let options = {filter : 'audioonly'};                   // Default options
+                    if(timer.get('t'))                                      // See if the timer in url is set to anything
+                    {
+                        const time = timer.get('t').replace(/[a-zA-Z]/, '');
+                        const format = new Date(time * 1000).toISOString().substr(11, 8);
+                        options = {filter : 'audio', begin: format};        // audioonly and videoonly do not work with 'begin' for some reason
+                    }
+
+                    const stream = ytdl(queue, options); // Play the first video in queue
+                    log(`Playing video`, msg)
+                    dispatcher = connection.play(stream);
+                break;
+                default:
+                    // const url = queue
+                    // icy.get(url, res=>
+                    // {
+                    //     console.log(res.headers)
+                    //     res.on('metadata', (metadata)=>
+                    //     {
+                    //         console.log(metadata)
+                    //     });
+
+                    //     console.log(res.headers.location)
+                    //     dispatcher = connection.play(res.headers.location);
+                    // })
+                break;
+            }
 
             shiftqueue(msg) // Remove this entry
 
             // on.('end') depreciated ?
-            dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
-            {                                                               // speaking is true so if we look for the
-                if(!e)                                                      // instance it's not we can assume we've 'skipped'
-                {
-                    const table =await DB.tablequery('music', {"id": msg.guild.id})
-                    const query = await table.toArray();
-                    const queue = query[0]['queue']
+            // dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
+            // {                                                               // speaking is true so if we look for the
+            //     if(!e)                                                      // instance it's not we can assume we've 'skipped'
+            //     {
+            //         const table =await DB.tablequery('music', {"id": msg.guild.id})
+            //         const query = await table.toArray();
+            //         const queue = query[0]['queue']
 
-                    if(!empty(queue)) play(connection, msg)
-                    else {
-                        log(`Leaving voice chat`, msg)
-                        sendmessage(msg, `Leaving the voice chat`)
-                        connection.disconnect();
-                    }
-                }
-            })
+            //         if(!empty(queue)) play(connection, msg)
+            //         else {
+            //             log(`Leaving voice chat`, msg)
+            //             sendmessage(msg, `Leaving the voice chat`)
+            //             connection.disconnect();
+            //         }
+            //     }
+            // })
         }catch(err)
         {
             const table = await DB.table('music');
@@ -186,8 +213,9 @@ module.exports.play = async (msg, args) =>
     if(!msg.member.guild.me.hasPermission(['SPEAK'])) return sendmessage(msg, 'Monkey can\'t speak! (Missing permissions');        //  Missing permissions
 
     if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})                                  // Insert into DB if server entry doesn't exist
-    else if(ytdl.validateURL(args[0])) table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
+    else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
 
+    sendmessage(msg, `Added ${args[0]} to the queue`)
 
     joinvc(msg);    // Wow 1 line 
 }

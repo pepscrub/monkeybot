@@ -2,9 +2,11 @@ const { randomnoise, intwithcommas } = require('./helpers')
 const {DB} = require('../index');
 const discord = require('discord.js');
 
-module.exports.leaderboard = async (msg) =>
+module.exports.leaderboard = async (msg, args) =>
 {
-    const table = await DB.tablequery('commands');
+    let options = {};
+    if(args[0] === 'server') options = {"server.id": msg.guild.id}
+    const table = await DB.tablequery('commands', options);
     const array = await table.toArray();
     const output = [];
     const topusers = array
@@ -40,19 +42,33 @@ module.exports.leaderboard = async (msg) =>
             return a[1] - b[1];
         })
     })
+    let count = output.length < 5 ? output.length : 5
     const top = output[0]
     const embed = new discord.MessageEmbed()
     .setColor(process.env.BOT_COLOR)
-    .setTitle(`1. ${top['name']}`)
+    .setTitle(`1. 🎉${top['name']}🎉`)
     .setURL(top['pfp'])
-    .setDescription(`\`\`\`swift\nCalled: ${intwithcommas(top['commandusage'].length)} times. \nLast command: \`${(top['commandusage'][top['commandusage'].length-1][0]).replace('`','')}\`\`\``)
+    .setDescription(`\`\`\`swift\nCalled: ${intwithcommas(top['commandusage'].length)} times. \
+    \nLast command: \`${(top['commandusage'][top['commandusage'].length-1][0]).replace('`','')}\
+    \`\`\``)
     .setThumbnail(top['pfp'])
     .setTimestamp();
 
-    let test = output.length < 5 ? output.length : 5
-    for(let i = 1; i < test; i++)
+    if(args[0] === "server")
     {
-        embed.addField(`${i+1}. ${output[i]['name']}`, `\`\`\`swift\nCalled: ${intwithcommas(output[i]['commandusage'].length)} times.\nLast command: \`${output[i]['commandusage'][output[i]['commandusage'].length-1][0].replace('`','')}\`\`\``)
+        embed.setAuthor(array[0]['server']['name'], array[0]['server']['icon']);
+    }
+    else
+    {
+        embed.setAuthor(`Top ${count} of all servers`);
+    }
+
+    for(let i = 1; i < count; i++)
+    {
+        embed.addField(`${i+1}. ${output[i]['name']}`, 
+        `\`\`\`swift\nCalled: ${intwithcommas(output[i]['commandusage'].length)} times.\
+        \nLast command: \`${output[i]['commandusage'][output[i]['commandusage'].length-1][0].replace('`','')}\
+        \`\`\``)
     }
 
     msg.channel.send(embed);
