@@ -1,5 +1,10 @@
 const discord = require('discord.js');
 
+module.exports.intwithcommas = (x) => {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+
 /**
  * @description gets the current date in a 12 hour format
  */

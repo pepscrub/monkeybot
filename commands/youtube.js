@@ -1,14 +1,10 @@
 const ytdl = require('ytdl-core');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { log, sendmessage, randomnoise, Perms, empty} = require('./helpers.js')
+const { log, sendmessage, randomnoise, Perms, empty, intwithcommas} = require('./helpers.js')
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 let dispatcher = '';
-
-function intwithcommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 
 async function sendplaymessage(msg, info, queue)
 {

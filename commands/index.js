@@ -49,19 +49,15 @@ module.exports = async (msg) =>
         break;
         case 'commands': case 'command': case 'help':
             bcommand(msg);
-            log_commands(msg);
         break;
         case 'invite':
             invite(msg);
-            log_commands(msg);
         break;
         case 'status':
             status(msg, args);
-            log_commands(msg);
         break;
         case 'top':
             leaderboard(msg);
-            log_commands(msg);
         break;
     }
 }
