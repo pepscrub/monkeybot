@@ -6,6 +6,7 @@ const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 const icy = require('icy'); // Might want to look into this for more music bot capabilities
 const scraper = require('soundcloud-scraper');
+const { leaderboard } = require('./leaderboard');
 
 
 let dispatcher = '';
@@ -230,6 +231,7 @@ module.exports.play = async (msg, args) =>
         else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
         sendmessage(msg, `Added ${args[0]} to the queue`)
         joinvc(msg);    // Wow 1 line 
+        log_commands(msg);
     }
     else // Not a valid URL
     {    // If there's stuff in the queue allow `play
@@ -243,6 +245,7 @@ module.exports.disconnect = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `Leaving the voice chat`)
     msg.guild.me.voice.channel.leave();
+    log_commands(msg);
 }
 
 module.exports.queue = async (msg) =>
@@ -270,6 +273,7 @@ module.exports.queue = async (msg) =>
     }
     embed.addField(`Queue ${music_arr.length}`,`\`\`\`fix${guildqueue}\`\`\``)
     msg.channel.send(embed);
+    log_commands(msg);
 }
 
 module.exports.skip = async (msg) =>
@@ -278,6 +282,7 @@ module.exports.skip = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `${msg.author.username}#${msg.author.discriminator} skipped the video`)
     dispatcher.end();
+    log_commands(msg);
 }
 
 module.exports.stop = async (msg) =>
@@ -296,4 +301,5 @@ module.exports.stop = async (msg) =>
             dispatcher.end();
         })
     }
+    log_commands(msg);
 }

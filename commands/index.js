@@ -21,7 +21,6 @@ module.exports = async (msg) =>
     {
         case 'delete': case 'remove': case 'purge':
             del(msg, args);
-            log_commands(msg);
         break;
         case 'monkey':
             monkey(msg);
@@ -29,23 +28,18 @@ module.exports = async (msg) =>
         break;
         case 'queue':
             queue(msg);
-            log_commands(msg);
         break;
         case 'play':
             play(msg, args);
-            log_commands(msg);
         break;
         case 'disconnect': case 'leave':
             disconnect(msg);
-            log_commands(msg);
         break;
         case 'skip':
             skip(msg);
-            log_commands(msg);
         break;
         case 'stop':
             stop(msg);
-            log_commands(msg);
         break;
         case 'commands': case 'command': case 'help':
             bcommand(msg);

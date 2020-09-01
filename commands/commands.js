@@ -15,7 +15,7 @@ module.exports.bcommand = async (msg) =>
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setDescription(`\`\`\`swift\nCommands\
-        \n🐒 | \`monkey (searches randomly for pictures of monkeys\
+        \n🐒 | \`monkey searches randomly for pictures of monkeys\
         \n🎧 | \`play Plays youtube or soundcloud link\
         \n🎧 | \`skip Skips the current song\
         \n🎧 | \`queue Lists all songs/videos in queue\
