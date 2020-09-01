@@ -17,6 +17,7 @@
     "nodemon": "^2.0.4",
     "opusscript": "^0.0.7",
     "play-audio-url": "^1.0.1",
+    "soundcloud-scraper": "^3.0.1",
     "url-metadata": "^2.4.0",
     "ytdl-core": "^3.2.2"
   },

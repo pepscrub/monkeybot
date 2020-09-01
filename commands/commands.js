@@ -14,15 +14,15 @@ module.exports.bcommand = async (msg) =>
         // Can't use sendmessage since it's infelxiable when it comes to more complex messages
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-        .addFields(
-            {name: "Monkey", value: "**\`monkey**, returns a image of a monkey"},
-            {name: "Music/Video Bot", value:"**\`play** Play a youtube video\
-            \n**\`queue** Servers queue\
-            \n**\`skip** Skip the current video\
-            \n**\`stop** Disconnect bot and remove all songs in queue\
-            \n**\`disconnect** Disconnect the bot from the voice chat"},
-            {name: "Adminusages", value: "**\`purge** Deletes up to 100 messages in the chat it's called. Args: amount to delete"}
-        )
+        .setDescription(`\`\`\`swift\nCommands\
+        \n🐒 | \`monkey (searches randomly for pictures of monkeys\
+        \n🎧 | \`play Plays youtube or soundcloud link\
+        \n🎧 | \`skip Skips the current song\
+        \n🎧 | \`queue Lists all songs/videos in queue\
+        \n🎧 | \`stop Removes all songs in queue and leaves voice chat\
+        \n🎧 | \`disconnect Disconnects from the voice chat\
+        \n🏆 | \`leaderboard (server | none)\
+        \n🔑 | \`delete Deletes up to 99 messages in chat (admin only)\`\`\``)
         .setColor(process.env.BOT_COLOR)
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
         .setTimestamp()

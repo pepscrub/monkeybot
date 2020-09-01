@@ -5,7 +5,7 @@ const { log, sendmessage, randomnoise, Perms, empty, intwithcommas} = require('.
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 const icy = require('icy'); // Might want to look into this for more music bot capabilities
-const lame = require('node-lame').Lame;
+const scraper = require('soundcloud-scraper');
 
 
 let dispatcher = '';
@@ -19,13 +19,13 @@ async function sendplaymessage(msg, info, queue)
     const vc = metadata['viewCount'] == null ? 'none' : intwithcommas(metadata['viewCount']);
     const lr = metadata['likes'] == null ? 'none' : intwithcommas(metadata['likes']);
     const dlr = metadata['dislikes'] == null ? 'none' : intwithcommas(metadata['dislikes']);
+    const cc = metadata['comments'] == null ? 'none' : intwithcommas(metadata['comments']);
     const url_search = new URL(queue);
     const search = new URLSearchParams(url_search.searchParams).get('t')
-
     const views =  `👀 ${vc} views`;
-    const dashes = `▬▬▬▬▬▬▬▬▬▬▬`;       // Embeds are a fixed length (was doing this based off views length but it newlined)
+    const dashes = scraper.validateURL(queue) ? `▬▬▬▬▬▬▬▬▬▬` : `▬▬▬▬▬▬▬▬▬▬▬`;       // Embeds are fixed based on image size (this is different for youtube / sc)
     const likes = `👍 ${lr} Likes`;
-    const dislikes = `👎 ${dlr} Dislikes`;
+    const dislikes = dlr == 'none' && cc != undefined ? `💬 ${cc} comments` : `👎 ${dlr} Dislikes`;
     const shortdesc = `${metadata['shortDescription'].substr(0, 125)}\u2026`;
 
     const embed = new discord.MessageEmbed()
@@ -100,13 +100,9 @@ module.exports.play = async (msg, args) =>
             if(query[0]['queue'][0] == null || query[0]['queue'][0][0] == null) shiftqueue(msg);
             if(empty(query[0]['queue'])) return;
 
-            console.log(query[0]['queue'])
-
             const queue = query[0]['queue'][0][0];
             const url_search = new URL(queue);                      // Create url object from string
             log(`Getting ${queue}`, msg)
-
-            console.log(url_search.host.includes('soundcloud'))
 
             switch(true)
             {
@@ -129,41 +125,56 @@ module.exports.play = async (msg, args) =>
                     log(`Playing video`, msg)
                     dispatcher = connection.play(stream);
                 break;
-                default:
-                    // const url = queue
-                    // icy.get(url, res=>
-                    // {
-                    //     console.log(res.headers)
-                    //     res.on('metadata', (metadata)=>
-                    //     {
-                    //         console.log(metadata)
-                    //     });
-
-                    //     console.log(res.headers.location)
-                    //     dispatcher = connection.play(res.headers.location);
-                    // })
+                case scraper.validateURL(queue):
+                    const sc_info =  await scraper.getSongInfo(queue);
+                    const sc_formatted =
+                    {
+                        "videoDetails":
+                        {
+                            "title": sc_info['title'],
+                            "author": {
+                                name: sc_info["author"]["username"],
+                                avatar: sc_info["author"]["avatarURL"]
+                            },
+                            "thumbnail":
+                            {
+                                "thumbnails":[
+                                    {
+                                        url: sc_info["thumbnail"]
+                                    }
+                                ]
+                            },
+                            "viewCount": sc_info["playCount"],
+                            "likes": sc_info["likesCount"],
+                            "shortDescription": sc_info['description'],
+                            "comments": sc_info['commentsCount']
+                        }
+                    }
+                    sendplaymessage(msg, sc_formatted, queue);
+                    const sc_stream = await scraper.download(queue);
+                    dispatcher = connection.play(sc_stream);
                 break;
             }
 
             shiftqueue(msg) // Remove this entry
 
             // on.('end') depreciated ?
-            // dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
-            // {                                                               // speaking is true so if we look for the
-            //     if(!e)                                                      // instance it's not we can assume we've 'skipped'
-            //     {
-            //         const table =await DB.tablequery('music', {"id": msg.guild.id})
-            //         const query = await table.toArray();
-            //         const queue = query[0]['queue']
+            dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
+            {                                                               // speaking is true so if we look for the
+                if(!e)                                                      // instance it's not we can assume we've 'skipped'
+                {
+                    const table =await DB.tablequery('music', {"id": msg.guild.id})
+                    const query = await table.toArray();
+                    const queue = query[0]['queue']
 
-            //         if(!empty(queue)) play(connection, msg)
-            //         else {
-            //             log(`Leaving voice chat`, msg)
-            //             sendmessage(msg, `Leaving the voice chat`)
-            //             connection.disconnect();
-            //         }
-            //     }
-            // })
+                    if(!empty(queue)) play(connection, msg)
+                    else {
+                        log(`Leaving voice chat`, msg)
+                        sendmessage(msg, `Leaving the voice chat`)
+                        connection.disconnect();
+                    }
+                }
+            })
         }catch(err)
         {
             const table = await DB.table('music');
@@ -212,12 +223,18 @@ module.exports.play = async (msg, args) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);              //  Test to see if the user is in a channel or not
     if(!msg.member.guild.me.hasPermission(['SPEAK'])) return sendmessage(msg, 'Monkey can\'t speak! (Missing permissions');        //  Missing permissions
 
-    if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})                                  // Insert into DB if server entry doesn't exist
-    else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
-
-    sendmessage(msg, `Added ${args[0]} to the queue`)
-
-    joinvc(msg);    // Wow 1 line 
+    const regex =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
+    if(regex.test(args[0]))
+    {
+        if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})    // Insert into DB if server entry doesn't exist
+        else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
+        sendmessage(msg, `Added ${args[0]} to the queue`)
+        joinvc(msg);    // Wow 1 line 
+    }
+    else // Not a valid URL
+    {    // If there's stuff in the queue allow `play
+        if(!empty(array)) joinvc(msg);    // Wow 1 line 
+    }
 }
 
 module.exports.disconnect = async (msg) =>
@@ -234,7 +251,9 @@ module.exports.queue = async (msg) =>
     const query = await table.toArray();
     let music_arr = query[0]['queue'];
     if(music_arr[0] == null) shiftqueue(msg); 
-    let guildqueue = music_arr === undefined || empty(music_arr) ? '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : music_arr.toString().replace(/\,/gi, '\n');
+    let guildqueue = music_arr === undefined || empty(music_arr) ? 
+    '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : 
+    "\n🎶 | " + music_arr.toString().replace(/\,/gi, '\n🎶 | ');
     log(`Got queue for this server.`, msg)
 
     const data = empty(music_arr) ? '' : await urlmetadata(music_arr[0][0]);   
@@ -249,7 +268,7 @@ module.exports.queue = async (msg) =>
         embed.setTitle(title);
         embed.setThumbnail(data['image'])
     }
-    embed.addField(`Queue ${music_arr.length}`,`${guildqueue}`)
+    embed.addField(`Queue ${music_arr.length}`,`\`\`\`fix${guildqueue}\`\`\``)
     msg.channel.send(embed);
 }
 
