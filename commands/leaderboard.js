@@ -49,7 +49,7 @@ module.exports.leaderboard = async (msg, args) =>
     .setTitle(`1. 🎉${top['name']}🎉`)
     .setURL(top['pfp'])
     .setDescription(`\`\`\`swift\nCalled: ${intwithcommas(top['commandusage'].length)} times. \
-    \nLast command: \`${(top['commandusage'][top['commandusage'].length-1][0]).replace('`','')}\
+    \nLast command: ${new Date(top['commandusage'][top['commandusage'].length-1][1]).toLocaleString()}\
     \`\`\``)
     .setThumbnail(top['pfp'])
     .setTimestamp();
@@ -65,9 +65,10 @@ module.exports.leaderboard = async (msg, args) =>
 
     for(let i = 1; i < count; i++)
     {
+
         embed.addField(`${i+1}. ${output[i]['name']}`, 
         `\`\`\`swift\nCalled: ${intwithcommas(output[i]['commandusage'].length)} times.\
-        \nLast command: \`${output[i]['commandusage'][output[i]['commandusage'].length-1][0].replace('`','')}\
+        \nLast command: ${new Date(output[i]['commandusage'][output[i]['commandusage'].length-1][1]).toLocaleString()}\
         \`\`\``)
     }
 
