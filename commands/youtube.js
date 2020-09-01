@@ -6,7 +6,7 @@ const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 const icy = require('icy'); // Might want to look into this for more music bot capabilities
 const scraper = require('soundcloud-scraper');
-const { leaderboard } = require('./leaderboard');
+const { log_commands } = require('../db/logging.js');
 
 
 let dispatcher = '';
