@@ -34,7 +34,7 @@ module.exports.leaderboard = async (msg, args) =>
     {
         let existing = output.filter((v,i)=>                        // Checking to see if the user has any duplicates (Multiple servers same user)
         {
-            return v.name == i.name;
+            return v.name == item.name; // Yes this is supposed to be item
         })
         if(existing.length)                                         // Fun fun array check
         {
