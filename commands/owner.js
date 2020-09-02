@@ -68,16 +68,22 @@ module.exports.status = (msg, args) =>
 module.exports.servers = (msg, args) =>
 {
     isowner(msg)
+    const servers = msg.client.guilds.cache.sort((a,b)=>{return b.memberCount - a.memberCount})
+    let members = 0;
+    servers.array().forEach((server)=>{members += server.memberCount})
     const title = `Bot servers list`;
     let e_length = title.length;
+    const description = `\`\`\`swift\nGeneral information\
+    \nNumber of servers bot is in: ${servers.array().length}\
+    \nNumber of users in all servers: ${members}\
+    \`\`\``;
+
+    e_length += description.length;
 
     const embed = new discord.MessageEmbed()
     .setTitle(title)
+    .setDescription(description)
     .setColor(process.env.BOT_COLOR)
-    const servers = msg.client.guilds.cache.sort((a,b)=>
-    {
-        return b.memberCount - a.memberCount
-    })
     servers.forEach(server=>
     {
         const owner = server.owner;
@@ -98,10 +104,8 @@ module.exports.servers = (msg, args) =>
         \n🚀| Nitro boosted: ${s_boosted}\
         \n🌌| Nitro server teir: ${s_teir}\
         \`\`\``
-
         e_length += header.length;
         e_length += body.length;
-
         if(e_length < 6000) embed.addField(header, body)
     })
     msg.channel.send(embed)

@@ -83,7 +83,14 @@ module.exports.DataBase = class DataBase
      */
      async tablequery(coll, query = {})
     {
-        return await this.db.collection(coll).find(query);
+        try
+        {
+            return await this.db.collection(coll).find(query);
+        }
+        catch(e)
+        {
+            log(`${`ERROR`.bold.red} ${`${e.message}`.red}`);
+        }
     }
 
     /**

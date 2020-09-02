@@ -4,6 +4,7 @@ const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
 const { log, randomnoise, Perms } = require('./helpers.js')
 const { DB } = require('../index.js');
+const { Db } = require('mongodb');
 const timer = 20000;        // Timer in ms
 
 /**
@@ -17,17 +18,23 @@ let reactions = null;
  */
 let colors = null;
 
-DB.conn().then(async (res)=>
+// This is better than trying to connect
+// to the database twice and waiting for the repsonse promise
+
+const t = setInterval(async ()=>
 {
-    if(res)
+    if(DB.connected())
     {
         const coll = await DB.tablequery("settings");
+        if(!coll) return;
         coll.forEach(doc=>{
             colors = doc['colors']
             reactions = doc['reactions']
         })
+        clearInterval(t)
     }
-})
+},250)
+
 // --------------------
 // Modifiable globals
 
@@ -99,7 +106,13 @@ async function sendMessage(msg, res)
         .setColor(process.env.BOT_COLOR)
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setTitle(res['title'])
-        .addField("Rankings",`${reactions[0]} ★ Contraband\n${reactions[1]} Covert\n${reactions[2]} Classified\n${reactions[3]} Uncommon\n${reactions[4]} Common\n${reactions[5]} Delete`)
+        .addField("Rankings",`\`\`\`swift\n${reactions[0]} | ★ Contraband\
+        \n${reactions[1]} | Covert\
+        \n${reactions[2]} | Classified\
+        \n${reactions[3]} | Uncommon\
+        \n${reactions[4]} | Common\
+        \n${reactions[5]} | Delete\
+        \`\`\``)
         .setURL(res['link'])
         .setImage(res['link'])
         .setFooter(`This vote will expire in ${expirey} seconds`);
@@ -144,6 +157,7 @@ async function Reaction_Result(msg, e, res)
     result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
 
     output.sort((a,b)=>{return b[1] - a[1]})
+    if(output[0] === undefined) return log("No one voted :(");     // If no one votes
 
     output[0][2].cache.forEach(user=>{!user.bot ? users.push(`${user.username}`) : ''})
     users = users.join(", ");
