@@ -101,6 +101,7 @@ module.exports.DataBase = class DataBase
     insertinto(collection = null, data = null)
     {
         if(!(collection || data)) throw collection || data;
+        if(typeof(collection) !== "string") return;
         this.db.collection(collection).insertOne(data)
     }
     

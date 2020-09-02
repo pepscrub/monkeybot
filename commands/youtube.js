@@ -107,7 +107,8 @@ module.exports.play = async (msg, args) =>
 
             switch(true)
             {
-                case url_search.host.includes('youtube'):
+                // Youtube
+                case ytdl.validateURL(queue):
                     // Get video info from URL
                     ytdl.getBasicInfo(queue)
                     .then(res=>{sendplaymessage(msg, res, queue)})
@@ -126,6 +127,7 @@ module.exports.play = async (msg, args) =>
                     log(`Playing video`, msg)
                     dispatcher = connection.play(stream);
                 break;
+                // Soundcloud
                 case scraper.validateURL(queue):
                     const sc_info =  await scraper.getSongInfo(queue);
                     const sc_formatted =
@@ -182,7 +184,7 @@ module.exports.play = async (msg, args) =>
             const queue = await table.find({"id": msg.guild.id})
             const query = await queue.toArray();
 
-            console.log(err);
+            log(err);
             errh(err, msg);
             shiftqueue(msg);
             if(query.length === 0) 
@@ -255,11 +257,11 @@ module.exports.queue = async (msg) =>
     let music_arr = query[0]['queue'];
     if(music_arr[0] == null) shiftqueue(msg); 
     let guildqueue = music_arr === undefined || empty(music_arr) ? 
-    '.... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : 
+    '... \n\n\n\n It\'s as empty as your love life ... \n\n\n\n ...' : 
     "\n🎶 | " + music_arr.toString().replace(/\,/gi, '\n🎶 | ');
     log(`Got queue for this server.`, msg)
 
-    const data = empty(music_arr) ? '' : await urlmetadata(music_arr[0][0]);   
+    const data = empty(music_arr) || music_arr[0][0] == null ? '' : await urlmetadata(music_arr[0][0]);   
     const embed = new discord.MessageEmbed()
     .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
     .setColor(process.env.BOT_COLOR)
@@ -271,7 +273,7 @@ module.exports.queue = async (msg) =>
         embed.setTitle(title);
         embed.setThumbnail(data['image'])
     }
-    embed.addField(`Queue ${music_arr.length}`,`\`\`\`fix${guildqueue}\`\`\``)
+    embed.addField(`Queue ${music_arr.length}`,`\`\`\`fix\n${guildqueue}\`\`\``)
     msg.channel.send(embed);
     log_commands(msg);
 }
