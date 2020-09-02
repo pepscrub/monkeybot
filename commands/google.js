@@ -157,7 +157,7 @@ async function Reaction_Result(msg, e, res)
     result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
 
     output.sort((a,b)=>{return b[1] - a[1]})
-    if(output[0] === undefined) return log("No one voted :(");     // If no one votes
+    if(output[0] === undefined) return e.delete() && log("No one voted :(");     // If no one votes
 
     output[0][2].cache.forEach(user=>{!user.bot ? users.push(`${user.username}`) : ''})
     users = users.join(", ");
