@@ -2,9 +2,8 @@
 const discord = require('discord.js');
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
-const { log, randomnoise, Perms } = require('./helpers.js')
+const { log, randomnoise, Perms, truncate} = require('./helpers.js')
 const { DB } = require('../index.js');
-const { Db } = require('mongodb');
 const timer = 20000;        // Timer in ms
 
 /**
@@ -81,6 +80,7 @@ async function updateVote(msg, bool = false)
     );
 }
 
+
 /**
  * @description 'Endpoint' for our monkey image searcher sends a message for voting
  * and then sends a final message.
@@ -92,6 +92,9 @@ async function updateVote(msg, bool = false)
 async function sendMessage(msg, res)
 {
     const perms = new Perms(msg);
+    const title = truncate(res['title'], 256);
+
+
     if(perms.del() && perms.react()) // Check to see if we have permissions to modify chat and add reactions
     {
 
@@ -105,7 +108,7 @@ async function sendMessage(msg, res)
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-        .setTitle(res['title'])
+        .setTitle(title)
         .addField("Rankings",`\`\`\`swift\n${reactions[0]} | ★ Contraband\
         \n${reactions[1]} | Covert\
         \n${reactions[2]} | Classified\
@@ -129,7 +132,7 @@ async function sendMessage(msg, res)
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setDescription('Missing permissions for voting. Selected random rating (Random ranking will be replaced with smart ranking... eventually)')
         .setColor(ran_colour)
-        .setTitle(`${res['title']}`)
+        .setTitle(title)
         .setURL(res['link'])
         .setImage(res['link'])
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
@@ -162,16 +165,17 @@ async function Reaction_Result(msg, e, res)
     output[0][2].cache.forEach(user=>{!user.bot ? users.push(`${user.username}`) : ''})
     users = users.join(", ");
 
-    e.delete().catch();                      // Delete the message sent for voting
+    e.delete().catch();                        // Delete the message sent for voting
     if(output[0][0] === '❌') return;         // If we didn't like the monkey we delete the message
     if(output[0][1] - 1 == 0) return;
 
     log(`Sending result`, msg)
 
+    const title = truncate(res['title'], 256);
     const embed = new discord.MessageEmbed()                                  // Creating a new embed
     .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
     .setColor(colors[output[0][0]][0])
-    .setTitle(`${res['title']}`)
+    .setTitle(title)
     .setURL(res['link'])
     .setImage(res['link'])
     .setFooter(`${msg.author.username}#${msg.author.discriminator}, votes from: ${users}`, `${msg.author.avatarURL()}`)
@@ -326,9 +330,11 @@ module.exports.monkey = async (msg) =>
     try
     {
         const table = await DB.table('vote');
-        const server_vote = await table.findOne({"s_id": msg.guild.id}) == null ? DB.insertinto(table, {"s_id": msg.guild.id, "vote": false}) : this;
-        
-        if((msg.channel === undefined || server_vote['vote']) && msg.member.guild.me.hasPermission(['MANAGE_MESSAGES'])) return msg.delete().catch();
+        const server_vote = async () =>
+        {
+            if(await table.findOne({"s_id": msg.guild.id}) == null) await DB.insertinto(table, {"s_id": msg.guild.id, "vote": false})
+        }
+        server_vote()
         const random = Math.round(Math.random())
         log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}`, msg)
         random ? monkeygoogle(msg) : monkeyreddit(msg);        

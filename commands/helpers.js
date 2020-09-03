@@ -4,6 +4,10 @@ module.exports.intwithcommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+module.exports.truncate = (str, n) =>
+{
+    return str.length > n ? `${str.substr(0, n-1)}…` : str;
+}
 
 /**
  * @description gets the current date in a 12 hour format

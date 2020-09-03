@@ -1,7 +1,7 @@
 const ytdl = require('ytdl-core');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { log, sendmessage, randomnoise, Perms, empty, intwithcommas} = require('./helpers.js');
+const { log, sendmessage, randomnoise, Perms, empty, intwithcommas, truncate} = require('./helpers.js');
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 const icy = require('icy'); // Might want to look into this for more music bot capabilities
@@ -27,12 +27,13 @@ async function sendplaymessage(msg, info, queue)
     const dashes = scraper.validateURL(queue) ? `▬▬▬▬▬▬▬▬▬▬` : `▬▬▬▬▬▬▬▬▬▬▬`;       // Embeds are fixed based on image size (this is different for youtube / sc)
     const likes = `👍 ${lr} Likes`;
     const dislikes = dlr == 'none' && cc != undefined ? `💬 ${cc} comments` : `👎 ${dlr} Dislikes`;
-    const shortdesc = `${metadata['shortDescription'].substr(0, 125)}\u2026`;
+    const shortdesc = truncate(metadata['shortDescription'], 256);
+    const title = truncate(metadata['title'], 256);
 
     const embed = new discord.MessageEmbed()
     .setAuthor(`${author['name']}`, author['avatar'])
     .setColor(process.env.BOT_COLOR)
-    .setTitle(`${metadata['title']}`)
+    .setTitle(title)
     .setURL(queue)
     .addFields(
         {name: views, value: dashes, inline: true},
