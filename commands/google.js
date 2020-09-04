@@ -159,8 +159,9 @@ async function Reaction_Result(msg, e, res)
 
     let output = [], i = 0, users = [];                                                                                 // Settings up objects for next 
     result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
-
-    output.sort((a,b)=>{return b[1] - a[1]})
+    output.reverse();                       // Reverse results so we're going lowest rank to highest
+    output.sort((a,b)=>{return b[1] - a[1]})// Sort by count
+    console.log(output)
     if(output[0] === undefined) return e.delete() && log("No one voted :(");     // If no one votes
 
     output[0][2].cache.forEach(user=>{!user.bot ? users.push(`${user.username}`) : ''})
