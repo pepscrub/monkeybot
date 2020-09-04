@@ -5,7 +5,6 @@ const errh = require('./helpers.js').err;
 const { log, randomnoise, Perms, truncate} = require('./helpers.js')
 const { DB } = require('../index.js');
 const { log_commands } = require('../db/logging.js');
-const { }
 const timer = 20000;        // Timer in ms
 
 /**
