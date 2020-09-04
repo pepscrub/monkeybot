@@ -161,10 +161,17 @@ async function Reaction_Result(msg, e, res)
     result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
     output.reverse();                       // Reverse results so we're going lowest rank to highest
     output.sort((a,b)=>{return b[1] - a[1]})// Sort by count
-    console.log(output)
     if(output[0] === undefined) return e.delete() && log("No one voted :(");     // If no one votes
 
-    output[0][2].cache.forEach(user=>{!user.bot ? users.push(`${user.username}`) : ''})
+    output[0][2].cache.forEach(user=>{
+        {
+            if(msg.author.id == user.id && user.bot)
+            {
+                console.log("ASDADASD")
+                log_commands(msg, user);
+                users.push(`${user.username}`)
+            }
+        }})
     users = users.join(", ");
 
     e.delete().catch();                        // Delete the message sent for voting
