@@ -275,7 +275,10 @@ async function monkeygoogle(msg)
             'tf2',
             'harambe',
             'kong',
-            'meme',
+            'cool',
+            'epic',
+            'gay',
+            'bush',
             'reddit',
             'cursed'
     ];
