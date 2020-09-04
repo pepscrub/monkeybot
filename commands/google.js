@@ -4,6 +4,8 @@ const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
 const { log, randomnoise, Perms, truncate} = require('./helpers.js')
 const { DB } = require('../index.js');
+const { log_commands } = require('../db/logging.js');
+const { }
 const timer = 20000;        // Timer in ms
 
 /**
@@ -334,8 +336,11 @@ module.exports.monkey = async (msg) =>
         {
             if(await table.findOne({"s_id": msg.guild.id}) == null) await DB.insertinto(table, {"s_id": msg.guild.id, "vote": false})
         }
-        server_vote()
-        const random = Math.round(Math.random())
+        const vote = await table.findOne({"s_id": msg.guild.id});
+        if(vote['vote']) return;
+        log_commands(msg);
+        server_vote();
+        const random = Math.round(Math.random());
         log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}`, msg)
         random ? monkeygoogle(msg) : monkeyreddit(msg);        
     }catch(e)

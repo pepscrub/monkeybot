@@ -24,7 +24,6 @@ module.exports = async (msg) =>
         break;
         case 'monkey':
             monkey(msg);
-            log_commands(msg);
         break;
         case 'queue':
             queue(msg);
