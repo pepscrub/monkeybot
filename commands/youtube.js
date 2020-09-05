@@ -27,8 +27,8 @@ async function sendplaymessage(msg, info, queue)
     const dashes = scraper.validateURL(queue) ? `▬▬▬▬▬▬▬▬▬▬` : `▬▬▬▬▬▬▬▬▬▬▬`;       // Embeds are fixed based on image size (this is different for youtube / sc)
     const likes = `👍 ${lr} Likes`;
     const dislikes = dlr == 'none' && cc != undefined ? `💬 ${cc} comments` : `👎 ${dlr} Dislikes`;
-    const shortdesc = truncate(metadata['shortDescription'], 256);
-    const title = truncate(metadata['title'], 256);
+    const shortdesc = truncate(metadata['shortDescription'], 256) == '' ? 'No description.' : truncate(metadata['shortDescription'], 256);  
+    const title = truncate(metadata['title'], 256) == '' ? 'No title???' : truncate(metadata['title'], 256);
 
     const embed = new discord.MessageEmbed()
     .setAuthor(`${author['name']}`, author['avatar'])
