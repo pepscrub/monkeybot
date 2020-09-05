@@ -9,7 +9,7 @@ const scraper = require('soundcloud-scraper');
 const { log_commands } = require('../db/logging.js');
 
 
-let dispatcher = '';
+let dispatcher = false;
 
 async function sendplaymessage(msg, info, queue)
 {
@@ -284,7 +284,7 @@ module.exports.skip = async (msg) =>
     log(`Skipping video for this server.`, msg)
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `${msg.author.username}#${msg.author.discriminator} skipped the video`)
-    dispatcher.end();
+    if(dispatcher) dispatcher.end();
     log_commands(msg);
 }
 
@@ -301,7 +301,7 @@ module.exports.stop = async (msg) =>
         .then(()=>
         {
             msg.guild.me.voice.channel.leave()
-            dispatcher.end();
+            if(dispatcher) dispatcher.end();
         })
     }
     log_commands(msg);
