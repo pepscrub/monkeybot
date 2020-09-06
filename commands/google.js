@@ -347,6 +347,7 @@ module.exports.monkey = async (msg) =>
             if(await table.findOne({"s_id": msg.guild.id}) == null) await DB.insertinto(table, {"s_id": msg.guild.id, "vote": false})
         }
         const vote = await table.findOne({"s_id": msg.guild.id});
+        if(vote === null) await DB.insertinto(table, {"s_id": msg.guild.id, "vote": false});
         if(vote['vote']) return;
         log_commands(msg);
         server_vote();
