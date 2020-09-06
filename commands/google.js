@@ -341,7 +341,6 @@ module.exports.monkey = async (msg) =>
 {
     try
     {
-        console.log("aaaaaaaaaaaaaaaaaaaa")
         const table = await DB.table('vote');
         const index = await table.find({"s_id": msg.guild.id});
         const vote = await index.toArray();
