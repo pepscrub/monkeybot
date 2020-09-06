@@ -189,6 +189,8 @@ async function Reaction_Result(msg, e, res)
     .setImage(res['link'])
     .setFooter(`${msg.author.username}#${msg.author.discriminator}, votes from: ${users}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
+    
+    msg.channel.send(embed)
 }
 
 /**
