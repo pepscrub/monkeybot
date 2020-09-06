@@ -167,7 +167,6 @@ async function Reaction_Result(msg, e, res)
         {
             if(msg.author.id == user.id && user.bot)
             {
-                console.log("ASDADASD")
                 log_commands(msg, user);
                 users.push(`${user.username}`)
             }
@@ -335,17 +334,12 @@ module.exports.monkey = async (msg) =>
         const table = await DB.table('vote');
         const index = await table.find({"s_id": msg.guild.id});
         const vote = await index.toArray();
-
-        const server_vote = async () =>
+        if(index == null || empty(vote) || vote[0] == undefined)
         {
-            if(await table.findOne({"s_id": msg.guild.id}) == null || empty(vote))
-            {
-                await table.insertOne({"s_id": msg.guild.id, "vote": false})
-                this.monkey(msg)
-            }
+            await table.insertOne({"s_id": msg.guild.id, "vote": false})
+            return this.monkey(msg)
         }
-        server_vote()
-        if(vote[0]['vote']) return;
+        if(vote[0]['vote']) return; // If there's currently a vote in 
         log_commands(msg);
         const random = Math.round(Math.random());
         log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}`, msg)
