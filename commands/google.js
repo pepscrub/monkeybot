@@ -2,7 +2,7 @@
 const discord = require('discord.js');
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
-const { log, randomnoise, Perms, truncate} = require('./helpers.js')
+const { log, randomnoise, Perms, truncate, empty} = require('./helpers.js')
 const { DB } = require('../index.js');
 const { log_commands } = require('../db/logging.js');
 const timer = 20000;        // Timer in ms
@@ -341,13 +341,21 @@ module.exports.monkey = async (msg) =>
 {
     try
     {
+        console.log("aaaaaaaaaaaaaaaaaaaa")
         const table = await DB.table('vote');
+        const index = await table.find({"s_id": msg.guild.id});
+        const vote = await index.toArray();
+
         const server_vote = async () =>
         {
-            if(await table.findOne({"s_id": msg.guild.id}) == null) await DB.insertinto(table, {"s_id": msg.guild.id, "vote": false})
+            if(await table.findOne({"s_id": msg.guild.id}) == null || empty(vote))
+            {
+                await table.insertOne({"s_id": msg.guild.id, "vote": false})
+                this.monkey(msg)
+            }
         }
         server_vote()
-        if(vote['vote']) return;
+        if(vote[0]['vote']) return;
         log_commands(msg);
         const random = Math.round(Math.random());
         log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}`, msg)
