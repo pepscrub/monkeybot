@@ -189,17 +189,6 @@ async function Reaction_Result(msg, e, res)
     .setImage(res['link'])
     .setFooter(`${msg.author.username}#${msg.author.discriminator}, votes from: ${users}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
-
-    /**
-     * Send message to chat and if the vote was ultra rare
-     * automatically pin it (set as option later.)
-     */
-    msg.channel.send(embed).then(message=>{
-        const perms = new Perms(msg)
-        if(output[0][0] == '🟧' && perms.del()) {
-            message.pin();
-        }
-    });
 }
 
 /**
