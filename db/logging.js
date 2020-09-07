@@ -10,6 +10,7 @@ module.exports.log_commands = async (msg, ...users) =>
     const s_no_u  = await DB.tablequery('commands', {"server.id": msg.guild.id});
     const table = await DB.table('commands')
 
+    if(msg.guild.memberCount < 5) return;
 
     if(empty(await s_and_u.toArray()) && empty(await s_no_u.toArray()))
     {
