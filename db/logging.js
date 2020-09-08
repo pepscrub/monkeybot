@@ -64,9 +64,9 @@ module.exports.log_commands = async (msg, ...users) =>
     }
     else if(empty(await s_and_u.toArray()))
     {
-        log("Adding user to command usage", msg)
         if(empty(users))
         {
+            log(`Adding ${msg.author.username} to command usage`, msg)
             await table.updateOne(
                 {"server.id":`${msg.guild.id}`},
                 {$push: {"users":
@@ -83,6 +83,7 @@ module.exports.log_commands = async (msg, ...users) =>
         {
             users.forEach(async user_vote=>
             {
+                log(`Adding ${user_vote.username} to command usage`, msg)
                 await table.updateOne(
                     {"server.id":`${msg.guild.id}`},
                     {$push: {"users":
@@ -99,9 +100,9 @@ module.exports.log_commands = async (msg, ...users) =>
     }
     else if(!(empty(await s_and_u.toArray()) && empty(await s_no_u.toArray())))
     {
-        log(`Updating ${msg.author.username}'s command usage`, msg)
         if(empty(users))
         {
+            log(`Updating ${msg.author.username}'s command usage`, msg)
             table.updateOne(
                 {"server.id":`${msg.guild.id}`,
                 "users": {$elemMatch: {"0.id": user}}},
@@ -113,6 +114,7 @@ module.exports.log_commands = async (msg, ...users) =>
         {
             users.forEach(async user_vote=>
             {
+                log(`Updating ${user_vote.username}'s command usage`, msg)
                 table.updateOne(
                     {"server.id":`${msg.guild.id}`,
                     "users": {$elemMatch: {"0.id": user_vote.id}}},

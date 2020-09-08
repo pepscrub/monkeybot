@@ -166,7 +166,7 @@ async function Reaction_Result(msg, e, res)
 
     output[0][2].cache.forEach(user=>{
         {
-            if(msg.author.id == user.id && user.bot)
+            if(!(msg.author.id == user.id || user.bot))
             {
                 log_commands(msg, user);
                 users.push(`${user.username}`)
@@ -187,7 +187,7 @@ async function Reaction_Result(msg, e, res)
     .setTitle(title)
     .setURL(res['link'])
     .setImage(res['link'])
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}, votes from: ${users}`, `${msg.author.avatarURL()}`)
+    .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
     
     msg.channel.send(embed)
@@ -203,7 +203,6 @@ function getmonkey(msg)
     {
         const perms = new Perms(msg)
         log(`Checking to see if it's an image`, msg)
-        if(perms.del()) msg.delete().catch();
         // If we really messed up badly we try it all over again.
         if(google_results.length == 0) return Math.round(Math.random()) ? monkeygoogle(msg) : monkeyreddit(msg);
 

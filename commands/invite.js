@@ -24,5 +24,4 @@ module.exports.invite = (msg) =>
     .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
     msg.channel.send(embed);
-    msg.delete().catch();
 }
