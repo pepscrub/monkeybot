@@ -5,6 +5,7 @@ const errh = require('./helpers.js').err;
 const { log, randomnoise, Perms, truncate, empty} = require('./helpers.js')
 const { DB } = require('../index.js');
 const { log_commands } = require('../db/logging.js');
+const { enable } = require('colors');
 const timer = 20000;        // Timer in ms
 
 /**
@@ -65,11 +66,12 @@ async function updateVote(msg, bool = false)
 {
     const table = await DB.table('vote');
     const docs = await table.find({"s_id": msg.guild.id})
+    const arr = await docs.toArray();
     const update = () =>
     {
         table.update(
             {"s_id": msg.guild.id},
-            {"$set":{"vote": bool}},
+            {"$set":{"vote": bool, "voting_enabled": args[0]['voting_enabled']}}
         )
     }
 
@@ -77,7 +79,7 @@ async function updateVote(msg, bool = false)
 
     const server_vote = await table.findOneAndUpdate(
         {"s_id": msg.guild.id},
-        {"$set":{"vote": bool}},
+        {"$set":{"vote": bool, "voting_enabled": args[0]['voting_enabled']}}
     );
 }
 
@@ -94,9 +96,12 @@ async function sendMessage(msg, res)
 {
     const perms = new Perms(msg);
     const title = truncate(res['title'], 256);
+    const table = await DB.table('vote');
+    const index = await table.find({"s_id": msg.guild.id});
+    const vote = await index.toArray();
+    const enabled = vote[0]['voting_enabled'];
 
-
-    if(perms.del() && perms.react()) // Check to see if we have permissions to modify chat and add reactions
+    if(perms.del() && perms.react() && enabled) // Check to see if we have permissions to modify chat and add reactions
     {
 
         updateVote(msg, true);
@@ -336,9 +341,10 @@ module.exports.monkey = async (msg) =>
         const vote = await index.toArray();
         if(index == null || empty(vote) || vote[0] == undefined)
         {
-            await table.insertOne({"s_id": msg.guild.id, "vote": false})
+            await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": true})
             return this.monkey(msg)
         }
+        if(vote[0]['voting_enabled'] == null) table.updateOne({"s_id": msg.guild.id},{vote, "voting_enabled": true});
         if(vote[0]['vote']) return; // If there's currently a vote in 
         log_commands(msg);
         const random = Math.round(Math.random());

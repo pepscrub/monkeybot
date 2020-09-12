@@ -5,6 +5,7 @@ const { monkey } = require('./google');
 const { bcommand } = require('./commands');
 const { invite } = require('./invite');
 const { log_commands } = require('../db/logging.js');
+const { toggleVote } = require('./settings');
 const { leaderboard } = require('./leaderboard');
 const del = require('./admin.js').delete;
 
@@ -29,13 +30,13 @@ module.exports = async (msg) =>
         case 'queue':
             queue(msg);
         break;
-        case 'play':
+        case 'play': 
             play(msg, args);
         break;
         case 'disconnect': case 'leave':
             disconnect(msg);
         break;
-        case 'skip':
+        case 'skip': case 'next':
             skip(msg);
         break;
         case 'stop':
@@ -47,8 +48,12 @@ module.exports = async (msg) =>
         case 'invite':
             invite(msg);
         break;
-        case 'leaderboard':
+        case 'leaderboard': case 'ranks': case 'ranking': case 'rankings':
             leaderboard(msg, args);
+        break;
+
+        case 'vote': case 'voting': case 'votes':
+            toggleVote(msg, args);
         break;
 
         // Owner only stuff
