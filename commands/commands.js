@@ -16,7 +16,7 @@ module.exports.bcommand = async (msg) =>
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setDescription(`\`\`\`swift\nCommands\
         \n🐒 | \`monkey searches randomly for pictures of monkeys\
-        \n🗳️ | \`vote (on or off) toggles voting message off.
+        \n🗳️ | \`vote (on or off) toggles voting message off.\
         \n🎧 | \`play Plays youtube or soundcloud link\
         \n🎧 | \`skip Skips the current song\
         \n🎧 | \`queue Lists all songs/videos in queue\
