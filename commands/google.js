@@ -71,7 +71,7 @@ async function updateVote(msg, bool = false)
     {
         table.update(
             {"s_id": msg.guild.id},
-            {"$set":{"vote": bool, "voting_enabled": args[0]['voting_enabled']}}
+            {"$set":{"vote": bool, "voting_enabled": arr[0]['voting_enabled']}}
         )
     }
 
@@ -79,7 +79,7 @@ async function updateVote(msg, bool = false)
 
     const server_vote = await table.findOneAndUpdate(
         {"s_id": msg.guild.id},
-        {"$set":{"vote": bool, "voting_enabled": args[0]['voting_enabled']}}
+        {"$set":{"vote": bool, "voting_enabled": arr[0]['voting_enabled']}}
     );
 }
 
