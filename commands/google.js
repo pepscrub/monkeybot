@@ -122,7 +122,6 @@ async function sendMessage(msg, res)
         \n${reactions[4]} | Common\
         \n${reactions[5]} | Delete\
         \`\`\``)
-        .setURL(res['link'])
         .setImage(res['link'])
         .setFooter(`This vote will expire in ${expirey} seconds`);
         // Send message and wait for reactions
@@ -140,7 +139,6 @@ async function sendMessage(msg, res)
         .setDescription('Missing permissions for voting. Selected random rating (Random ranking will be replaced with smart ranking... eventually)')
         .setColor(ran_colour)
         .setTitle(title)
-        .setURL(res['link'])
         .setImage(res['link'])
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
         .setTimestamp();
@@ -190,7 +188,6 @@ async function Reaction_Result(msg, e, res)
     .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
     .setColor(colors[output[0][0]][0])
     .setTitle(title)
-    .setURL(res['link'])
     .setImage(res['link'])
     .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
@@ -344,7 +341,10 @@ module.exports.monkey = async (msg) =>
             await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": true})
             return this.monkey(msg)
         }
-        if(vote[0]['voting_enabled'] == null) table.updateOne({"s_id": msg.guild.id},{vote, "voting_enabled": true});
+        if(vote[0]['voting_enabled'] == null) table.updateOne(
+            {"s_id": msg.guild.id},
+            {"$set":{"vote": false, "voting_enabled": true}}
+        );
         if(vote[0]['vote']) return; // If there's currently a vote in 
         log_commands(msg);
         const random = Math.round(Math.random());
