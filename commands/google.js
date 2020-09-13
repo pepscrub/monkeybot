@@ -136,7 +136,6 @@ async function sendMessage(msg, res)
 
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-        .setDescription('Missing permissions for voting. Selected random rating (Random ranking will be replaced with smart ranking... eventually)')
         .setColor(ran_colour)
         .setTitle(title)
         .setImage(res['link'])

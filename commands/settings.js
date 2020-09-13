@@ -28,7 +28,6 @@ async function updateVote(msg, bool = false)
 module.exports.toggleVote = async (msg, args) =>
 {
     log("Toggling voting", msg);
-    sendmessage(msg, `Switching voting ${args[0] == 'enable' || args[0] == 'on' ? 'On' : 'Off'}`);
     const table = await DB.table('vote');
     const index = await table.find({"s_id": msg.guild.id});
     const vote = await index.toArray();
@@ -41,6 +40,9 @@ module.exports.toggleVote = async (msg, args) =>
     else if(args[0] == 'disable' || args[0] == 'off') updateVote(msg, false)
     else
     {
+        console.log(vote[0]['voting_enabled'])
         vote[0]['voting_enabled'] ? updateVote(msg, false) : updateVote(msg, true);
     }
+    let text = vote[0]['voting_enabled'] ? 'Switching voting Off' : 'Switching voting On';
+    sendmessage(msg, text);
 } 
