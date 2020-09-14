@@ -222,7 +222,10 @@ module.exports.play = async (msg, args) =>
     const query = await table.find({"id": msg.guild.id})
     const array = await query.toArray();
 
+
+    const perms = new Perms(msg)
     // Actual logic
+    if(!perms.speak()) return await sendmessage(msg, `Don't have permissions to speak`);
     if(!args[0] && empty(array)) return await sendmessage(msg, `${msg.author.username} Where's the video?`);                       //  If there's no link (args[0] is our actual first argument)
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);              //  Test to see if the user is in a channel or not
     if(!msg.member.guild.me.hasPermission(['SPEAK'])) return sendmessage(msg, 'Monkey can\'t speak! (Missing permissions');        //  Missing permissions
