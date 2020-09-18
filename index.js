@@ -14,7 +14,7 @@ require('dotenv').config();                                                     
 client.login(process.env.token);                                                            // Logging into our bot (Token is supplied in .env)
 client.on('ready', async ()=>{
     log(`Logged in as ${`${client.user.username}`.underline}.`)                             // Logging that our login was successfull
-    client.user.setPresence({activity:{name: "🐛 fixed bugs `help",type: "WATCHING"},status: "online"})
+    client.user.setPresence({activity:{name: "`help",type: "WATCHING"},status: "online"})
     log(`Set to default status`)
 }) 
 client.on('message', commands);                                                             // Messages event listener, commands found in ./commands/index.js

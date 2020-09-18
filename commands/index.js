@@ -3,6 +3,7 @@ const { status, servers } = require('./owner.js');
 const { play, skip, stop, queue, disconnect} = require('./youtube');
 const { monkey } = require('./google');
 const { bcommand } = require('./commands');
+const { changes } = require('./changes');
 const { invite } = require('./invite');
 const { log_commands } = require('../db/logging.js');
 const { toggleVote } = require('./settings');
@@ -56,6 +57,10 @@ module.exports = async (msg) =>
             toggleVote(msg, args);
         break;
 
+        case 'changes': case 'whats new': case 'what\'s new': case 'update': case 'last update':
+            changes(msg);
+        break;
+
         // Owner only stuff
         case 'status':
             status(msg, args);
@@ -63,5 +68,6 @@ module.exports = async (msg) =>
         case 'servers':
             servers(msg, args)    
         break;
+
     }
 }

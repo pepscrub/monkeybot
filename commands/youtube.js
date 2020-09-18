@@ -158,6 +158,9 @@ module.exports.play = async (msg, args) =>
                     const sc_stream = await scraper.download(queue);
                     dispatcher = connection.play(sc_stream);
                 break;
+                default:
+                    sendmessage(msg, `Can't play this video for some reason.`);
+                break;
             }
 
             shiftqueue(msg) // Remove this entry
@@ -300,12 +303,19 @@ module.exports.stop = async (msg) =>
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     if(msg.guild.voice.connection)
     {
-        table.updateOne({"id": msg.guild.id}, {$set: {"queue": []}})
-        .then(()=>
+        try
         {
-            msg.guild.me.voice.channel.leave()
-            if(dispatcher) dispatcher.end();
-        })
+            table.updateOne({"id": msg.guild.id}, {$set: {"queue": []}})
+            .then(()=>
+            {
+                msg.guild.me.voice.channel.leave()
+                if(dispatcher) dispatcher.end();
+            })
+        }
+        catch(e)
+        {
+            errh(e, msg);
+        }
     }
     log_commands(msg);
 }

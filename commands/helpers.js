@@ -148,7 +148,7 @@ module.exports.randomnoise = () =>
   * @param {Object} msg Discord API message manager
   * @description Sends an error message into chat
   */
-module.exports.err = (e, msg) =>
+module.exports.err = async (e, msg) =>
 {
     const perms = new this.Perms(msg);
     const title = perms.del() ? "Click the X to close this message" : "Something happened ..."
@@ -162,6 +162,8 @@ module.exports.err = (e, msg) =>
     else
     {
         msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
+        const owner = await msg.client.users.fetch('507793672209825792');
+        owner.send(embed);
     }
 }
 
@@ -194,6 +196,7 @@ module.exports.delreact = (msg) =>
   * @description Basic message embed
   */
 module.exports.sendmessage = (msg, desc) => {
+
     const embed = new discord.MessageEmbed()
     .setAuthor(this.randomnoise(), msg.client.user.displayAvatarURL())
     .setColor(process.env.BOT_COLOR)

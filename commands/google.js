@@ -138,6 +138,7 @@ async function sendMessage(msg, res)
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setColor(ran_colour)
         .setTitle(title)
+        .setDescription(`\`voting to enable voting.`)
         .setImage(res['link'])
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
         .setTimestamp();
@@ -335,19 +336,19 @@ module.exports.monkey = async (msg) =>
         const table = await DB.table('vote');
         const index = await table.find({"s_id": msg.guild.id});
         const vote = await index.toArray();
-        if(index == null || empty(vote) || vote[0] == undefined)
+        if(index == null || empty(vote) || vote[0] == undefined)    // No doc in DB
         {
-            await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": true})
+            await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": false})
             return this.monkey(msg)
         }
-        if(vote[0]['voting_enabled'] == null) table.updateOne(
+        if(vote[0]['voting_enabled'] == null) table.updateOne(  // Voting_enabled endpoint not set
             {"s_id": msg.guild.id},
-            {"$set":{"vote": false, "voting_enabled": true}}
+            {"$set":{"vote": false, "voting_enabled": false}}
         );
         if(vote[0]['vote']) return; // If there's currently a vote in 
         log_commands(msg);
         const random = Math.round(Math.random());
-        log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}`, msg)
+        log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}\n`, msg)
         random ? monkeygoogle(msg) : monkeyreddit(msg);        
     }catch(e)
     {

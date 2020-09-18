@@ -21,7 +21,7 @@ module.exports.delete = (msg, args) =>
     {
         try
         {
-            if(args[0] < 0 || args[0] == undefined) return sendmessage("Can't delete nothing").
+            if(args[0] < 0 || args[0] == undefined) return sendmessage(msg, "Can't delete nothing").
             else
             {
                 if(args[0] == 'all')
@@ -46,7 +46,7 @@ module.exports.delete = (msg, args) =>
                     .then((res)=>
                     {
                         if(!res) return;
-                        sendmessage(`Deleted ${count} messages.`);
+                        sendmessage(msg, `Deleted ${count} messages.`);
                     })
                 }
                 else
@@ -54,7 +54,7 @@ module.exports.delete = (msg, args) =>
                     let count = parseInt(args[0]) + 1
                     if(count > 100)
                     {
-                        sendmessage(`Can't delete more than 100 messages`);
+                        sendmessage(msg, `Can't delete more than 100 messages`);
                     }
                     else
                     {
@@ -66,12 +66,13 @@ module.exports.delete = (msg, args) =>
                                 err(e, msg);
                             })
                         })
-                        sendmessage(`Deleted ${count} messages.`);
+                        sendmessage(msg, `Deleted ${count} messages.`);
                     }
                 }
             }
         }catch(e)
         {
+            console.log(e);
             err(e, msg);
         }
     }
