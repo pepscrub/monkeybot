@@ -152,16 +152,27 @@ module.exports.err = async (e, msg) =>
 {
     const perms = new this.Perms(msg);
     const title = perms.del() ? "Click the X to close this message" : "Something happened ..."
-    const embed = new discord.MessageEmbed()
+    let embed = new discord.MessageEmbed()
     .setTitle(title)
-    .setDescription(`\`\`\`${e}\`\`\``)
+    .setDescription(`\`\`\`swift\nUh oh, an error occured\`\`\``)
     .setColor(process.env.BOT_COLOR_ERR)
     .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
     if(msg.channel == undefined) return;
     else
     {
+        const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
+
+        console.log(problem_file);
+
         msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
+
+        embed.setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
+        \n🐛 ${problem_file}\
+        \n\n
+        \n🥞 Full error stack\
+        \n${e.stack}\
+        \`\`\``)
         const owner = await msg.client.users.fetch('507793672209825792');
         owner.send(embed);
     }

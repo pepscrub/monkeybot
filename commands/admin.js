@@ -21,7 +21,7 @@ module.exports.delete = (msg, args) =>
     {
         try
         {
-            if(args[0] < 0 || args[0] == undefined) return sendmessage(msg, "Can't delete nothing").
+            if(args[0] < 0 || args[0] == undefined) return sendmessage(msg, "Can't delete nothing")
             else
             {
                 if(args[0] == 'all')

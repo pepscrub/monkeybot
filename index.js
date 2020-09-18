@@ -7,6 +7,7 @@ module.exports.DB = new DataBase();
 
 this.DB.conn()
 
+
 // Commands index.js
 const commands = require('./commands');                                                     // Importing  commands index.js
 require('dotenv').config();                                                                 // doxenv allows us to read .env files as enviroment variables
