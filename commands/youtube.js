@@ -93,6 +93,7 @@ module.exports.play = async (msg, args) =>
     // Play music and shit
     const play = async (connection, msg) =>
     {
+        log("attempting to play music")
         // arguments from message content
         try
         {
@@ -244,11 +245,17 @@ module.exports.play = async (msg, args) =>
     const regex =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
     if(regex.test(args[0]))
     {
-        if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})    // Insert into DB if server entry doesn't exist
-        else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
-        sendmessage(msg, `Added ${args[0]} to the queue`)
-        joinvc(msg);    // Wow 1 line 
-        log_commands(msg);
+        try
+        {
+            if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})    // Insert into DB if server entry doesn't exist
+            else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
+            sendmessage(msg, `Added ${args[0]} to the queue`)
+            joinvc(msg);    // Wow 1 line 
+            log_commands(msg);
+        }catch(e)
+        {
+            errh(e, msg);
+        }
     }
     else // Not a valid URL
     {    // If there's stuff in the queue allow `play
