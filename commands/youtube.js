@@ -83,7 +83,7 @@ async function sendplaymessage(msg, info, queue)
 
 async function shiftqueue(msg)
 {
-    const table =await DB.table('music');
+    const table = await DB.table('music');
     table.updateOne({"id": msg.guild.id}, {$unset: {"queue.0": 1}});
     table.updateOne({"id": msg.guild.id}, {$pull: {"queue": null}});
 }
@@ -99,7 +99,15 @@ module.exports.play = async (msg, args) =>
             // Test to see if our bot can even speak
             const table = await DB.tablequery('music', {"id": msg.guild.id})
             const query = await table.toArray();
-            if(query[0]['queue'][0] == null || query[0]['queue'][0][0] == null) shiftqueue(msg);
+            if(query[0]['queue'][0] == null || query[0]['queue'][0][0] == null) this.stop(msg);
+            if(query[0]['queue'][0] == null)
+            {
+                shiftqueue(msg);
+                log(`Leaving voice chat`, msg)
+                sendmessage(msg, `Leaving the voice chat`)
+                connection.disconnect();
+                return;
+            }
             if(empty(query[0]['queue'])) return;
 
             const queue = query[0]['queue'][0][0];
