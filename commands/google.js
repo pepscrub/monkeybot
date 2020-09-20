@@ -2,7 +2,7 @@
 const discord = require('discord.js');
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
-const { log, randomnoise, Perms, truncate, empty} = require('./helpers.js')
+const { log, randomnoise, Perms, truncate, empty, sendmessage} = require('./helpers.js')
 const { DB } = require('../index.js');
 const { log_commands } = require('../db/logging.js');
 const { enable } = require('colors');
@@ -333,6 +333,9 @@ module.exports.monkey = async (msg) =>
 {
     try
     {
+        if(!msg.guild) return sendmessage(msg, "Couldn't get server object.");
+        if(!msg.guild.id) return sendmessage(msg, "Couldn't get server ID.");
+        
         const table = await DB.table('vote');
         const index = await table.find({"s_id": msg.guild.id});
         const vote = await index.toArray();
