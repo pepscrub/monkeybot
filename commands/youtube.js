@@ -236,6 +236,22 @@ module.exports.play = async (msg, args) =>
 
 
     const perms = new Perms(msg)
+
+    const user_limit = msg.member.voice.channel.userLimit;
+    const users_inchat = msg.member.voice.channel.members.array().length;
+    const limit_check = user_limit > 0 ? true : false;
+
+    if(!perms.admin())
+    {
+        if(limit_check)
+        {
+            if(users_inchat >= user_limit) return await sendmessage(msg, "Cannot join voice chat. The voice chat is full");
+        }
+    }
+
+
+    perms.admin()
+
     // Actual logic
     if(!perms.speak()) return await sendmessage(msg, `Don't have permissions to speak`);
     if(!args[0] && empty(array)) return await sendmessage(msg, `${msg.author.username} Where's the video?`);                       //  If there's no link (args[0] is our actual first argument)
@@ -265,6 +281,7 @@ module.exports.play = async (msg, args) =>
 
 module.exports.disconnect = async (msg) =>
 {
+    if(!msg.member.voice) return;
     log(`Disconnecting from voice chat.`, msg);
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `Leaving the voice chat`)
@@ -302,6 +319,7 @@ module.exports.queue = async (msg) =>
 
 module.exports.skip = async (msg) =>
 {
+    if(!msg.member.voice) return;
     log(`Skipping video for this server.`, msg)
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
     sendmessage(msg, `${msg.author.username}#${msg.author.discriminator} skipped the video`)
@@ -316,6 +334,7 @@ module.exports.stop = async (msg) =>
 
     log(`Stopping music for this server.`, msg)
     if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
+    if(msg.guild.voice == undefined) return;
     if(msg.guild.voice.connection)
     {
         try
