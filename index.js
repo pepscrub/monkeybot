@@ -27,8 +27,8 @@ async function sendmessage(desc)
 
 async function send_server_update(server, color)
 {
-    const owner = server.owner;
-    const o_string = `${owner.user.username}#${owner.user.discriminator} ${owner.nickname ? '| '+owner.nickname : ''}`
+    const s_owner = server.owner;
+    const o_string = `${s_owner.user.username}#${s_owner.user.discriminator} ${s_owner.nickname ? '| '+s_owner.nickname : ''}`
     const s_name = server.name;
     const s_mem_count = server.memberCount;
     const s_partnered = server.partnered;
