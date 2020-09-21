@@ -150,31 +150,37 @@ module.exports.randomnoise = () =>
   */
 module.exports.err = async (e, msg) =>
 {
-    const perms = new this.Perms(msg);
-    const title = perms.del() ? "Click the X to close this message" : "Something happened ..."
-    let embed = new discord.MessageEmbed()
-    .setTitle(title)
-    .setDescription(`\`\`\`swift\nUh oh, an error occured\`\`\``)
-    .setColor(process.env.BOT_COLOR_ERR)
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
-    .setTimestamp();
-    if(msg.channel == undefined) return;
-    else
+    try
     {
-        const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
-
-        console.log(problem_file);
-
-        msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
-
-        embed.setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
-        \n🐛 ${problem_file}\
-        \n\n
-        \n🥞 Full error stack\
-        \n${e.stack}\
-        \`\`\``)
-        const owner = await msg.client.users.fetch('507793672209825792');
-        owner.send(embed);
+        const perms = new this.Perms(msg);
+        const title = perms.del() ? "Click the X to close this message" : "Something happened ..."
+        let embed = new discord.MessageEmbed()
+        .setTitle(title)
+        .setDescription(`\`\`\`swift\nUh oh, an error occured\`\`\``)
+        .setColor(process.env.BOT_COLOR_ERR)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+        .setTimestamp();
+        if(msg.channel == undefined) return;
+        else
+        {
+            const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
+    
+            console.log(problem_file);
+    
+            msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
+    
+            embed.setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
+            \n🐛 ${problem_file}\
+            \n\n
+            \n🥞 Full error stack\
+            \n${e.stack}\
+            \`\`\``)
+            const owner = await msg.client.users.fetch('507793672209825792');
+            owner.send(embed);
+        }
+    }catch(e)
+    {
+        console.log(e);
     }
 }
 
@@ -184,20 +190,26 @@ module.exports.err = async (e, msg) =>
   */
 module.exports.delreact = (msg) =>
 {
-    const perms = new this.Perms(msg);
-    if(!perms.del()) return;     // Check to see if we have manage_messages
-    msg.react('❌');                                                                                 // React to our msg with X
-    const filter = (reaction, user) => '❌' === reaction.emoji.name && user.id === msg.author.id;    // Some filter shit ??
-    msg.awaitReactions(filter, {time: 5000}).then(result=>
+    try
     {
-        if(msg.deleted) return;
-        if(result.get('❌').count-1 >= 1) msg.delete();
-        else msg.reactions.removeAll().catch();
-    })
-    .catch(e=>
+        const perms = new this.Perms(msg);
+        if(!perms.del()) return;     // Check to see if we have manage_messages
+        msg.react('❌');                                                                                 // React to our msg with X
+        const filter = (reaction, user) => '❌' === reaction.emoji.name && user.id === msg.author.id;    // Some filter shit ??
+        msg.awaitReactions(filter, {time: 5000}).then(result=>
+        {
+            if(msg.deleted) return;
+            if(result.get('❌').count-1 >= 1) msg.delete();
+            else msg.reactions.removeAll().catch();
+        })
+        .catch(e=>
+        {
+            console.log(e)
+        })
+    }catch(e)
     {
-        console.log(e)
-    })
+        this.err(e, msg);
+    }
 }
 
 
@@ -207,22 +219,34 @@ module.exports.delreact = (msg) =>
   * @description Basic message embed
   */
 module.exports.sendmessage = (msg, desc) => {
-
-    const embed = new discord.MessageEmbed()
-    .setAuthor(this.randomnoise(), msg.client.user.displayAvatarURL())
-    .setColor(process.env.BOT_COLOR)
-    .setTitle(`${desc}`)
-    .setTimestamp()
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
-    msg.channel.send(embed);
+    try
+    {
+        const embed = new discord.MessageEmbed()
+        .setAuthor(this.randomnoise(), msg.client.user.displayAvatarURL())
+        .setColor(process.env.BOT_COLOR)
+        .setTitle(`${desc}`)
+        .setTimestamp()
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
+        msg.channel.send(embed);
+    }catch(e)
+    {
+        this.err(e, msg);
+    }
 }
 
 
 module.exports.empty = (obj) =>
 {
-    for(const key in obj)
+    try
     {
-        if(obj.hasOwnProperty(key)) return false;
+        for(const key in obj)
+        {
+            if(obj.hasOwnProperty(key)) return false;
+        }
+        return true;
+    }catch(e)
+    {
+        this.err(e, msg);
+        return true;
     }
-    return true;
 }

@@ -9,19 +9,25 @@ const { randomnoise, log, intwithcommas } = require('./helpers.js');
  */
 module.exports.invite = (msg) =>
 {
-    const s_count = intwithcommas(msg.client.guilds.cache.array().length);
-    const embed = new discord.MessageEmbed()
-    .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-    .setTitle(`Invite me to your server!`)
-    .setURL(`https://discord.com/api/oauth2/authorize?client_id=737600967301922846&permissions=3468640&scope=bot`)
-    .addField(`Some general information`, `\`\`\`swift
-    \n🎮 | I'm in ${s_count} servers!\
-    \n📜 | \`monkey (Yes this is the whole reason this bot exists)\
-    \n📜 | \`commands to see the rest of the commands\
-    \n📜 | Todo: give Monkey bot Artifical Intelligence
-    \`\`\``)
-    .setColor(process.env.BOT_COLOR)
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
-    .setTimestamp();
-    msg.channel.send(embed);
+    try
+    {
+        const s_count = intwithcommas(msg.client.guilds.cache.array().length);
+        const embed = new discord.MessageEmbed()
+        .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+        .setTitle(`Invite me to your server!`)
+        .setURL(`https://discord.com/api/oauth2/authorize?client_id=737600967301922846&permissions=3468640&scope=bot`)
+        .addField(`Some general information`, `\`\`\`swift
+        \n🎮 | I'm in ${s_count} servers!\
+        \n📜 | \`monkey (Yes this is the whole reason this bot exists)\
+        \n📜 | \`commands to see the rest of the commands\
+        \n📜 | Todo: give Monkey bot Artifical Intelligence
+        \`\`\``)
+        .setColor(process.env.BOT_COLOR)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+        .setTimestamp();
+        msg.channel.send(embed);
+    }catch(e)
+    {
+        errh(e, msg);
+    }
 }

@@ -14,77 +14,81 @@ const discord = require('discord.js');
  */
 module.exports.leaderboard = async (msg, args) =>
 {
-    let options = {};                                               // Empty object for us to manipulate
-    if(args[0] === 'server') options = {"server.id": msg.guild.id}  // Udating to search for the server this was called from
-    const table = await DB.tablequery('commands', options);         // Querying BD
-    const array = await table.toArray();                            // Returning results
-    const output = [];                                              // Empty array to plug our shit into
-    const topusers = array                                          // The fun begins -----
-    .map(server=>{                                                  // Mapping results to get individual servers [1->2->3]
-        return server['users'].map((arr)=>{return arr[0]})          // Returning all the individual users [users->user->0{userdata}]
-    })
-    .reduce((pre, cur)=>                                            // Merging all the users together
-    {                                                               // FUN LAGGY TIME
-        return pre.concat(cur);                                     // [{user}][{user}]--> [{user},{user}]
-    })
-    .sort((a,b)=>                                                   // Sorting all the users from most to least
+    try
     {
-        return b['commandusage'].length - a['commandusage'].length
-    }).forEach(item=>                                               // Looping through all the results
-    {
-        let existing = output.filter((v,i)=>                        // Checking to see if the user has any duplicates (Multiple servers same user)
-        {
-            return v.name == item.name; // Yes this is supposed to be item
+        let options = {};                                               // Empty object for us to manipulate
+        if(args[0] === 'server') options = {"server.id": msg.guild.id}  // Udating to search for the server this was called from
+        const table = await DB.tablequery('commands', options);         // Querying BD
+        const array = await table.toArray();                            // Returning results
+        const output = [];                                              // Empty array to plug our shit into
+        const topusers = array                                          // The fun begins -----
+        .map(server=>{                                                  // Mapping results to get individual servers [1->2->3]
+            return server['users'].map((arr)=>{return arr[0]})          // Returning all the individual users [users->user->0{userdata}]
         })
-        if(existing.length)                                         // Fun fun array check
+        .reduce((pre, cur)=>                                            // Merging all the users together
+        {                                                               // FUN LAGGY TIME
+            return pre.concat(cur);                                     // [{user}][{user}]--> [{user},{user}]
+        })
+        .sort((a,b)=>                                                   // Sorting all the users from most to least
         {
-            const existingIndex = output.indexOf(existing[0]);      // Check to see if the item is indexed
-                                                                    // Mergy mergy fun times.
-            output[existingIndex].commandusage = output[existingIndex].commandusage.concat(item.commandusage);
+            return b['commandusage'].length - a['commandusage'].length
+        }).forEach(item=>                                               // Looping through all the results
+        {
+            let existing = output.filter((v,i)=>                        // Checking to see if the user has any duplicates (Multiple servers same user)
+            {
+                return v.name == item.name; // Yes this is supposed to be item
+            })
+            if(existing.length)                                         // Fun fun array check
+            {
+                const existingIndex = output.indexOf(existing[0]);      // Check to see if the item is indexed
+                                                                        // Mergy mergy fun times.
+                output[existingIndex].commandusage = output[existingIndex].commandusage.concat(item.commandusage);
+            }
+            else
+            {
+                output.push(item);  // If not indexed in our array we just push the result
+            }
+        })
+        output.forEach(user=>{                  // Loop through all the results
+            user['commandusage'].sort((a,b)=>   // Sort from latest command to oldest
+            {
+                return a[1] - b[1];
+            })
+        })
+        let count = output.length < 5 ? output.length : 5 // Limit the display to 5 (Yes we did all that and dumped a fuck ton of result)
+        const top = output[0]                       // Get the first user
+        const embed = new discord.MessageEmbed()
+        .setColor(process.env.BOT_COLOR)
+        .setTitle(`1. 🎉${top['name']}🎉`)
+        .setURL(top['pfp'])
+        .setDescription(`\`\`\`swift\nCalled: ${intwithcommas(top['commandusage'].length)} times. \
+        \nLast command: ${new Date(top['commandusage'][top['commandusage'].length-1][1]).toLocaleString()}\
+        \`\`\``)
+        .setThumbnail(top['pfp'])
+        .setTimestamp();
+    
+        if(args[0] === "server")
+        {
+            embed.setAuthor(array[0]['server']['name'], array[0]['server']['icon']);
         }
         else
         {
-            output.push(item);  // If not indexed in our array we just push the result
+            embed.setAuthor(`Top ${count} of all servers`);
         }
-    })
-    output.forEach(user=>{                  // Loop through all the results
-        user['commandusage'].sort((a,b)=>   // Sort from latest command to oldest
+    
+        for(let i = 1; i < count; i++)
         {
-            return a[1] - b[1];
-        })
-    })
-    let count = output.length < 5 ? output.length : 5 // Limit the display to 5 (Yes we did all that and dumped a fuck ton of result)
-    const top = output[0]                       // Get the first user
-    const embed = new discord.MessageEmbed()
-    .setColor(process.env.BOT_COLOR)
-    .setTitle(`1. 🎉${top['name']}🎉`)
-    .setURL(top['pfp'])
-    .setDescription(`\`\`\`swift\nCalled: ${intwithcommas(top['commandusage'].length)} times. \
-    \nLast command: ${new Date(top['commandusage'][top['commandusage'].length-1][1]).toLocaleString()}\
-    \`\`\``)
-    .setThumbnail(top['pfp'])
-    .setTimestamp();
-
-    if(args[0] === "server")
+    
+            embed.addField(`${i+1}. ${output[i]['name']}`, 
+            `\`\`\`swift\nCalled: ${intwithcommas(output[i]['commandusage'].length)} times.\
+            \nLast command: ${new Date(output[i]['commandusage'][output[i]['commandusage'].length-1][1]).toLocaleString()}\
+            \`\`\``)
+        }
+    
+        msg.channel.send(embed);
+    }catch(e)
     {
-        embed.setAuthor(array[0]['server']['name'], array[0]['server']['icon']);
+        errh(e, msg);
     }
-    else
-    {
-        embed.setAuthor(`Top ${count} of all servers`);
-    }
-
-    for(let i = 1; i < count; i++)
-    {
-
-        embed.addField(`${i+1}. ${output[i]['name']}`, 
-        `\`\`\`swift\nCalled: ${intwithcommas(output[i]['commandusage'].length)} times.\
-        \nLast command: ${new Date(output[i]['commandusage'][output[i]['commandusage'].length-1][1]).toLocaleString()}\
-        \`\`\``)
-    }
-
-    msg.channel.send(embed);
-
-
-
+}
 }

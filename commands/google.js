@@ -155,44 +155,50 @@ async function sendMessage(msg, res)
  */
 async function Reaction_Result(msg, e, res)
 {
-    reactions.forEach(square=>{e.react(square)})                                                                    // Reacting with the voting squares 
+    try
+    {
+        reactions.forEach(square=>{e.react(square)})                                                                    // Reacting with the voting squares 
 
-    const filter = async (reaction, user) => reactions.includes(reaction.emoji.name) && user.id === msg.author.id;  // Some filtering shit?
-    const result = await e.awaitReactions(filter, {time: timer})                                                    // Reactions from users
-    updateVote(msg, false);
-
-    let output = [], i = 0, users = [];                                                                                 // Settings up objects for next 
-    result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
-    output.reverse();                       // Reverse results so we're going lowest rank to highest
-    output.sort((a,b)=>{return b[1] - a[1]})// Sort by count
-    if(output[0] === undefined) return e.delete() && log("No one voted :(");     // If no one votes
-
-    output[0][2].cache.forEach(user=>{
-        {
-            if(!(msg.author.id == user.id || user.bot))
-            {
-                log_commands(msg, user);
-                users.push(`${user.username}`)
-            }
-        }})
-    users = users.join(", ");
-
-    e.delete().catch();                        // Delete the message sent for voting
-    if(output[0][0] === '❌') return;         // If we didn't like the monkey we delete the message
-    if(output[0][1] - 1 == 0) return;
-
-    log(`Sending result`, msg)
-
-    const title = truncate(res['title'], 256);
-    const embed = new discord.MessageEmbed()                                  // Creating a new embed
-    .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-    .setColor(colors[output[0][0]][0])
-    .setTitle(title)
-    .setImage(res['link'])
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, `${msg.author.avatarURL()}`)
-    .setTimestamp();
+        const filter = async (reaction, user) => reactions.includes(reaction.emoji.name) && user.id === msg.author.id;  // Some filtering shit?
+        const result = await e.awaitReactions(filter, {time: timer})                                                    // Reactions from users
+        updateVote(msg, false);
     
-    msg.channel.send(embed)
+        let output = [], i = 0, users = [];                                                                                 // Settings up objects for next 
+        result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
+        output.reverse();                       // Reverse results so we're going lowest rank to highest
+        output.sort((a,b)=>{return b[1] - a[1]})// Sort by count
+        if(output[0] === undefined) return e.delete() && log("No one voted :(");     // If no one votes
+    
+        output[0][2].cache.forEach(user=>{
+            {
+                if(!(msg.author.id == user.id || user.bot))
+                {
+                    log_commands(msg, user);
+                    users.push(`${user.username}`)
+                }
+            }})
+        users = users.join(", ");
+    
+        e.delete().catch();                        // Delete the message sent for voting
+        if(output[0][0] === '❌') return;         // If we didn't like the monkey we delete the message
+        if(output[0][1] - 1 == 0) return;
+    
+        log(`Sending result`, msg)
+    
+        const title = truncate(res['title'], 256);
+        const embed = new discord.MessageEmbed()                                  // Creating a new embed
+        .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+        .setColor(colors[output[0][0]][0])
+        .setTitle(title)
+        .setImage(res['link'])
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, `${msg.author.avatarURL()}`)
+        .setTimestamp();
+        
+        msg.channel.send(embed)
+    }catch(e)
+    {
+        errh(e, msg);
+    }
 }
 
 /**
@@ -221,7 +227,7 @@ function getmonkey(msg)
         sendMessage(msg, google_results[0]); // Send result
     }catch(e)
     {
-        // fuck it
+        errh(e, msg);
     }
 }
 
@@ -232,23 +238,29 @@ function getmonkey(msg)
  */
 async function monkeyreddit(msg)
 {
-    const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics']                                                             // Subreddits
-    const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
-    const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(res=>res.json());                    // Request reddit json list
-    log(`Fetching from reddit https://www.reddit.com/r/${random_sr}`, msg)
-
-    const valid = body['data']['children'].filter(post=>!post.data.over_18);                                                    // Make sure the post is PG
-    const rm = Math.floor(Math.random()*valid.length);
-    const rp = valid[rm]['data'];                                                                                               // Grab random POST
-
-    log(`Got post ${rm} out of ${valid.length}`, msg);
-
-    const media =   rp['media'] === null ?  rp['url'] : 
-                    (/mp4|gifv/.test(rp['media']['fallback_url']) ? null : 
-                    (rp['media']['type'] != undefined ? rp['media']['oembed']['thumbnail_url'] : null));
-    const formatted = {'title': rp['title'], 'link': media}                                                            // Reformat into google data
-    if(!/(?:jpg|jpeg|gif|png)/.test(media) || /mp4|gifv/.test(media) || !media) return monkeyreddit(msg);
-    else sendMessage(msg, formatted);                                                                                    
+    try
+    {
+        const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics']                                                             // Subreddits
+        const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
+        const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(res=>res.json());                    // Request reddit json list
+        log(`Fetching from reddit https://www.reddit.com/r/${random_sr}`, msg)
+    
+        const valid = body['data']['children'].filter(post=>!post.data.over_18);                                                    // Make sure the post is PG
+        const rm = Math.floor(Math.random()*valid.length);
+        const rp = valid[rm]['data'];                                                                                               // Grab random POST
+    
+        log(`Got post ${rm} out of ${valid.length}`, msg);
+    
+        const media =   rp['media'] === null ?  rp['url'] : 
+                        (/mp4|gifv/.test(rp['media']['fallback_url']) ? null : 
+                        (rp['media']['type'] != undefined ? rp['media']['oembed']['thumbnail_url'] : null));
+        const formatted = {'title': rp['title'], 'link': media}                                                            // Reformat into google data
+        if(!/(?:jpg|jpeg|gif|png)/.test(media) || /mp4|gifv/.test(media) || !media) return monkeyreddit(msg);
+        else sendMessage(msg, formatted);   
+    }catch(e)
+    {
+        errh(e, msg);
+    }                                                      
 }
 
 /**
@@ -258,8 +270,10 @@ async function monkeyreddit(msg)
  */
 async function monkeygoogle(msg)
 {
-    // Huge god damn array
-    const monkeytype = [
+    try
+    {
+        // Huge god damn array
+        const monkeytype = [
             '', '', 
             'silly', 
             'stupid', 
@@ -281,47 +295,51 @@ async function monkeygoogle(msg)
             'bush',
             'reddit',
             'cursed'
-    ];
-    const token = quote_reached ? process.env.SEARCH_KEY_SECOND : process.env.SEARCH_KEY;
-    const randomstart = Math.floor(Math.random()*100);              // Random index start 
-    let monkeyvers = Math.floor(Math.random()*monkeytype.length);   // Random index out of 10 (Max items is 10)
-    const searchengine = process.env.SEARCH_ENGINE;                 // Search engine to use (enable global search in control panel)
-    let monkey = `monkey ${monkeytype[monkeyvers]}`;                // Updating search query
-    // God damn that's a long url
-    const url = `https://www.googleapis.com/customsearch/v1?key=${token}&cx=${searchengine}&q=${monkey}&searchType=image&start=${randomstart}`;
+        ];
+        const token = quote_reached ? process.env.SEARCH_KEY_SECOND : process.env.SEARCH_KEY;
+        const randomstart = Math.floor(Math.random()*100);              // Random index start 
+        let monkeyvers = Math.floor(Math.random()*monkeytype.length);   // Random index out of 10 (Max items is 10)
+        const searchengine = process.env.SEARCH_ENGINE;                 // Search engine to use (enable global search in control panel)
+        let monkey = `monkey ${monkeytype[monkeyvers]}`;                // Updating search query
+        // God damn that's a long url
+        const url = `https://www.googleapis.com/customsearch/v1?key=${token}&cx=${searchengine}&q=${monkey}&searchType=image&start=${randomstart}`;
 
-    if(google_results.length > 0) return getmonkey(msg);                        // No results? We recall this function
-    log(`Fetching using key: ${quote_reached} and searching ${monkey}`, msg)
-    fetch(url)                                                                  // Fetch API
-    .then(res=>{return res.json()})
-    .then((res)=>
-    {
-        log(`Got a result from fetch`, msg)
-        if(res['error'])
+        if(google_results.length > 0) return getmonkey(msg);                        // No results? We recall this function
+        log(`Fetching using key: ${quote_reached} and searching ${monkey}`, msg)
+        fetch(url)                                                                  // Fetch API
+        .then(res=>{return res.json()})
+        .then((res)=>
         {
-            switch(res['error']['code'])
+            log(`Got a result from fetch`, msg)
+            if(res['error'])
             {
-                case 429:   // Quota exhausted
-                    log(`Quota maxed out on key number: ${quote_reached}`, msg)
-                    const d = new Date();                                                           // Creating new date to get PT time off of
-                    const PT = d.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });  // Getting PT time (string)
-                    let time = PT.split(':');                                                       // Splitting on :
-                    let hours = time[2].includes('PM') ? 12 - time[0] : 24 - time[0];               // Since we're on 12 hour time format we check to see if it's PM and - a different value
-                    let mins = 60 - time[1];                                                        // Just get the amount of minutes
-                    mins == 0 ? '' : hours = hours - 1;
-                    quote_reached++;
-                    if(quote_reached >= 2) return monkeyreddit(msg);
-                    else return this.monkey(msg);
-                break;
-                default: console.log(res['error']);
+                switch(res['error']['code'])
+                {
+                    case 429:   // Quota exhausted
+                        log(`Quota maxed out on key number: ${quote_reached}`, msg)
+                        const d = new Date();                                                           // Creating new date to get PT time off of
+                        const PT = d.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });  // Getting PT time (string)
+                        let time = PT.split(':');                                                       // Splitting on :
+                        let hours = time[2].includes('PM') ? 12 - time[0] : 24 - time[0];               // Since we're on 12 hour time format we check to see if it's PM and - a different value
+                        let mins = 60 - time[1];                                                        // Just get the amount of minutes
+                        mins == 0 ? '' : hours = hours - 1;
+                        quote_reached++;
+                        if(quote_reached >= 2) return monkeyreddit(msg);
+                        else return this.monkey(msg);
+                    break;
+                    default: console.log(res['error']);
+                }
             }
-        }
-        google_results = res['items'];      // Append into memory - yuck
-        getmonkey(msg);                     // Test images
-    })
-    .catch(e=>{
+            google_results = res['items'];      // Append into memory - yuck
+            getmonkey(msg);                     // Test images
+        })
+        .catch(e=>{
+            errh(e, msg);
+        });
+    }catch(e)
+    {
         errh(e, msg);
-    });
+    }
 }
 
 
@@ -355,7 +373,6 @@ module.exports.monkey = async (msg) =>
         random ? monkeygoogle(msg) : monkeyreddit(msg);        
     }catch(e)
     {
-        console.log(e);
-        errh(e, msg)
+        errh(e, msg);
     }
 }
