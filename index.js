@@ -64,7 +64,7 @@ client.login(process.env.token);                                                
 
 client.on('ready', async ()=>{
     log(`Logged in as ${`${client.user.username}`.underline}.`)                             // Logging that our login was successfull
-    client.user.setPresence({activity:{name: "`help",type: "WATCHING"},status: "online"})
+    client.user.setPresence({activity:{name: "`help",type: "LISTENING"},status: "online"})
     log(`Set to default status`)
 }) 
 
@@ -83,7 +83,7 @@ client.on("error", async (e)=>
     .setTimestamp();
     const owner = await client.users.fetch('507793672209825792');
     owner.send(embed);
-})\
+})
 
 // When we join a new server
 client.on("guildCreate", async (server) =>

@@ -91,4 +91,3 @@ module.exports.leaderboard = async (msg, args) =>
         errh(e, msg);
     }
 }
-}
