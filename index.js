@@ -21,7 +21,7 @@ async function sendmessage(desc)
         owner.send(embed);
     }catch(e)
     {
-        errh(e, msg);
+        console.log(e);
     }
 }
 
@@ -36,7 +36,7 @@ async function send_server_update(server, color)
     const s_teir = server.premiumTier;
     const s_location = server.region;
     const s_verified = server.verified;
-    const s_count = intwithcommas(msg.client.guilds.cache.array().length);
+    const s_count = intwithcommas(client.guilds.cache.array().length);
 
     let embed = new discord.MessageEmbed()
     .setTitle(`🕹 ${s_name} | 👪 ${s_mem_count}`)
@@ -50,7 +50,6 @@ async function send_server_update(server, color)
         \n⭐| I am now in ${s_count} servers!\
         \`\`\``)
     .setColor(color)
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
     const owner = await client.users.fetch('507793672209825792');
     owner.send(embed);
@@ -79,7 +78,6 @@ client.on("error", async (e)=>
         \n${e.stack}\
         \`\`\``)
     .setColor(process.env.BOT_COLOR_ERR)
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
     .setTimestamp();
     const owner = await client.users.fetch('507793672209825792');
     owner.send(embed);
