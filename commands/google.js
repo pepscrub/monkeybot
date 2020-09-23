@@ -138,7 +138,7 @@ async function sendMessage(msg, res)
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setColor(ran_colour)
         .setTitle(title)
-        .setDescription(`\`voting to enable voting.`)
+        .setDescription(`\n${perms.react() ? `\`voting to enable voting.` : ``}`)
         .setImage(res['link'])
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
         .setTimestamp();
