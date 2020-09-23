@@ -48,7 +48,6 @@ module.exports.toggleVote = async (msg, args) =>
         else if(args[0] == 'disable' || args[0] == 'off') updateVote(msg, false)
         else
         {
-            console.log(vote[0]['voting_enabled'])
             vote[0]['voting_enabled'] ? updateVote(msg, false) : updateVote(msg, true);
         }
         let text = vote[0]['voting_enabled'] ? 'Switching voting Off' : 'Switching voting On';
