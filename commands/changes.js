@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const errh = require('./helpers.js').err;
 const discord = require('discord.js');
 
 module.exports.changes = async (msg) =>
@@ -13,11 +14,21 @@ module.exports.changes = async (msg) =>
         const commits = await fetch(url, options);   
         const commitsarr = await commits.json();
     
+        const all = await fetch(`https://api.github.com/repos/pepscrub/monkeybot/stats/commit_activity`, options)
+        const all_arr = await all.json();
+
+        let total_commits = 0;
+
+        for(let i = 0; i < all_arr.length; i++)
+        {
+            total_commits += all_arr[i]['total'];
+        }
+
         const user = commitsarr['committer'];                                   // Person who last commited
         const stats = commitsarr['stats'];
         const changes = commitsarr['commit']['message'];
         const date = commitsarr['commit']['author']['date'];
-        const date_formated = `📅 ${new Date(date).toLocaleDateString()}`;
+        const date_formated = `📅 ${new Date(date).toLocaleDateString()}             🚧 ${total_commits}`;
         // Null checking stats
         const stats_formatted = stats != null || stats != undefined ? `\n\n📈 Stats\
         \nAdditions: ${stats['additions']}\

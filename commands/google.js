@@ -94,56 +94,61 @@ async function updateVote(msg, bool = false)
  */
 async function sendMessage(msg, res)
 {
-    const perms = new Perms(msg);
-    const title = truncate(res['title'], 256);
-    const table = await DB.table('vote');
-    const index = await table.find({"s_id": msg.guild.id});
-    const vote = await index.toArray();
-    const enabled = vote[0]['voting_enabled'];
+   try
+   {
+        const perms = new Perms(msg);
+        const title = truncate(res['title'], 256);
+        const table = await DB.table('vote');
+        const index = await table.find({"s_id": msg.guild.id});
+        const vote = await index.toArray();
+        const enabled = vote[0]['voting_enabled'];
 
-    if(perms.del() && perms.react() && enabled) // Check to see if we have permissions to modify chat and add reactions
-    {
+        if(perms.del() && perms.react() && enabled) // Check to see if we have permissions to modify chat and add reactions
+        {
 
-        updateVote(msg, true);
+            updateVote(msg, true);
 
-        const expirey = timer/1000; // Timer in seconds
-        google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
-        vote[msg.guild.id] = true;  // Voting is in progress
+            const expirey = timer/1000; // Timer in seconds
+            google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
+            vote[msg.guild.id] = true;  // Voting is in progress
 
-        // Embed messiness
-        const embed = new discord.MessageEmbed()
-        .setColor(process.env.BOT_COLOR)
-        .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-        .setTitle(title)
-        .addField("Rankings",`\`\`\`swift\n${reactions[0]} | ★ Contraband\
-        \n${reactions[1]} | Covert\
-        \n${reactions[2]} | Classified\
-        \n${reactions[3]} | Uncommon\
-        \n${reactions[4]} | Common\
-        \n${reactions[5]} | Delete\
-        \`\`\``)
-        .setImage(res['link'])
-        .setFooter(`This vote will expire in ${expirey} seconds`);
-        // Send message and wait for reactions
-        msg.channel.send(embed).then(async e=>Reaction_Result(msg, e, res))
-    }
-    else
-    {
-        google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
-        const random = Math.floor(Math.random() * Object.keys(colors).length);
-        const key = Object.keys(colors)[random];
-        const ran_colour = colors[key][0]
-
-        const embed = new discord.MessageEmbed()
-        .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-        .setColor(ran_colour)
-        .setTitle(title)
-        .setDescription(`\n${perms.react() ? `\`voting to enable voting.` : ``}`)
-        .setImage(res['link'])
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
-        .setTimestamp();
-        msg.channel.send(embed);
-    }
+            // Embed messiness
+            const embed = new discord.MessageEmbed()
+            .setColor(process.env.BOT_COLOR)
+            .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+            .setTitle(title)
+            .addField("Rankings",`\`\`\`swift\n${reactions[0]} | ★ Contraband\
+            \n${reactions[1]} | Covert\
+            \n${reactions[2]} | Classified\
+            \n${reactions[3]} | Uncommon\
+            \n${reactions[4]} | Common\
+            \n${reactions[5]} | Delete\
+            \`\`\``)
+            .setImage(res['link'])
+            .setFooter(`This vote will expire in ${expirey} seconds`);
+            // Send message and wait for reactions
+            msg.channel.send(embed).then(async e=>Reaction_Result(msg, e, res))
+        }
+        else
+        {
+            google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
+            const random = Math.floor(Math.random() * Object.keys(colors).length);
+            const key = Object.keys(colors)[random];
+            const ran_colour = colors[key][0]
+            const embed = new discord.MessageEmbed()
+            .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+            .setColor(ran_colour)
+            .setTitle(title)
+            .setDescription(`\n${perms.react() ? `\`voting to enable voting.` : ``}`)
+            .setImage(res['link'])
+            .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+            .setTimestamp();
+            msg.channel.send(embed);
+        }
+   }catch(e)
+   {
+       errh(e, msg);
+   }
 }
 /**
  * @description Add reactions ranking m

@@ -4,10 +4,7 @@ module.exports.intwithcommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-module.exports.truncate = (str, n) =>
-{
-    return str.length > n ? `${str.substr(0, n-1)}…` : str;
-}
+module.exports.truncate = (str, n) => {try{return str.length > n ? `${str.substr(0, n-1)}…` : str;}catch(e){this.err(e, msg);}}
 
 /**
  * @description gets the current date in a 12 hour format
@@ -20,9 +17,9 @@ module.exports.timestamp = () =>new Date().toLocaleString()
  */
 module.exports.log = (text, msg = null) =>
 {
-    // if(typeof(text) == 'object') text = JSON.stringify(text);
-    // if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
-    // else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
+    if(typeof(text) == 'object') text = JSON.stringify(text);
+    if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
+    else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
 }
 /**
  * @description Bot specific permissions
@@ -36,18 +33,18 @@ module.exports.Perms = class Perms
      * @description Returns boolean if the user is an admin
      * @returns {boolean} 
      */
-    admin(){return this.msg.member.guild.me.hasPermission(['ADMINISTRATOR'])}
+    admin(){try{return this.msg.member.guild.me.hasPermission(['ADMINISTRATOR'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to delete
      * messages, reactions, pin messages ...
      * @returns {boolean} 
      */
-    del(){return this.msg.member.guild.me.hasPermission(['MANAGE_MESSAGES'])}
+    del(){try{return this.msg.member.guild.me.hasPermission(['MANAGE_MESSAGES'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to send files
      * @returns {boolean} 
      */
-    attach(){return this.msg.member.guild.me.hasPermission(['ATTACH_FILES'])}
+    attach(){try{return this.msg.member.guild.me.hasPermission(['ATTACH_FILES'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to send messages
      * @returns {boolean} 
@@ -56,18 +53,18 @@ module.exports.Perms = class Perms
      * @description Returns boolean if the user is allowed to add reactions to a message
      * @returns {boolean} 
      */
-    react(){return this.msg.member.hasPermission('ADD_REACTIONS')}
-    msg(){return this.msg.member.guild.me.hasPermission(['SEND_MESSAGES'])}
+    react(){try{return this.msg.member.hasPermission('ADD_REACTIONS')}catch(e){this.err(e, msg);}}
+    msg(){try{return this.msg.member.guild.me.hasPermission(['SEND_MESSAGES'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to view the current channel
      * @returns {boolean} 
      */
-    viewchat(){return this.msg.member.guild.me.hasPermission(['VIEW_CHANNEL'])}
+    viewchat(){try{return this.msg.member.guild.me.hasPermission(['VIEW_CHANNEL'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to speak
      * @returns {boolean} 
      */
-    speak(){return this.msg.member.guild.me.hasPermission(['SPEAK'])}
+    speak(){try{return this.msg.member.guild.me.hasPermission(['SPEAK'])}catch(e){this.err(e, msg);}}
 }
 
 /**
@@ -85,38 +82,38 @@ module.exports.UserPerms = class UserPerms
      * @description Returns boolean if the user is an admin
      * @returns {boolean} 
      */
-    admin(){return this.msg.member.hasPermission(['ADMINISTRATOR'])}
+    admin(){try{return this.msg.member.hasPermission(['ADMINISTRATOR'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to delete
      * messages, reactions, pin messages ...
      * @returns {boolean} 
      */
-    del(){return this.msg.member.hasPermission(['MANAGE_MESSAGES'])}
+    del(){try{return this.msg.member.hasPermission(['MANAGE_MESSAGES'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to send files
      * @returns {boolean} 
      */
-    attach(){return this.msg.member.hasPermission(['ATTACH_FILES'])}
+    attach(){try{return this.msg.member.hasPermission(['ATTACH_FILES'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to add reactions to a message
      * @returns {boolean} 
      */
-    react(){return this.msg.member.hasPermission('ADD_REACTIONS')}
+    react(){try{return this.msg.member.hasPermission('ADD_REACTIONS')}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to send messages
      * @returns {boolean} 
      */
-    msg(){return this.msg.member.hasPermission(['SEND_MESSAGES'])}
+    msg(){try{return this.msg.member.hasPermission(['SEND_MESSAGES'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to view the current channel
      * @returns {boolean} 
      */
-    viewchat(){return this.msg.member.hasPermission(['VIEW_CHANNEL'])}
+    viewchat(){try{return this.msg.member.hasPermission(['VIEW_CHANNEL'])}catch(e){this.err(e, msg);}}
     /**
      * @description Returns boolean if the user is allowed to speak
      * @returns {boolean} 
      */
-    speak(){return this.msg.member.hasPermission(['SPEAK'])}
+    speak(){try{return this.msg.member.hasPermission(['SPEAK'])}catch(e){this.err(e, msg);}}
 }
 
  /**
