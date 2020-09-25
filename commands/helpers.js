@@ -1,4 +1,4 @@
-const discord = require('discord.js');
+// const discord = require('discord.js');
 
 module.exports.intwithcommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -17,9 +17,9 @@ module.exports.timestamp = () =>new Date().toLocaleString()
  */
 module.exports.log = (text, msg = null) =>
 {
-    if(typeof(text) == 'object') text = JSON.stringify(text);
-    if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
-    else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
+    // if(typeof(text) == 'object') text = JSON.stringify(text);
+    // if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
+    // else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
 }
 /**
  * @description Bot specific permissions
