@@ -80,6 +80,6 @@ module.exports.delete = (msg, args) =>
         }
     }catch(e)
     {
-        errh(e, msg);
+        err(e, msg);
     }
 }

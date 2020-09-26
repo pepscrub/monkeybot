@@ -28,7 +28,7 @@ module.exports.changes = async (msg) =>
         const stats = commitsarr['stats'];
         const changes = commitsarr['commit']['message'];
         const date = commitsarr['commit']['author']['date'];
-        const date_formated = `📅 ${new Date(date).toLocaleDateString()}             🚧 ${total_commits}`;
+        const date_formated = `📅 ${new Date(date).toLocaleDateString()}`;
         // Null checking stats
         const stats_formatted = stats != null || stats != undefined ? `\n\n📈 Stats\
         \nAdditions: ${stats['additions']}\
@@ -39,7 +39,8 @@ module.exports.changes = async (msg) =>
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setAuthor(user['login'], user['avatar_url'])
-        .setDescription(`\`\`\`swift\n${date_formated}\
+        .setDescription(`\`\`\`swift\n${date_formated}\ 
+        \n🚧 ${total_commits}\
         \n${changes}\
         ${stats_formatted}\
         \`\`\``)

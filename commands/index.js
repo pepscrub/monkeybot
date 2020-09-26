@@ -8,6 +8,7 @@ const { invite } = require('./invite');
 const { log_commands } = require('../db/logging.js');
 const { toggleVote } = require('./settings');
 const { leaderboard } = require('./leaderboard');
+const { report } = require('./report');
 const del = require('./admin.js').delete;
 
 
@@ -57,8 +58,12 @@ module.exports = async (msg) =>
             toggleVote(msg, args);
         break;
 
-        case 'changes': case 'whats new': case 'what\'s new': case 'update': case 'last update':
+        case 'changes': case 'whats new': case 'what\'s new': case 'update': case 'last update': case "new":
             changes(msg);
+        break;
+
+        case 'report': case 'bug': case 'issue':
+            report(msg, args);
         break;
 
         // Owner only stuff

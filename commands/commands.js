@@ -24,6 +24,7 @@ module.exports.bcommand = async (msg) =>
         \n🎧 | \`disconnect Disconnects from the voice chat\
         \n🏆 | \`leaderboard (server | none)\
         \n📚 | \`changes See the last update to the bot\
+        \n📝 | \`report | report a bug to the developer\
         \n🔑 | \`delete Deletes up to 99 messages in chat (admin only)\`\`\``)
         .setColor(process.env.BOT_COLOR)
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)

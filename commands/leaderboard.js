@@ -1,6 +1,7 @@
 const { randomnoise, intwithcommas } = require('./helpers')
 const {DB} = require('../index');
 const discord = require('discord.js');
+const errh = require('./helpers.js').err;
 
 
 /**
