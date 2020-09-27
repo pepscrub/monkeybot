@@ -9,6 +9,7 @@ const { log_commands } = require('../db/logging.js');
 const { toggleVote } = require('./settings');
 const { leaderboard } = require('./leaderboard');
 const { report } = require('./report');
+const { send_uptime } = require('./uptime.js');
 const del = require('./admin.js').delete;
 
 
@@ -17,6 +18,7 @@ const prefix = process.env.PREFIX || '`';                                  // Im
 
 module.exports = async (msg) =>
 {
+    if(msg.guild.id != 744179018982621186) return;
     if(msg.author.bot) return;
     const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
     if(args.length == 0 || args[0].charAt(0) !== prefix) return;
@@ -64,6 +66,10 @@ module.exports = async (msg) =>
 
         case 'report': case 'bug': case 'issue':
             report(msg, args);
+        break;
+
+        case 'uptime':
+            send_uptime(msg);
         break;
 
         // Owner only stuff

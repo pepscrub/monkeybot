@@ -5,7 +5,7 @@ const errh = require('./commands/helpers.js').err;
 const { log, intwithcommas } = require('./commands/helpers.js');
 const { DataBase } = require('./db');
 module.exports.DB = new DataBase();
-
+module.exports.uptime = new Date().toISOString();
 this.DB.conn();
 
 async function sendmessage(desc)
