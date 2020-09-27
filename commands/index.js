@@ -18,7 +18,7 @@ const prefix = process.env.PREFIX || '`';                                  // Im
 
 module.exports = async (msg) =>
 {
-    if(msg.guild.id != 744179018982621186) return;
+    // if(msg.guild.id != 744179018982621186) return;
     if(msg.author.bot) return;
     const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
     if(args.length == 0 || args[0].charAt(0) !== prefix) return;
