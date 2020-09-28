@@ -17,9 +17,10 @@ module.exports.timestamp = () =>new Date().toLocaleString()
  */
 module.exports.log = (text, msg = null) =>
 {
-    if(typeof(text) == 'object') text = JSON.stringify(text);
-    if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
-    else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
+    // Only enable for debug reasons
+    // if(typeof(text) == 'object') text = JSON.stringify(text);
+    // if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
+    // else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
 }
 /**
  * @description Bot specific permissions
@@ -145,7 +146,7 @@ module.exports.randomnoise = () =>
   * @param {Object} msg Discord API message manager
   * @description Sends an error message into chat
   */
-module.exports.err = async (e, msg) =>
+module.exports.err = async (e, msg = null) =>
 {
     try
     {
@@ -157,12 +158,12 @@ module.exports.err = async (e, msg) =>
         .setColor(process.env.BOT_COLOR_ERR)
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
         .setTimestamp();
-        if(msg.channel == undefined) return;
+
+        if(msg == null || msg.channel == undefined) return;
         else
         {
             const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
     
-            console.log(problem_file);
     
             msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
     

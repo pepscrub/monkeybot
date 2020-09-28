@@ -104,4 +104,22 @@ client.on("warn", async (info) =>
     sendmessage(`WARNING: ${info}`);
 })
 
+client.on("error", async(err)=>
+{
+    const embed = new discord.MessageEmbed()
+    .setTitle(title)
+    .setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
+    \n🐛 ${problem_file}\
+    \n\n
+    \n🥞 Full error stack\
+    \n${e.stack}\
+    \`\`\``)
+    .setColor(process.env.BOT_COLOR_ERR)
+    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+    .setTimestamp();
+    const owner = await client.users.fetch('507793672209825792');
+    owner.send(embed);
+
+})
+
 client.on('message', commands);                                                             // Messages event listener, commands found in ./commands/index.js
