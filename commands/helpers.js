@@ -22,6 +22,17 @@ module.exports.log = (text, msg = null) =>
     // if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
     // else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
 }
+
+module.exports.checkurl = (url) =>
+{
+    if(url == null)
+    {
+        return 'https://canary.contestimg.wish.com/api/webimage/5ec797cb29b38e548541da43-large.jpg?cache_buster=013886739c3b31130737c7ee955fa50d'
+    }else{
+        return url;
+    }
+}
+
 /**
  * @description Bot specific permissions
  */
@@ -156,7 +167,7 @@ module.exports.err = async (e, msg = null) =>
         .setTitle(title)
         .setDescription(`\`\`\`swift\nUh oh, an error occured\`\`\``)
         .setColor(process.env.BOT_COLOR_ERR)
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, this.checkurl(msg.author.avatarURL()))
         .setTimestamp();
 
         if(msg == null || msg.channel == undefined) return;
@@ -224,7 +235,7 @@ module.exports.sendmessage = (msg, desc) => {
         .setColor(process.env.BOT_COLOR)
         .setTitle(`${desc}`)
         .setTimestamp()
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, this.checkurl(msg.author.avatarURL()));
         msg.channel.send(embed);
     }catch(e)
     {

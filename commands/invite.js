@@ -1,6 +1,6 @@
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { randomnoise, log, intwithcommas } = require('./helpers.js');
+const { randomnoise, log, intwithcommas, checkurl } = require('./helpers.js');
 
 /**
  * @description Creates an invite link for the bot so users can add the bot to their own servers.
@@ -23,7 +23,7 @@ module.exports.invite = (msg) =>
         \n📜 | Todo: give Monkey bot Artifical Intelligence
         \`\`\``)
         .setColor(process.env.BOT_COLOR)
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${checkurl(msg.author.avatarURL())}`)
         .setTimestamp();
         msg.channel.send(embed);
     }catch(e)

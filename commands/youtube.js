@@ -1,7 +1,7 @@
 const ytdl = require('ytdl-core');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { log, sendmessage, randomnoise, Perms, empty, intwithcommas, truncate} = require('./helpers.js');
+const { log, sendmessage, randomnoise, Perms, empty, intwithcommas, truncate, checkurl} = require('./helpers.js');
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 const icy = require('icy'); // Might want to look into this for more music bot capabilities
@@ -43,7 +43,7 @@ async function sendplaymessage(msg, info, queue)
             {name: `Description`, value: shortdesc}
         )
         .setImage(tn)
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, msg.author.displayAvatarURL())
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
         .setTimestamp();
     
         if(search)
@@ -331,7 +331,7 @@ module.exports.queue = async (msg) =>
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setColor(process.env.BOT_COLOR)
         .setTimestamp()
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()));
         if(data)
         {
             const title = `Up next: ${data['title']}`.substr(0, 125)

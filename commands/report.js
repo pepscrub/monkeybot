@@ -1,6 +1,6 @@
 const {DB} = require('../index');
 const discord = require('discord.js');
-const { timestamp, sendmessage } = require('./helpers');
+const { timestamp, sendmessage, checkurl } = require('./helpers');
 const errh = require('./helpers.js').err;
 
 module.exports.report = async (msg, args) =>
@@ -15,7 +15,7 @@ module.exports.report = async (msg, args) =>
         {
             let embed = new discord.MessageEmbed()
             .setColor(process.env.BOT_COLOR_ERR)
-            .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+            .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
             .setTimestamp()
             .setDescription(`\`\`\`swift\n${msg.author.username}: ${timestamp()}\
             \n🐛 User reported bug\

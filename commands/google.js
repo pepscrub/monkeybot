@@ -2,7 +2,7 @@
 const discord = require('discord.js');
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
-const { log, randomnoise, Perms, truncate, empty, sendmessage} = require('./helpers.js')
+const { log, randomnoise, Perms, truncate, empty, sendmessage, checkurl} = require('./helpers.js')
 const { DB } = require('../index.js');
 const { log_commands } = require('../db/logging.js');
 const { enable } = require('colors');
@@ -141,7 +141,7 @@ async function sendMessage(msg, res)
             .setTitle(title)
             .setDescription(`\n${perms.react() ? `\`voting to enable voting.` : ``}`)
             .setImage(res['link'])
-            .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+            .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
             .setTimestamp();
             msg.channel.send(embed);
         }
@@ -196,7 +196,7 @@ async function Reaction_Result(msg, e, res)
         .setColor(colors[output[0][0]][0])
         .setTitle(title)
         .setImage(res['link'])
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, `${msg.author.avatarURL()}`)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, checkurl(msg.author.avatarURL()))
         .setTimestamp();
         
         msg.channel.send(embed)

@@ -1,6 +1,6 @@
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { randomnoise, log } = require('./helpers.js');
+const { randomnoise, log, checkurl } = require('./helpers.js');
 
 /**
  * @description Sends a message of all the commands the bot responds too.
@@ -29,7 +29,7 @@ module.exports.bcommand = async (msg) =>
         \n📝 | \`report | report a bug to the developer\
         \n🔑 | \`delete Deletes up to 99 messages in chat (admin only)\`\`\``, false)
         .setColor(process.env.BOT_COLOR)
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
         .setTimestamp()
         msg.channel.send(embed);
     }catch(e)

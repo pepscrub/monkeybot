@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
+const {checkurl} = require('./helpers.js');
 const discord = require('discord.js');
 
 module.exports.changes = async (msg) =>
@@ -34,8 +35,6 @@ module.exports.changes = async (msg) =>
         \nAdditions: ${stats['additions']}\
         \nDeletions: ${stats['deletions']}`: '';
     
-        
-    
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setAuthor(user['login'], user['avatar_url'])
@@ -45,7 +44,7 @@ module.exports.changes = async (msg) =>
         ${stats_formatted}\
         \`\`\``)
         .setTimestamp()
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()));
         msg.channel.send(embed);
     }catch(e)
     {

@@ -1,4 +1,4 @@
-const {sendmessage} = require('./helpers.js')
+const {checkurl} = require('./helpers.js')
 const {DB} = require('../index');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
@@ -23,7 +23,7 @@ module.exports.send_uptime = (msg) =>
     \n${formatting}\
     \`\`\``)
     .setTimestamp()
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`);
+    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()));
     msg.channel.send(embed);
 
 
