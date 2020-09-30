@@ -25,9 +25,11 @@ module.exports.changes = async (msg) =>
             total_commits += all_arr[i]['total'];
         }
 
-        const user = commitsarr['committer'];                                   // Person who last commited
-        const stats = commitsarr['stats'];
-        const changes = commitsarr['commit']['message'];
+        const message = commitsarr['commit']['message'];
+
+        const user = commitsarr['committer'];                                           // Person who last commited
+        const stats = commitsarr['stats'];                                              // Stuff like stats, date and comitter will be static 
+        const changes = message == undefined ? '(Couldn\'t read last commit' : message; // Message can be defined in commit or not (so we check)
         const date = commitsarr['commit']['author']['date'];
         const date_formated = `📅 ${new Date(date).toLocaleDateString()}`;
         // Null checking stats

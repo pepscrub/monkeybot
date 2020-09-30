@@ -251,6 +251,9 @@ module.exports.play = async (msg, args) =>
 
         const perms = new Perms(msg)
 
+
+        if(msg.member.voice.channel == null) return sendmessage(`Could not read voice chat properties.\nNeed to see voice chat user limit and users in voice chat (See if there's a space for monkey to join)`);
+
         const user_limit = msg.member.voice.channel.userLimit;
         const users_inchat = msg.member.voice.channel.members.array().length;
         const limit_check = user_limit > 0 ? true : false;
