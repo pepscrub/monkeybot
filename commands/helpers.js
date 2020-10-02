@@ -165,7 +165,10 @@ module.exports.err = async (e, msg = null) =>
         const title = perms.del() ? "Click the X to close this message" : "Something happened ..."
         let embed = new discord.MessageEmbed()
         .setTitle(title)
-        .setDescription(`\`\`\`swift\nUh oh, an error occured\`\`\``)
+        .setDescription(`\`\`\`swift\nUh oh, an error occured\
+        \nYou can report this error through the \`report command\
+        \n(please explain any steps taking to cause this bug)\
+        \`\`\``)
         .setColor(process.env.BOT_COLOR_ERR)
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, this.checkurl(msg.author.avatarURL()))
         .setTimestamp();

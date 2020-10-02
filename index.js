@@ -21,7 +21,7 @@ async function sendmessage(desc)
         owner.send(embed);
     }catch(e)
     {
-        console.log(e);
+        console.log(`An eror occured when attempting to send message\n${e}`);
     }
 }
 
@@ -62,9 +62,15 @@ require('dotenv').config();                                                     
 client.login(process.env.token);                                                            // Logging into our bot (Token is supplied in .env)
 
 client.on('ready', async ()=>{
-    log(`Logged in as ${`${client.user.username}`.underline}.`)                             // Logging that our login was successfull
-    client.user.setPresence({activity:{name: "`help",type: "LISTENING"},status: "online"})
-    log(`Set to default status`)
+    try
+    {
+        log(`Logged in as ${`${client.user.username}`.underline}.`)                             // Logging that our login was successfull
+        client.user.setPresence({activity:{name: "`help",type: "LISTENING"},status: "online"})
+        log(`Set to default status`)
+    }catch(e)
+    {
+        sendmessage(`An error occured while bot was starting up.\n${e}`);
+    }
 }) 
 
 client.on("error", async (e)=>
@@ -106,19 +112,25 @@ client.on("warn", async (info) =>
 
 client.on("error", async(err)=>
 {
-    const embed = new discord.MessageEmbed()
-    .setTitle(title)
-    .setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
-    \n🐛 ${problem_file}\
-    \n\n
-    \n🥞 Full error stack\
-    \n${e.stack}\
-    \`\`\``)
-    .setColor(process.env.BOT_COLOR_ERR)
-    .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
-    .setTimestamp();
-    const owner = await client.users.fetch('507793672209825792');
-    owner.send(embed);
+    try
+    {
+        const embed = new discord.MessageEmbed()
+        .setTitle(title)
+        .setDescription(`\`\`\`swift\n${err.name}: ${err.message}\
+        \n🐛 ${problem_file}\
+        \n\n
+        \n🥞 Full error stack\
+        \n${err.stack}\
+        \`\`\``)
+        .setColor(process.env.BOT_COLOR_ERR)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, `${msg.author.avatarURL()}`)
+        .setTimestamp();
+        const owner = await client.users.fetch('507793672209825792');
+        owner.send(embed);    
+    }catch(e)
+    {
+        sendmessage(`Two errors occured:\n${err}\nError handler error:\n${e}`);
+    }
 
 })
 

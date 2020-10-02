@@ -41,7 +41,7 @@ module.exports.changes = async (msg) =>
         .setColor(process.env.BOT_COLOR)
         .setAuthor(user['login'], user['avatar_url'])
         .setDescription(`\`\`\`swift\n${date_formated}\ 
-        \n🚧 ${total_commits}\
+        \n🚧 Commits (${total_commits} total)\
         \n${changes}\
         ${stats_formatted}\
         \`\`\``)
