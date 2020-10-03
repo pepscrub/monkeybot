@@ -247,7 +247,11 @@ async function monkeyreddit(msg)
     {
         const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics']                                                             // Subreddits
         const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
-        const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(res=>res.json())
+        const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(async res=>
+        {
+            if(res.status !== 200) return monkeygoogle(msg);                // If we get rate limited or reddit throws us an error
+            return res.json();
+        })
         .catch(e=>
             {
                 errh(e,msg);
