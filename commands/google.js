@@ -247,7 +247,14 @@ async function monkeyreddit(msg)
     {
         const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics']                                                             // Subreddits
         const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
-        const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(res=>res.json());                    // Request reddit json list
+        const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(res=>res.json())
+        .catch(e=>
+            {
+                errh(e,msg);
+                console.error(e);
+                monkeygoogle(msg);  // Go to google searcher instead if reddit doesn't work
+                return;
+            });                    // Request reddit json list
         log(`Fetching from reddit https://www.reddit.com/r/${random_sr}`, msg)
     
         const valid = body['data']['children'].filter(post=>!post.data.over_18);                                                    // Make sure the post is PG
