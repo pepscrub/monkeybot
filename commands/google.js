@@ -249,16 +249,15 @@ async function monkeyreddit(msg)
         const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
         const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(async res=>
         {
-            if(res.status !== 200) return monkeygoogle(msg);                // If we get rate limited or reddit throws us an error
+            if(res.status != 200) return res.status;
             return res.json();
         })
         .catch(e=>
-            {
-                errh(e,msg);
-                console.error(e);
-                monkeygoogle(msg);  // Go to google searcher instead if reddit doesn't work
-                return;
-            });                    // Request reddit json list
+        {
+            console.error(e);
+            monkeygoogle(msg);  // Go to google searcher instead if reddit doesn't work
+        });                    // Request reddit json list
+        if(body === parseInt(body, 10)) return monkeygoogle(msg);
         log(`Fetching from reddit https://www.reddit.com/r/${random_sr}`, msg)
     
         const valid = body['data']['children'].filter(post=>!post.data.over_18);                                                    // Make sure the post is PG
