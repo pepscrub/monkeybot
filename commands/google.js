@@ -375,7 +375,7 @@ async function monkeygoogle(msg)
                         mins == 0 ? '' : hours = hours - 1;
                         quote_reached++;
                         if(quote_reached >= 2) return monkeyreddit(msg);
-                        else return monkey(msg);
+                        else return this.monkey(msg);
                     break;
                     default: console.log(res['error']);
                 }
