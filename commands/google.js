@@ -105,11 +105,9 @@ async function sendMessage(msg, res)
 
         if(perms.del() && perms.react() && enabled) // Check to see if we have permissions to modify chat and add reactions
         {
-
             updateVote(msg, true);
-
             const expirey = timer/1000; // Timer in seconds
-            google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
+            if(google_results != undefined) google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
             vote[msg.guild.id] = true;  // Voting is in progress
 
             // Embed messiness
@@ -217,7 +215,7 @@ function getmonkey(msg)
         const perms = new Perms(msg)
         log(`Checking to see if it's an image`, msg)
         // If we really messed up badly we try it all over again.
-        if(google_results.length == 0) return Math.round(Math.random()) ? monkeygoogle(msg) : monkeyreddit(msg);
+        if(google_results == undefined || google_results.length == 0) return Math.round(Math.random()) ? monkeygoogle(msg) : monkeyreddit(msg);
 
         let imglink = google_results[0]['link'];
         let linktest = !/(?:jpg|jpeg|gif|png)$/.test(imglink);
@@ -377,7 +375,7 @@ async function monkeygoogle(msg)
                             mins == 0 ? '' : hours = hours - 1;
                             quote_reached++;
                             if(quote_reached >= 2) return monkeyreddit(msg);
-                            else return this.monkey(msg);
+                            else return monkeyreddit(msg);
                         }catch(e)
                         {
                             errh(e, msg);
