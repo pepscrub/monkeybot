@@ -278,6 +278,41 @@ async function monkeyreddit(msg)
     }                                                      
 }
 
+
+/**
+ * Grabs a random image of a monkey off the internet.
+ * @param {*} msg 
+ */
+module.exports.monkey = async (msg) =>
+{
+    try
+    {
+        if(!msg.guild) return sendmessage(msg, "Couldn't get server object.");
+        if(!msg.guild.id) return sendmessage(msg, "Couldn't get server ID.");
+        
+        const table = await DB.table('vote');
+        const index = await table.find({"s_id": msg.guild.id});
+        const vote = await index.toArray();
+        if(index == null || empty(vote) || vote[0] == undefined)    // No doc in DB
+        {
+            await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": false})
+            return this.monkey(msg)
+        }
+        if(vote[0]['voting_enabled'] == null) table.updateOne(  // Voting_enabled endpoint not set
+            {"s_id": msg.guild.id},
+            {"$set":{"vote": false, "voting_enabled": false}}
+        );
+        if(vote[0]['vote']) return; // If there's currently a vote in 
+        log_commands(msg);
+        const random = Math.round(Math.random());
+        log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}\n`, msg)
+        random ? monkeygoogle(msg) : monkeyreddit(msg);        
+    }catch(e)
+    {
+        errh(e, msg);
+    }
+}
+
 /**
  * @description Grabs a random monkey image off Google Images using Custom Search Json API
  * @async
@@ -340,7 +375,7 @@ async function monkeygoogle(msg)
                         mins == 0 ? '' : hours = hours - 1;
                         quote_reached++;
                         if(quote_reached >= 2) return monkeyreddit(msg);
-                        else return this.monkey(msg);
+                        else return monkey(msg);
                     break;
                     default: console.log(res['error']);
                 }
@@ -351,41 +386,6 @@ async function monkeygoogle(msg)
         .catch(e=>{
             errh(e, msg);
         });
-    }catch(e)
-    {
-        errh(e, msg);
-    }
-}
-
-
-/**
- * Grabs a random image of a monkey off the internet.
- * @param {*} msg 
- */
-module.exports.monkey = async (msg) =>
-{
-    try
-    {
-        if(!msg.guild) return sendmessage(msg, "Couldn't get server object.");
-        if(!msg.guild.id) return sendmessage(msg, "Couldn't get server ID.");
-        
-        const table = await DB.table('vote');
-        const index = await table.find({"s_id": msg.guild.id});
-        const vote = await index.toArray();
-        if(index == null || empty(vote) || vote[0] == undefined)    // No doc in DB
-        {
-            await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": false})
-            return this.monkey(msg)
-        }
-        if(vote[0]['voting_enabled'] == null) table.updateOne(  // Voting_enabled endpoint not set
-            {"s_id": msg.guild.id},
-            {"$set":{"vote": false, "voting_enabled": false}}
-        );
-        if(vote[0]['vote']) return; // If there's currently a vote in 
-        log_commands(msg);
-        const random = Math.round(Math.random());
-        log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}\n`, msg)
-        random ? monkeygoogle(msg) : monkeyreddit(msg);        
     }catch(e)
     {
         errh(e, msg);
