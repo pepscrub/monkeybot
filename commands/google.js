@@ -366,16 +366,24 @@ async function monkeygoogle(msg)
                 switch(res['error']['code'])
                 {
                     case 429:   // Quota exhausted
-                        log(`Quota maxed out on key number: ${quote_reached}`, msg)
-                        const d = new Date();                                                           // Creating new date to get PT time off of
-                        const PT = d.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });  // Getting PT time (string)
-                        let time = PT.split(':');                                                       // Splitting on :
-                        let hours = time[2].includes('PM') ? 12 - time[0] : 24 - time[0];               // Since we're on 12 hour time format we check to see if it's PM and - a different value
-                        let mins = 60 - time[1];                                                        // Just get the amount of minutes
-                        mins == 0 ? '' : hours = hours - 1;
-                        quote_reached++;
-                        if(quote_reached >= 2) return monkeyreddit(msg);
-                        else return this.monkey(msg);
+                        try
+                        {
+                            log(`Quota maxed out on key number: ${quote_reached}`, msg)
+                            const d = new Date();                                                           // Creating new date to get PT time off of
+                            const PT = d.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });  // Getting PT time (string)
+                            let time = PT.split(':');                                                       // Splitting on :
+                            let hours = time[2].includes('PM') ? 12 - time[0] : 24 - time[0];               // Since we're on 12 hour time format we check to see if it's PM and - a different value
+                            let mins = 60 - time[1];                                                        // Just get the amount of minutes
+                            mins == 0 ? '' : hours = hours - 1;
+                            quote_reached++;
+                            if(quote_reached >= 2) return monkeyreddit(msg);
+                            else return this.monkey(msg);
+                        }catch(e)
+                        {
+                            errh(e, msg);
+                            sendmessage(msg, `This error was most likely occured due to our API limit been exhausted.\
+                            (We're implementing rate limiting due to how big monkey bot is getting)`);
+                        }
                     break;
                     default: console.log(res['error']);
                 }
