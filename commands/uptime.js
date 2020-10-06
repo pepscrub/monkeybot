@@ -14,7 +14,6 @@ module.exports.send_uptime = (msg) =>
     const mins =  Math.floor(diff / 60e3) == 0 ? `` :`${Math.floor(diff / 60e3) % 60} ${Math.floor(diff / 60e3) % 60 <= 1 ? 'Min' : 'Mins'} `
     const secs = Math.floor(diff / 1e3) == 0 ? `` : `${Math.floor(diff / 1e3) % 60} ${Math.floor(diff / 1e3) % 60 <= 1 ? 'Sec' : 'Secs'} `;
     const formatting = `🟢 ${hours}${mins}${secs}`;
-    
 
 
     const embed = new discord.MessageEmbed()
