@@ -55,12 +55,6 @@ let google_results = [];
  * @type number
  */
 let quote_reached = 0;
-/**
- * @type boolean[]
- * @example vote[server.id] = True|False
- */
-let vote = [];
-
 
 async function updateVote(msg, bool = false)
 {
@@ -300,6 +294,7 @@ module.exports.monkey = async (msg) =>
             {"s_id": msg.guild.id},
             {"$set":{"vote": false, "voting_enabled": false}}
         );
+        
         if(vote[0]['vote']) return; // If there's currently a vote in 
         log_commands(msg);
         const random = Math.round(Math.random());

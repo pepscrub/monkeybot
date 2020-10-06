@@ -10,7 +10,9 @@ const { toggleVote } = require('./settings');
 const { leaderboard } = require('./leaderboard');
 const { report } = require('./report');
 const { send_uptime } = require('./uptime.js');
+const { ratelimit } = require('../db/ratelimit.js');
 const del = require('./admin.js').delete;
+const { DB } = require('../index');
 
 
 
@@ -23,6 +25,14 @@ module.exports = async (msg) =>
     const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
     if(args.length == 0 || args[0].charAt(0) !== prefix) return;
     const command = args.shift().substr(1);
+
+    const table_raw = await DB.tablequery('ratelimit', {"user_id": msg.author.id});
+    const table_arr = await table_raw.toArray();
+    if(table_arr[0]['msg_disabled']) return;
+
+
+    ratelimit(msg);
+
     switch(command)
     {
         case 'delete': case 'remove': case 'purge':
