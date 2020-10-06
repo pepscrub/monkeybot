@@ -19,7 +19,7 @@ module.exports.ratelimit = async (msg) =>
         const table = await DB.table('ratelimit');
 
 
-        if(table_arr[0]['msg_disabled']) return;
+        if(!empty(table_arr)) if(table_arr[0]['msg_disabled']) return;
 
         // No user exists in database
         if(empty(table_arr))
