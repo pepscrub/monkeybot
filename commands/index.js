@@ -13,6 +13,7 @@ const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
 const del = require('./admin.js').delete;
 const { DB } = require('../index');
+const { empty } = require('./helpers.js');
 
 
 
@@ -28,7 +29,10 @@ module.exports = async (msg) =>
 
     const table_raw = await DB.tablequery('ratelimit', {"user_id": msg.author.id});
     const table_arr = await table_raw.toArray();
-    if(table_arr[0]['msg_disabled']) return;
+    if(!empty(table_arr))
+    {
+        if(table_arr[0]['msg_disabled']) return;
+    }
 
 
     ratelimit(msg);
