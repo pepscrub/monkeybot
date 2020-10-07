@@ -1,8 +1,8 @@
-const { randomnoise, intwithcommas } = require('./helpers')
+const { randomnoise, intwithcommas } = require('./helpers');
+const ta = require('time-ago')
 const {DB} = require('../index');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-
 
 /**
  * @description Gets the logged amount of commands from each server
@@ -58,12 +58,14 @@ module.exports.leaderboard = async (msg, args) =>
         })
         let count = output.length < 5 ? output.length : 5 // Limit the display to 5 (Yes we did all that and dumped a fuck ton of result)
         const top = output[0]                       // Get the first user
+        const top_date = ta.ago(top['commandusage'][top['commandusage'].length-1][1]);
+
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setTitle(`1. 🎉${top['name']}🎉`)
         .setURL(top['pfp'])
         .setDescription(`\`\`\`swift\nCalled: ${intwithcommas(top['commandusage'].length)} times. \
-        \nLast command: ${new Date(top['commandusage'][top['commandusage'].length-1][1]).toLocaleString()}\
+        \nLast command: ${top_date}\
         \`\`\``)
         .setThumbnail(top['pfp'])
         .setTimestamp();
@@ -82,7 +84,7 @@ module.exports.leaderboard = async (msg, args) =>
     
             embed.addField(`${i+1}. ${output[i]['name']}`, 
             `\`\`\`swift\nCalled: ${intwithcommas(output[i]['commandusage'].length)} times.\
-            \nLast command: ${new Date(output[i]['commandusage'][output[i]['commandusage'].length-1][1]).toLocaleString()}\
+            \nLast command: ${ta.ago(output[i]['commandusage'][output[i]['commandusage'].length-1][1])}\
             \`\`\``)
         }
     
