@@ -128,7 +128,7 @@ module.exports.play = async (msg, args) =>
                 const queue = query[0]['queue'][0][0];
                 const url_search = new URL(queue);                      // Create url object from string
                 log(`Getting ${queue}`, msg)
-
+                
                 switch(true)
                 {
                     // Youtube

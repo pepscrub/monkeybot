@@ -1,4 +1,5 @@
 const discord = require('discord.js');
+const ta = require('time-ago')
 
 module.exports.intwithcommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -186,6 +187,7 @@ module.exports.err = async (e, msg = null) =>
             msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
     
             embed.setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
+            \n ${ta.today()}\
             \n🐛 ${problem_file}\
             \n\n
             \n🥞 Full error stack\

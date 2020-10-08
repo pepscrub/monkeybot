@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
+const ta = require('time-ago')
 const {checkurl} = require('./helpers.js');
 const discord = require('discord.js');
 
@@ -40,10 +41,11 @@ module.exports.changes = async (msg) =>
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setAuthor(user['login'], user['avatar_url'])
-        .setDescription(`\`\`\`swift\n${date_formated}\ 
+        .setDescription(`\`\`\`swift\n${date_formated} (${ta.ago(date_formated)})\ 
+        \n📜 ${ta.mintoread(changes)}\
         \n🚧 Commits (${total_commits} total)\
         \n${changes}\
-        ${stats_formatted}\
+        \n${stats_formatted}\
         \`\`\``)
         .setTimestamp()
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()));
