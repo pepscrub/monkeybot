@@ -101,7 +101,7 @@ module.exports = async (msg) =>
             changes(msg);
         break;
 
-        case 'report': case 'bug': case 'issue':
+        case 'report': case 'bug': case 'issue': case 'request':
             rate_limit();
             report(msg, args);
         break;
