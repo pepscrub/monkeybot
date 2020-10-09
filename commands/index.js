@@ -30,18 +30,14 @@ module.exports = async (msg) =>
         const command = args.shift().substr(1);
 
 
-        const rate_limit = async () =>
+        const table_raw = await DB.tablequery('ratelimit', {"user_id": msg.author.id});
+        const table_arr = await table_raw.toArray();
+        if(!empty(table_arr))
         {
-            const table_raw = await DB.tablequery('ratelimit', {"user_id": msg.author.id});
-            const table_arr = await table_raw.toArray();
-            if(!empty(table_arr))
-            {
-                if(table_arr[0]['msg_disabled']) return true;
-            }
-
-
-            ratelimit(msg);
+            if(table_arr[0]['msg_disabled']) return true;
         }
+
+        ratelimit(msg);
 
         // Development mode
         const argsc = process.argv.slice(2);
@@ -54,73 +50,57 @@ module.exports = async (msg) =>
         switch(command)
         {
             case 'delete': case 'remove': case 'purge': case 'clean':
-                if(rate_limit()) return;
                 del(msg, args);
             break;
             case 'monkey':
-                if(rate_limit()) return;
                 monkey(msg);
             break;
             case 'queue':
-                if(rate_limit()) return;
                 queue(msg);
             break;
             case 'play': 
-                if(rate_limit()) return;
                 play(msg, args);
             break;
             case 'disconnect': case 'leave':
-                if(rate_limit()) return;
                 disconnect(msg);
             break;
             case 'skip': case 'next':
-                if(rate_limit()) return;
                 skip(msg);
             break;
             case 'stop':
-                if(rate_limit()) return;
                 stop(msg);
             break;
             case 'commands': case 'command': case 'help':
-                if(rate_limit()) return;
                 bcommand(msg);
             break;
             case 'invite':
-                if(rate_limit()) return;
                 invite(msg);
             break;
             case 'leaderboard': case 'ranks': case 'ranking': case 'rankings':
-                if(rate_limit()) return;
                 leaderboard(msg, args);
             break;
 
             case 'vote': case 'voting': case 'votes':
-                if(rate_limit()) return;
                 toggleVote(msg, args);
             break;
 
             case 'changes': case 'whats new': case 'what\'s new': case 'update': case 'last update': case "new":
-                if(rate_limit()) return;
                 changes(msg);
             break;
 
             case 'report': case 'bug': case 'issue': case 'request':
-                if(rate_limit()) return;
                 report(msg, args);
             break;
 
             case 'uptime':
-                if(rate_limit()) return;
                 send_uptime(msg);
             break;
 
             // Owner only stuff
             case 'status':
-                if(rate_limit()) return;
                 status(msg, args);
             break;
             case 'servers':
-                if(rate_limit()) return;
                 servers(msg, args)    
             break;
         }
