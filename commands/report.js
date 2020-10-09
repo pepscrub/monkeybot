@@ -22,7 +22,7 @@ module.exports.report = async (msg, args) =>
             {
                 const owner = await msg.client.users.fetch('507793672209825792');
                 owner.send(embed);
-                sendmessage(msg, "📝 Your bug has been reported");
+                sendmessage(msg, "📝 Your message has been sent");
                 
             }
         }else
