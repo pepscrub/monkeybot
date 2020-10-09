@@ -27,32 +27,38 @@ async function sendmessage(desc)
 
 async function send_server_update(server, color)
 {
-    const s_owner = server.owner;
-    const o_string = `${s_owner.user.username}#${s_owner.user.discriminator} ${s_owner.nickname ? '| '+s_owner.nickname : ''}`
-    const s_name = server.name;
-    const s_mem_count = server.memberCount;
-    const s_partnered = server.partnered;
-    const s_boosted = server.premiumSubscriptionCount;
-    const s_teir = server.premiumTier;
-    const s_location = server.region;
-    const s_verified = server.verified;
-    const s_count = intwithcommas(client.guilds.cache.array().length);
-
-    let embed = new discord.MessageEmbed()
-    .setTitle(`🕹 ${s_name} | 👪 ${s_mem_count}`)
-    .setDescription(`\`\`\`swift
-        \n👑| ${o_string}\
-        \n🌏| ${s_location}\
-        \n✅| ${s_verified}\
-        \n☄️| ${s_partnered ? 'Partnered Server❗️' : "Not Partnered"}\
-        \n🚀| Nitro boosted: ${s_boosted}\
-        \n🌌| Nitro server teir: ${s_teir}\
-        \n⭐| I am now in ${s_count} servers!\
-        \`\`\``)
-    .setColor(color)
-    .setTimestamp();
-    const owner = await client.users.fetch('507793672209825792');
-    owner.send(embed);
+    try
+    {
+        const s_owner = server.owner;
+        const o_string = `${s_owner.user.username}#${s_owner.user.discriminator} ${s_owner.nickname ? '| '+s_owner.nickname : ''}`
+        const s_name = server.name;
+        const s_mem_count = server.memberCount;
+        const s_partnered = server.partnered;
+        const s_boosted = server.premiumSubscriptionCount;
+        const s_teir = server.premiumTier;
+        const s_location = server.region;
+        const s_verified = server.verified;
+        const s_count = intwithcommas(client.guilds.cache.array().length);
+    
+        let embed = new discord.MessageEmbed()
+        .setTitle(`🕹 ${s_name} | 👪 ${s_mem_count}`)
+        .setDescription(`\`\`\`swift
+            \n👑| ${o_string}\
+            \n🌏| ${s_location}\
+            \n✅| ${s_verified}\
+            \n☄️| ${s_partnered ? 'Partnered Server❗️' : "Not Partnered"}\
+            \n🚀| Nitro boosted: ${s_boosted}\
+            \n🌌| Nitro server teir: ${s_teir}\
+            \n⭐| I am now in ${s_count} servers!\
+            \`\`\``)
+        .setColor(color)
+        .setTimestamp();
+        const owner = await client.users.fetch('507793672209825792');
+        owner.send(embed);
+    }catch(e)
+    {
+        console.error(e);
+    }
 }
 
 // Commands index.js
@@ -64,7 +70,7 @@ client.login(process.env.token);                                                
 client.on('ready', async ()=>{
     try
     {
-        log(`Logged in as ${`${client.user.username}`.underline}.`)                             // Logging that our login was successfull
+        log(`Logged in as ${`${client.user.username}`.underline}.`)
         client.user.setPresence({activity:{name: "`help",type: "LISTENING"},status: "online"})
         log(`Set to default status`)
     }catch(e)
@@ -75,18 +81,24 @@ client.on('ready', async ()=>{
 
 client.on("error", async (e)=>
 {
-    let embed = new discord.MessageEmbed()
-    .setTitle("Something happened ...")
-    .setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
-        \n🐛 ${problem_file}\
-        \n\n
-        \n🥞 Full error stack\
-        \n${e.stack}\
-        \`\`\``)
-    .setColor(process.env.BOT_COLOR_ERR)
-    .setTimestamp();
-    const owner = await client.users.fetch('507793672209825792');
-    owner.send(embed);
+    try
+    {
+        let embed = new discord.MessageEmbed()
+        .setTitle("Something happened ...")
+        .setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
+            \n🐛 ${problem_file}\
+            \n\n
+            \n🥞 Full error stack\
+            \n${e.stack}\
+            \`\`\``)
+        .setColor(process.env.BOT_COLOR_ERR)
+        .setTimestamp();
+        const owner = await client.users.fetch('507793672209825792');
+        owner.send(embed);
+    }catch(e)
+    {
+        console.error(e);
+    }
 })
 
 // When we join a new server
