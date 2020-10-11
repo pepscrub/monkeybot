@@ -1,5 +1,5 @@
 const discord = require('discord.js');
-const { status, servers } = require('./owner.js');
+const { status, servers, ban } = require('./owner.js');
 const { play, skip, stop, queue, disconnect} = require('./youtube');
 const { monkey } = require('./google');
 const { bcommand } = require('./commands');
@@ -13,7 +13,7 @@ const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
 const del = require('./admin.js').delete;
 const { DB } = require('../index');
-const { empty, errh } = require('./helpers.js');
+const { empty, errh, Perms, err } = require('./helpers.js');
 
 
 
@@ -23,8 +23,11 @@ module.exports = async (msg) =>
 {
     try
     {
+        const perms = new Perms(msg);
         // Bot ignoring stuff
         if(msg.author.bot) return;
+        if(msg.guild == null) return;
+        if(!perms.viewchat()) return; // Do not have permission to view the chat
         const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
         if(args.length == 0 || args[0].charAt(0) !== prefix) return;
         const command = args.shift().substr(1);
@@ -103,9 +106,12 @@ module.exports = async (msg) =>
             case 'servers':
                 servers(msg, args)    
             break;
+            case 'ban': case 'unban':
+                ban(command, msg, args);
+            break;
         }
     }catch(e)
     {
-        errh(e, msg);
+        err(e, msg);
     }
 }

@@ -248,12 +248,9 @@ module.exports.play = async (msg, args) =>
         const query = await table.find({"id": msg.guild.id})
         const array = await query.toArray();
 
-
-        const perms = new Perms(msg)
-
-
         if(msg.member.voice.channel == null) return sendmessage(`Could not read voice chat properties.\nNeed to see voice chat user limit and users in voice chat (See if there's a space for monkey to join)`);
 
+        const perms = new Perms(msg);
         const user_limit = msg.member.voice.channel.userLimit;
         const users_inchat = msg.member.voice.channel.members.array().length;
         const limit_check = user_limit > 0 ? true : false;
@@ -266,15 +263,14 @@ module.exports.play = async (msg, args) =>
             }
         }
 
-
-        perms.admin()
-
         // Actual logic
+        if(!perms.connect()) return await sendmessage(msg, `I don't have permission to join the voice channel`);
         if(!perms.speak()) return await sendmessage(msg, `Don't have permissions to speak`);
+        if(msg.guild.me.voice.channel) return sendmessage(msg, `I am already in a voice channel!`);
         if(!args[0] && empty(array)) return await sendmessage(msg, `${msg.author.username} Where's the video?`);                       //  If there's no link (args[0] is our actual first argument)
         if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);              //  Test to see if the user is in a channel or not
-        if(!msg.member.guild.me.hasPermission(['SPEAK'])) return sendmessage(msg, 'Monkey can\'t speak! (Missing permissions');        //  Missing permissions
 
+        // Url tester regex
         const regex =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
         if(regex.test(args[0]))
         {
@@ -308,7 +304,8 @@ module.exports.disconnect = async (msg) =>
         log(`Disconnecting from voice chat.`, msg);
         if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);
         sendmessage(msg, `Leaving the voice chat`)
-        msg.guild.me.voice.channel.leave();
+        if(!msg.guild.me.voice.channel) return sendmessage(msg, `Sorry, I had trouble reading if I was in the voice channel.`);
+        else msg.guild.me.voice.channel.leave();
         log_commands(msg);
     }catch(e)
     {

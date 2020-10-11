@@ -1,6 +1,7 @@
 const errh = require('./helpers.js').err;
 const discord = require('discord.js');
-const { log, randomnoise, checkurl } = require('./helpers.js')
+const { log, randomnoise, checkurl, sendmessage } = require('./helpers.js');
+const { DB } = require('../index');
 
 function isowner(msg)
 {
@@ -13,11 +14,12 @@ function isowner(msg)
         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
         return msg.channel.send(embed);
     }
+    return false;
 }
 
 module.exports.status = (msg, args) =>
 {
-    isowner(msg);
+    if(isowner(msg)) return;
     if(!args.length)
     {
         const embed = new discord.MessageEmbed()
@@ -67,7 +69,7 @@ module.exports.status = (msg, args) =>
 
 module.exports.servers = (msg, args) =>
 {
-    isowner(msg)
+    if(isowner(msg)) return;
     const servers = msg.client.guilds.cache.sort((a,b)=>{return b.memberCount - a.memberCount});
     let length_check = 0;
     let members = 0;
@@ -114,4 +116,32 @@ module.exports.servers = (msg, args) =>
         if(length_check < 6000) embed.addField(header, body)
     })
     msg.channel.send(embed)
+}
+
+module.exports.ban = async (command, msg, args) =>
+{
+    if(isowner(msg)) return;
+    if(args.length == 0) sendmessage(msg, `Args: username`); 
+
+    const table = await DB.table('ratelimit');
+
+    if(command == 'ban')
+    {
+        msg.mentions.users.forEach(user=>
+        {
+            log(`Banning ${user.username}`);
+            table.updateOne({"user_id": user.id},{$set: {"msg_disabled": true}});
+            sendmessage(msg, `I am now ignoring ${user.username}'s commands`);
+        })
+    }
+    else if(command == 'unban')
+    {
+        msg.mentions.users.forEach(user=>
+        {
+            log(`Unbanning ${user.username}`);
+            table.updateOne({"user_id": user.id},{$set: {"msg_disabled": false}})
+            sendmessage(msg, `I am now listening to ${user.username}'s commands`);
+        })
+    }
+
 }
