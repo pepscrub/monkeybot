@@ -1,4 +1,5 @@
 const discord = require('discord.js');
+const ta = require('time-ago')
 
 module.exports.intwithcommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -37,100 +38,6 @@ module.exports.checkurl = (url) =>
     }
 }
 
-/**
- * @description Bot specific permissions
- */
-module.exports.Perms = class Perms
-{
-    constructor(msg){this.msg = msg;}
-
-    // All functions return a bool for if the bot has permissions
-    /**
-     * @description Returns boolean if the user is an admin
-     * @returns {boolean} 
-     */
-    admin(){try{return this.msg.member.guild.me.hasPermission(['ADMINISTRATOR'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to delete
-     * messages, reactions, pin messages ...
-     * @returns {boolean} 
-     */
-    del(){try{return this.msg.member.guild.me.hasPermission(['MANAGE_MESSAGES'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to send files
-     * @returns {boolean} 
-     */
-    attach(){try{return this.msg.member.guild.me.hasPermission(['ATTACH_FILES'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to send messages
-     * @returns {boolean} 
-     */
-    /**
-     * @description Returns boolean if the user is allowed to add reactions to a message
-     * @returns {boolean} 
-     */
-    react(){try{return this.msg.member.hasPermission('ADD_REACTIONS')}catch(e){this.err(e, msg);}}
-    msg(){try{return this.msg.member.guild.me.hasPermission(['SEND_MESSAGES'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to view the current channel
-     * @returns {boolean} 
-     */
-    viewchat(){try{return this.msg.member.guild.me.hasPermission(['VIEW_CHANNEL'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to speak
-     * @returns {boolean} 
-     */
-    speak(){try{return this.msg.member.guild.me.hasPermission(['SPEAK'])}catch(e){this.err(e, msg);}}
-}
-
-/**
- * @description User specific permissions
- */
-module.exports.UserPerms = class UserPerms
-{
-    /**
-     * 
-     * @param {Object} msg 
-     */
-    constructor(msg){this.msg = msg;}
-
-    /**
-     * @description Returns boolean if the user is an admin
-     * @returns {boolean} 
-     */
-    admin(){try{return this.msg.member.hasPermission(['ADMINISTRATOR'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to delete
-     * messages, reactions, pin messages ...
-     * @returns {boolean} 
-     */
-    del(){try{return this.msg.member.hasPermission(['MANAGE_MESSAGES'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to send files
-     * @returns {boolean} 
-     */
-    attach(){try{return this.msg.member.hasPermission(['ATTACH_FILES'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to add reactions to a message
-     * @returns {boolean} 
-     */
-    react(){try{return this.msg.member.hasPermission('ADD_REACTIONS')}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to send messages
-     * @returns {boolean} 
-     */
-    msg(){try{return this.msg.member.hasPermission(['SEND_MESSAGES'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to view the current channel
-     * @returns {boolean} 
-     */
-    viewchat(){try{return this.msg.member.hasPermission(['VIEW_CHANNEL'])}catch(e){this.err(e, msg);}}
-    /**
-     * @description Returns boolean if the user is allowed to speak
-     * @returns {boolean} 
-     */
-    speak(){try{return this.msg.member.hasPermission(['SPEAK'])}catch(e){this.err(e, msg);}}
-}
 
  /**
   * @returns {String} Random monkey text from array
@@ -154,50 +61,6 @@ module.exports.randomnoise = () =>
     ]
     const r = Math.floor(Math.random() * noise.length)
     return noise[r];
-}
-
- /**
-  * @param {Error} e Error message
-  * @param {Object} msg Discord API message manager
-  * @description Sends an error message into chat
-  */
-module.exports.err = async (e, msg = null) =>
-{
-    try
-    {
-        const perms = new this.Perms(msg);
-        const title = perms.del() ? "Click the X to close this message" : "Something happened ..."
-        let embed = new discord.MessageEmbed()
-        .setTitle(title)
-        .setDescription(`\`\`\`swift\nUh oh, an error occured\
-        \nYou can report this error through the \`report command\
-        \n(please explain any steps taking to cause this bug)\
-        \`\`\``)
-        .setColor(process.env.BOT_COLOR_ERR)
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, this.checkurl(msg.author.avatarURL()))
-        .setTimestamp();
-
-        if(msg == null || msg.channel == undefined) return;
-        else
-        {
-            const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
-    
-    
-            msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
-    
-            embed.setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
-            \n🐛 ${problem_file}\
-            \n\n
-            \n🥞 Full error stack\
-            \n${e.stack}\
-            \`\`\``)
-            const owner = await msg.client.users.fetch('507793672209825792');
-            owner.send(embed);
-        }
-    }catch(e)
-    {
-        console.log(e);
-    }
 }
 
  /**
@@ -266,3 +129,141 @@ module.exports.empty = (obj) =>
         return true;
     }
 }
+
+
+/**
+ * @description Bot specific permissions
+ */
+module.exports.Perms = class Perms
+{
+    constructor(msg){this.msg = msg;}
+
+    // All functions return a bool for if the bot has permissions
+    /**
+     * @description Returns boolean if the user is an admin
+     * @returns {boolean} 
+     */
+    admin(){try{return this.msg.guild == null ? console.log("admin Can't get permissions") :  this.msg.member.guild.me.hasPermission(['ADMINISTRATOR'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to delete
+     * messages, reactions, pin messages ...
+     * @returns {boolean} 
+     */
+    del(){try{
+        return this.msg.guild == null ? console.log(`${this.msg.author.username} delete Can't get permissions`) : this.msg.member.guild.me.hasPermission(['MANAGE_MESSAGES'])
+    }catch(e){
+        console.error(e);
+    }}
+    /**
+     * @description Returns boolean if the user is allowed to send files
+     * @returns {boolean} 
+     */
+    attach(){try{return this.msg.guild == null ? console.log("attach Can't get permissions") :  this.msg.member.guild.me.hasPermission(['ATTACH_FILES'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to send messages
+     * @returns {boolean} 
+     */
+    /**
+     * @description Returns boolean if the user is allowed to add reactions to a message
+     * @returns {boolean} 
+     */
+    react(){try{return this.msg.guild == null ? console.log("react Can't get permissions") :  this.msg.member.hasPermission('ADD_REACTIONS')}catch(e){console.error(e);}}
+    message(){try{return this.msg.guild == null ? console.log("message Can't get permissions") :  this.msg.member.guild.me.hasPermission(['SEND_MESSAGES'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to view the current channel
+     * @returns {boolean} 
+     */
+    viewchat(){try{return this.msg.guild == null ? console.log("viewchat Can't get permissions") :  this.msg.member.guild.me.hasPermission(['VIEW_CHANNEL'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to speak
+     * @returns {boolean} 
+     */
+    speak(){try{return this.msg.guild == null ? console.log("speak Can't get permissions") :  this.msg.member.guild.me.hasPermission(['SPEAK'])}catch(e){console.error(e);}}
+
+    connect(){try{return this.msg.guild == null ? console.log("connect Can't get permissions") :  this.msg.member.guild.me.hasPermission(['CONNECT'])}catch(e){console.error(e);}}
+
+    invite(){try{return this.msg.guild == null ? console.log("invite Can't get permissions") :  this.msg.member.guild.me.hasPermission(['CREATE_INSTANT_INVITE'])}catch(e){console.error(e)}}
+}
+
+/**
+ * @description User specific permissions
+ */
+module.exports.UserPerms = class UserPerms
+{
+    /**
+     * 
+     * @param {Object} msg 
+     */
+    constructor(msg){this.msg = msg;}
+
+    /**
+     * @description Returns boolean if the user is an admin
+     * @returns {boolean} 
+     */
+    admin(){try{return this.msg.guild == null ? console.log("admin Can't get permissions") :  this.msg.member.hasPermission(['ADMINISTRATOR'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to delete
+     * messages, reactions, pin messages ...
+     * @returns {boolean} 
+     */
+    del(){try{return this.msg.guild == null ? console.log("delete Can't get permissions") :  this.msg.member.hasPermission(['MANAGE_MESSAGES'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to send files
+     * @returns {boolean} 
+     */
+    attach(){try{return this.msg.guild == null ? console.log("attach Can't get permissions") :  this.msg.member.hasPermission(['ATTACH_FILES'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to add reactions to a message
+     * @returns {boolean} 
+     */
+    react(){try{return this.msg.guild == null ? console.log("react Can't get permissions") :  this.msg.member.hasPermission('ADD_REACTIONS')}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to send messages
+     * @returns {boolean} 
+     */
+    msg(){try{return this.msg.guild == null ? console.log("message Can't get permissions") :  this.msg.member.hasPermission(['SEND_MESSAGES'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to view the current channel
+     * @returns {boolean} 
+     */
+    viewchat(){try{return this.msg.guild == null ? console.log("view chat Can't get permissions") :  this.msg.member.hasPermission(['VIEW_CHANNEL'])}catch(e){console.error(e);}}
+    /**
+     * @description Returns boolean if the user is allowed to speak
+     * @returns {boolean} 
+     */
+    speak(){try{return this.msg.guild == null ? console.log("speak Can't get permissions") :  this.msg.member.hasPermission(['SPEAK'])}catch(e){console.error(e);}}
+}
+
+ /**
+  * @param {Error} e Error message
+  * @param {Object} msg Discord API message manager
+  * @description Sends an error message into chat
+  */
+ module.exports.err = async (e, msg = null) =>
+ {
+     try
+     { 
+         if(msg == null || msg.channel == undefined) return;
+         else
+         {
+             const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
+             const embed = new discord.MessageEmbed()
+             .setColor(process.env.BOT_COLOR_ERR)
+             .setFooter(`${msg.author.username}#${msg.author.discriminator}`, this.checkurl(msg.author.avatarURL()))
+             .setTimestamp()
+             .setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
+             \n Process killed: ${ta.today()}\
+             \n🐛 ${problem_file}\
+             \n\n
+             \n🥞 Full error stack\
+             \n${e.stack}\
+             \`\`\``)
+             const owner = await msg.client.users.fetch('507793672209825792');
+             owner.send(embed);
+         }
+         setTimeout(()=>{process.kill(process.pid, "SIGINT");},5000)
+     }catch(e)
+     {
+         console.log(e);
+     }
+ }

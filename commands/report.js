@@ -7,11 +7,7 @@ module.exports.report = async (msg, args) =>
 {
     try
     {
-        if(args.length == 0)
-        {
-            sendmessage(msg, `Please describe the bug you encountered and steps to recreate it`);
-        }
-        else
+        if(args.length != 0)
         {
             let embed = new discord.MessageEmbed()
             .setColor(process.env.BOT_COLOR_ERR)
@@ -26,9 +22,12 @@ module.exports.report = async (msg, args) =>
             {
                 const owner = await msg.client.users.fetch('507793672209825792');
                 owner.send(embed);
-                sendmessage(msg, "📝 Your bug has been reported");
+                sendmessage(msg, "📝 Your message has been sent");
                 
             }
+        }else
+        {
+            sendmessage(msg, "invalid message.");
         }
     }catch(e)
     {

@@ -1,5 +1,6 @@
 const { err, Perms, UserPerms, sendmessage} = require('./helpers.js');
 const discord = require('discord.js');
+const ta = require('time-ago');
 
 /**
  * @description Bulk delete message
@@ -26,50 +27,22 @@ module.exports.delete = (msg, args) =>
                 if(args[0] < 0 || args[0] == undefined) return sendmessage(msg, "Can't delete nothing")
                 else
                 {
-                    if(args[0] == 'all')
+                    let count = parseInt(args[0]) + 1
+                    if(!count || count == NaN)
                     {
-                        let count = 0;
-                        msg.channel.messages.fetch()
-                        .catch((e)=>
-                        {
-                            err(e, msg);
-                        })
-                        .then(messages=>{
-                            messages.forEach(res=>
-                            {
-                                count++;
-                            })
-                            msg.channel.bulkDelete(messages)
-                            .catch((e)=>
-                            {
-                                err(e, msg);
-                            })
-                        })
-                        .then((res)=>
-                        {
-                            if(!res) return;
-                            sendmessage(msg, `Deleted ${count} messages.`);
-                        })
+                        sendmessage(msg, `Invalid args`);
+                    }
+                    else if(count > 100)
+                    {
+                        sendmessage(msg, `Can't delete more than 100 messages`);
                     }
                     else
                     {
-                        let count = parseInt(args[0]) + 1
-                        if(count > 100)
-                        {
-                            sendmessage(msg, `Can't delete more than 100 messages`);
-                        }
-                        else
-                        {
-                            msg.channel.messages.fetch({limit: count})
-                            .then(messages=>{
-                                msg.channel.bulkDelete(messages)
-                                .catch(e=>
-                                {
-                                    err(e, msg);
-                                })
-                            })
-                            sendmessage(msg, `Deleted ${count} messages.`);
-                        }
+                        msg.channel.messages.fetch({limit: count})
+                        .then(messages=>{
+                            messages.forEach(re=>{re.delete();count++;});
+                        })
+                        sendmessage(msg, `Deleted ${count} messages.`);
                     }
                 }
             }catch(e)

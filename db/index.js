@@ -21,6 +21,11 @@ module.exports.DataBase = class DataBase
         this.dbinfo = null;
     }
 
+    client()
+    {
+        return this.client;
+    }
+
     connected()
     {
         return this.db === null ? false : true;
@@ -126,9 +131,14 @@ module.exports.DataBase = class DataBase
 
     close()
     {
-        this.client.close(()=>
+        return new Promise((resolve, rej)=>
         {
-            log('Disconnected from database')
-        });
+            this.client.logout((err, res)=>
+            {
+                if(err) throw err
+                resolve(true)
+                log('Disconnected from database')
+            })
+        })
     }
 }

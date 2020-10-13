@@ -58,23 +58,29 @@ let quote_reached = 0;
 
 async function updateVote(msg, bool = false)
 {
-    const table = await DB.table('vote');
-    const docs = await table.find({"s_id": msg.guild.id})
-    const arr = await docs.toArray();
-    const update = () =>
+    try
     {
-        table.update(
+        const table = await DB.table('vote');
+        const docs = await table.find({"s_id": msg.guild.id})
+        const arr = await docs.toArray();
+        const update = () =>
+        {
+            table.update(
+                {"s_id": msg.guild.id},
+                {"$set":{"vote": bool, "voting_enabled": arr[0]['voting_enabled']}}
+            )
+        }
+    
+        if(!docs) update();
+    
+        const server_vote = await table.findOneAndUpdate(
             {"s_id": msg.guild.id},
             {"$set":{"vote": bool, "voting_enabled": arr[0]['voting_enabled']}}
-        )
+        );
+    }catch(e)
+    {
+        errh(e, msg);
     }
-
-    if(!docs) update();
-
-    const server_vote = await table.findOneAndUpdate(
-        {"s_id": msg.guild.id},
-        {"$set":{"vote": bool, "voting_enabled": arr[0]['voting_enabled']}}
-    );
 }
 
 
@@ -374,8 +380,7 @@ async function monkeygoogle(msg)
                         }catch(e)
                         {
                             errh(e, msg);
-                            sendmessage(msg, `This error was most likely occured due to our API limit been exhausted.\
-                            (We're implementing rate limiting due to how big monkey bot is getting)`);
+                            sendmessage(msg, `This error was most likely occured due to our API limit been exhausted.`);
                         }
                     break;
                     default: console.log(res['error']);
