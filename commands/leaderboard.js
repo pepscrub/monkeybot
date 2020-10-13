@@ -1,4 +1,4 @@
-const { randomnoise, intwithcommas } = require('./helpers')
+const { randomnoise, intwithcommas } = require('./helpers');
 const {DB} = require('../index');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
@@ -58,12 +58,19 @@ module.exports.leaderboard = async (msg, args) =>
         })
         let count = output.length < 5 ? output.length : 5 // Limit the display to 5 (Yes we did all that and dumped a fuck ton of result)
         const top = output[0]                       // Get the first user
+
+        const top_date = top['commandusage'][top['commandusage'].length-1][1];
+        const server_region = msg.guild.region;
+        
+
+        console.log(server_region);
+
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setTitle(`1. 🎉${top['name']}🎉`)
         .setURL(top['pfp'])
         .setDescription(`\`\`\`swift\nCalled: ${intwithcommas(top['commandusage'].length)} times. \
-        \nLast command: ${new Date(top['commandusage'][top['commandusage'].length-1][1]).toLocaleString()}\
+        \nLast command: ${new Date(top_date).toLocaleString()}\
         \`\`\``)
         .setThumbnail(top['pfp'])
         .setTimestamp();

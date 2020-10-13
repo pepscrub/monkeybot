@@ -6,6 +6,12 @@ const { log, intwithcommas } = require('./commands/helpers.js');
 const { DataBase } = require('./db');
 module.exports.DB = new DataBase();
 module.exports.uptime = new Date().toISOString();
+module.exports.DEV = () =>
+{
+    const args = process.argv.slice(2);
+    if(args[0] == dev) return true;
+    else return false;
+}
 this.DB.conn();
 
 async function sendmessage(desc)
