@@ -21,6 +21,7 @@
     "soundcloud-scraper": "^3.0.1",
     "time-ago": "^0.2.1",
     "url-metadata": "^2.4.0",
+    "wtfnode": "^0.8.3",
     "ytdl-core": "^3.2.2"
   },
   "devDependencies": {},

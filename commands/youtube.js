@@ -188,25 +188,30 @@ module.exports.play = async (msg, args) =>
 
                 shiftqueue(msg) // Remove this entry
 
-                // on.('end') depreciated ?
-                dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
-                {                                                               // speaking is true so if we look for the
-                    if(!e)                                                      // instance it's not we can assume we've 'skipped'
-                    {
-                        const table =await DB.tablequery('music', {"id": msg.guild.id})
-                        const query = await table.toArray();
-                        const queue = query[0]['queue']
-
-                        if(!empty(queue)) play(connection, msg)
-                        else {
-                            log(`Leaving voice chat`, msg)
-                            sendmessage(msg, `Leaving the voice chat`)
-                            connection.disconnect();
+                if(dispatcher)
+                {
+                    dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
+                    {                                                               // speaking is true so if we look for the
+                        if(!e)                                                      // instance it's not we can assume we've 'skipped'
+                        {
+                            const table =await DB.tablequery('music', {"id": msg.guild.id})
+                            const query = await table.toArray();
+                            const queue = query[0]['queue']
+    
+                            if(!empty(queue)) play(connection, msg)
+                            else {
+                                log(`Leaving voice chat`, msg)
+                                sendmessage(msg, `Leaving the voice chat`)
+                                connection.disconnect();
+                            }
                         }
-                    }
-                })
-            }catch(err)
-            {
+                    })
+                }else{
+                    shiftqueue(msg);
+                    connection.disconnect();
+                    msg.guild.me.voice.channel.leave();
+                }
+            }catch(err){
                 const table = await DB.table('music');
                 const queue = await table.find({"id": msg.guild.id})
                 const query = await queue.toArray();

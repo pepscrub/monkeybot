@@ -264,7 +264,7 @@ module.exports.UserPerms = class UserPerms
              msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
      
              embed.setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
-             \n ${ta.today()}\
+             \n Process killed: ${ta.today()}\
              \n🐛 ${problem_file}\
              \n\n
              \n🥞 Full error stack\
@@ -273,6 +273,7 @@ module.exports.UserPerms = class UserPerms
              const owner = await msg.client.users.fetch('507793672209825792');
              owner.send(embed);
          }
+         process.kill(process.pid, 'SIGTERM');
      }catch(e)
      {
          console.log(e);
