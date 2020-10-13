@@ -17,8 +17,11 @@ module.exports.sendmessage = async (desc) =>
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setTitle(`${desc}`)
-        .setTimestamp()
-        .setFooter(`${client.author.username}#${client.author.discriminator}`, `${client.author.avatarURL()}`);
+        .setTimestamp();
+        if(client.author !== undefined)
+        {
+            embed.setFooter(`${client.author.username}#${client.author.discriminator}`, `${client.author.avatarURL()}`);
+        }
         const owner = await client.users.fetch('507793672209825792');
         owner.send(embed);
     }catch(e)
@@ -35,8 +38,14 @@ client.login(process.env.token);                                                
 client.on('ready', async ()=>{
     try
     {
+        const args = process.argv.slice(2);
         log(`Logged in as ${`${client.user.username}`.underline}.`)
-        client.user.setPresence({activity:{name: "`help",type: "LISTENING"},status: "online"})
+        if(/dev/gi.test(args[0]))
+        {
+            client.user.setPresence({activity:{name: "In debugging mode"},status: "dnd"})
+        }else{
+            client.user.setPresence({activity:{name: "`help",type: "LISTENING"},status: "online"})
+        }
         log(`Set to default status`)
         // process.kill(process.pid, 15);
     }catch(e)
@@ -112,6 +121,8 @@ client.setInterval(()=>{
 
 // Processing (should move to another folder)
 
+process.stdin.resume();
+
 wtf.setLogger('error', (err)=>{this.sendmessage(err)});
 function exit_gracefully(SIG)
 {
@@ -143,7 +154,18 @@ function exit_gracefully(SIG)
 
 process.on('warning', (warn) => {this.sendmessage(`Warning: ${warn}`)});
 process.on('uncaughtException', (err, origin) => {this.sendmessage(`Execption: ${err}\nOrigin${origin}`)});
-process.on('unhandledRejection', (reason, promise) => {this.sendmessage(`Unhandled rejection at: ${promise}\nReason: ${reason}`)});
-process.on('exit', (exitcode) => {this.sendmessage(`Bot is exiting with exit code of ${exitcode}`);})
+process.on('uncaughtExceptionMonitor', (err, origin) => {this.sendmessage(`Execption: ${err}\nOrigin${origin}`)});
+
+process.on('unhandledRejection', (reason, promise) => {
+    if(typeof promise === 'object') this.sendmessage(`Unhandled rejection at: ${JSON.stringify(promise)}\nReason: ${reason}`)
+    else this.sendmessage(`Unhandled rejection at: ${promise}\nReason: ${reason}`)
+});
+process.on('beforeExit', (exitcode) => log(`Bot is about to exit with ${exitcode}`));
+process.on('exit', (exitcode) => {log(`Bot is exiting with exit code of ${exitcode}`);})
 process.on('SIGINT', (code)=> exit_gracefully(code));
 process.on('SIGTERM', (code)=> exit_gracefully(code));
+
+process.on('SIGUSR1', (code)=> exit_gracefully(code));
+process.on('SIGUSR2', (code)=> exit_gracefully(code));
+
+process.on('SIGHUP', (code)=> exit_gracefully(code));

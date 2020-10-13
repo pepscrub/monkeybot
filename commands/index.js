@@ -35,18 +35,20 @@ module.exports = async (msg) =>
 
         const table_raw = await DB.tablequery('ratelimit', {"user_id": msg.author.id});
         const table_arr = await table_raw.toArray();
-        if(!empty(table_arr))
-        {
-            if(table_arr[0]['msg_disabled']) return true;
-        }
-
-        ratelimit(msg);
 
         // Development mode
         const argsc = process.argv.slice(2);
         if(/dev/gi.test(argsc[0]))
         {
             if(msg.author.id != 507793672209825792) return;
+        }else
+        {
+            if(!empty(table_arr))
+            {
+                if(table_arr[0]['msg_disabled']) return true;
+            }
+    
+            ratelimit(msg);
         }
 
 

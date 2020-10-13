@@ -9,7 +9,7 @@ module.exports.send_uptime = (msg) =>
     try
     {
         const uptime = new Date().setSeconds(process.uptime());
-        const time = ta.ago(uptime).replace('ago', '') // Get the time
+        const time = ta.ago(uptime).replace('from now', '') // Get the time
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setDescription(`\`\`\`swift\nMonkeybot has been online for\ 

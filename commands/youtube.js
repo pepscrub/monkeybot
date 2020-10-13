@@ -1,4 +1,5 @@
 const ytdl = require('ytdl-core');
+const ytsr = require('ytsr');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
 const { log, sendmessage, randomnoise, Perms, empty, intwithcommas, truncate, checkurl} = require('./helpers.js');
@@ -71,8 +72,11 @@ async function sendplaymessage(msg, info, queue)
                 break;
                 case 'Gaming':
                     const arr = metadata['media']['thumbnails'];
-                    const img = `https:${arr[arr.length-1]['url']}`;
-                    embed.setThumbnail(img)
+                    if(arr !== undefined)
+                    {
+                        const img = `https:${arr[arr.length-1]['url']}`;
+                        embed.setThumbnail(img)
+                    }
                 break;
             }
     
@@ -126,30 +130,51 @@ module.exports.play = async (msg, args) =>
                 if(empty(query[0]['queue'])) return;
 
                 const queue = query[0]['queue'][0][0];
-                const url_search = new URL(queue);                      // Create url object from string
-                log(`Getting ${queue}`, msg)
+                log(`Getting ${queue}`, msg);
+
+
+                const play_youtube = async (link) =>
+                {
+                    ytdl.getBasicInfo(link)
+                    .then(res=>{sendplaymessage(msg, res, link)})
+                    .catch(e=>console.log(e))
+                    const url_search = new URL(link);
+                    const timer = new URLSearchParams(url_search.search);   // Grab the search queries (we can target later)
+                    let options = {filter : 'audioonly'};                   // Default options
+                    if(timer.get('t'))                                      // See if the timer in url is set to anything
+                    {
+                        const time = timer.get('t').replace(/[a-zA-Z]/, '');
+                        const format = new Date(time * 1000).toISOString().substr(11, 8);
+                        options = {filter : 'audio', begin: format};        // audioonly and videoonly do not work with 'begin' for some reason
+                    }
+                    const stream = ytdl(link, options); // Play the first video in queue
+                    stream.on('error', async (err)=>
+                    {
+                        if(err.message === 'Status code: 429')
+                        {
+                            const table = await DB.table('music');
+                            const queue = await table.find({"id": msg.guild.id})
+                            const query = await queue.toArray();
+                            log(err);
+                            sendmessage(msg, `Sorry, we are currently getting rate limited from Youtubes servers`);
+                            shiftqueue(msg);
+                            if(query.length === 0) 
+                            {
+                                connection.disconnect();
+                                msg.guild.me.voice.channel.leave();
+                            }
+                        }
+                    })
+                    log(`Playing video`, msg)
+                    dispatcher = connection.play(stream);
+                }
                 
                 switch(true)
                 {
                     // Youtube
                     case ytdl.validateURL(queue):
                         // Get video info from URL
-                        ytdl.getBasicInfo(queue)
-                        .then(res=>{sendplaymessage(msg, res, queue)})
-                        .catch(e=>console.log(e))
-
-                        const timer = new URLSearchParams(url_search.search);   // Grab the search queries (we can target later)
-                        let options = {filter : 'audioonly'};                   // Default options
-                        if(timer.get('t'))                                      // See if the timer in url is set to anything
-                        {
-                            const time = timer.get('t').replace(/[a-zA-Z]/, '');
-                            const format = new Date(time * 1000).toISOString().substr(11, 8);
-                            options = {filter : 'audio', begin: format};        // audioonly and videoonly do not work with 'begin' for some reason
-                        }
-
-                        const stream = ytdl(queue, options); // Play the first video in queue
-                        log(`Playing video`, msg)
-                        dispatcher = connection.play(stream);
+                        play_youtube(queue);
                     break;
                     // Soundcloud
                     case scraper.validateURL(queue):
@@ -182,13 +207,22 @@ module.exports.play = async (msg, args) =>
                         dispatcher = connection.play(sc_stream);
                     break;
                     default:
-                        sendmessage(msg, `Can't play this video for some reason.`);
+                        return sendmessage(`Cannot play this video`);
+                        ytsr.getFilters(queue).then(async (filters1) =>
+                        {
+                            filter1 = filters1.get('Type').find(o => o.name === 'Video');
+                            const options = {
+                                limit: 1
+                            };
+                            const results = await ytsr(queue, options);
+                            await play_youtube(results['items'][0]['link'])
+                        })
                     break;
                 }
 
                 shiftqueue(msg) // Remove this entry
 
-                if(dispatcher)
+                if(dispatcher != undefined && dispatcher != false)
                 {
                     dispatcher.on('speaking', async (e)=>                           // Event for when the bot is speaking
                     {                                                               // speaking is true so if we look for the
@@ -197,7 +231,7 @@ module.exports.play = async (msg, args) =>
                             const table =await DB.tablequery('music', {"id": msg.guild.id})
                             const query = await table.toArray();
                             const queue = query[0]['queue']
-    
+
                             if(!empty(queue)) play(connection, msg)
                             else {
                                 log(`Leaving voice chat`, msg)
@@ -206,24 +240,21 @@ module.exports.play = async (msg, args) =>
                             }
                         }
                     })
-                }else{
-                    shiftqueue(msg);
-                    connection.disconnect();
-                    msg.guild.me.voice.channel.leave();
                 }
-            }catch(err){
+            }catch(err)
+            {
                 const table = await DB.table('music');
                 const queue = await table.find({"id": msg.guild.id})
                 const query = await queue.toArray();
 
-                log(err);
-                errh(err, msg);
+                log(`Error: ${err}`);
                 shiftqueue(msg);
                 if(query.length === 0) 
                 {
                     connection.disconnect();
                     msg.guild.me.voice.channel.leave();
                 }
+                errh(err, msg);
             }
         }
         // Makes the bot join the vc
@@ -268,32 +299,42 @@ module.exports.play = async (msg, args) =>
             }
         }
 
+        const bot_channel = msg.guild.me.voice.channel;
+        const user_channel = msg.member.voice.channel;
+
         // Actual logic
         if(!perms.connect()) return await sendmessage(msg, `I don't have permission to join the voice channel`);
         if(!perms.speak()) return await sendmessage(msg, `Don't have permissions to speak`);
-        if(msg.guild.me.voice.channel) return sendmessage(msg, `I am already in a voice channel!`);
+        if(!user_channel.joinable) return await sendmessage(msg, `I cannot join your voice channel`);
+        if(bot_channel !== null)
+        {
+            if(bot_channel.connection !== null && (bot_channel.id !== user_channel.id))
+            {
+                return sendmessage(msg, `I am already in a voice channel!`);
+            }
+        }
         if(!args[0] && empty(array)) return await sendmessage(msg, `${msg.author.username} Where's the video?`);                       //  If there's no link (args[0] is our actual first argument)
         if(!msg.member.voice.channel) return await sendmessage(msg, `${msg.author.username} You're not in a voice chat`);              //  Test to see if the user is in a channel or not
 
-        // Url tester regex
-        const regex =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
-        if(regex.test(args[0]))
+        const update_queue = (item) =>
         {
-            try
-            {
-                if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[args[0]]]})    // Insert into DB if server entry doesn't exist
-                else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [args[0]]}})  // Update existing entry
-                sendmessage(msg, `Added ${args[0]} to the queue`)
-                joinvc(msg);    // Wow 1 line 
-                log_commands(msg);
-            }catch(e)
-            {
-                errh(e, msg);
-            }
+            if(empty(array))table.insertOne({"id": msg.guild.id,"queue": [[item]]})    // Insert into DB if server entry doesn't exist
+            else table.updateOne({"id":`${msg.guild.id}`},{$push: {"queue": [item]}})  // Update existing entry
+            sendmessage(msg, `Added ${item} to the queue`)
+            joinvc(msg);    // Wow 1 line 
+            log_commands(msg);
         }
-        else // Not a valid URL
-        {    // If there's stuff in the queue allow `play
-            if(!empty(array)) joinvc(msg);    // Wow 1 line 
+
+        const regex =  /^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/;
+        if(!regex.test(args[0]))
+        {
+            // if(args[0].length <= 0) return sendmessage("Please put in a valid argument")
+            // let query = args.join();
+            // query = query.replace(/\,/g, ' ');
+            // update_queue(query);
+        }else
+        {
+            update_queue(args[0]);
         }
     }catch(e)
     {
@@ -331,7 +372,7 @@ module.exports.queue = async (msg) =>
         "\n🎶 | " + music_arr.toString().replace(/\,/gi, '\n🎶 | ');
         log(`Got queue for this server.`, msg)
     
-        const data = empty(music_arr) || music_arr[0][0] == null ? '' : await urlmetadata(music_arr[0][0]);   
+        const data = music_arr[0] !== null ? (empty(music_arr) || music_arr[0][0] == null ? '' : await urlmetadata(music_arr[0][0])) : shiftqueue(msg);   
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setColor(process.env.BOT_COLOR)

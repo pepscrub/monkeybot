@@ -242,28 +242,16 @@ module.exports.UserPerms = class UserPerms
  module.exports.err = async (e, msg = null) =>
  {
      try
-     {
-         const perms = new this.Perms(msg);
-         const title = perms.del() ? "Click the X to close this message" : "Something happened ..."
-         let embed = new discord.MessageEmbed()
-         .setTitle(title)
-         .setDescription(`\`\`\`swift\nUh oh, an error occured\
-         \nYou can report this error through the \`report command\
-         \n(please explain any steps taking to cause this bug)\
-         \`\`\``)
-         .setColor(process.env.BOT_COLOR_ERR)
-         .setFooter(`${msg.author.username}#${msg.author.discriminator}`, this.checkurl(msg.author.avatarURL()))
-         .setTimestamp();
- 
+     { 
          if(msg == null || msg.channel == undefined) return;
          else
          {
              const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
-     
-     
-             msg.channel.send(embed).then(thismsg=>{this.delreact(thismsg)})
-     
-             embed.setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
+             const embed = new discord.MessageEmbed()
+             .setColor(process.env.BOT_COLOR_ERR)
+             .setFooter(`${msg.author.username}#${msg.author.discriminator}`, this.checkurl(msg.author.avatarURL()))
+             .setTimestamp()
+             .setDescription(`\`\`\`swift\n${e.name}: ${e.message}\
              \n Process killed: ${ta.today()}\
              \n🐛 ${problem_file}\
              \n\n
@@ -273,7 +261,7 @@ module.exports.UserPerms = class UserPerms
              const owner = await msg.client.users.fetch('507793672209825792');
              owner.send(embed);
          }
-         process.kill(process.pid, 'SIGTERM');
+         setTimeout(()=>{process.kill(process.pid, "SIGINT");},5000)
      }catch(e)
      {
          console.log(e);
