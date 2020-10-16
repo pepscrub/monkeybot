@@ -4,11 +4,12 @@ const client = new discord.Client();                                            
 const colors = require('colors');
 const { log } = require('./commands/helpers.js');
 const { DataBase } = require('./db');
-// const process_handling = require('./process');
 
 module.exports.client = client;
 module.exports.DB = new DataBase();
 this.DB.conn();
+
+const args = process.argv.slice(2);
 
 module.exports.sendmessage = async (desc) =>
 {
@@ -33,12 +34,11 @@ module.exports.sendmessage = async (desc) =>
 const commands = require('./commands');                                                     // Importing  commands index.js
 require('dotenv').config();                                                                 // doxenv allows us to read .env files as enviroment variables
 
-client.login(process.env.token);                                                            // Logging into our bot (Token is supplied in .env)
+client.login(/dev/gi.test(args[0]) ? process.env.TEST_TOKEN : process.env.token);
 
 client.on('ready', async ()=>{
     try
     {
-        const args = process.argv.slice(2);
         log(`Logged in as ${`${client.user.username}`.underline}.`)
         if(/dev/gi.test(args[0]))
         {
@@ -112,13 +112,6 @@ client.on("error", async(err)=>
 
 client.on('message', commands); // Messages event listener, commands found in ./commands/index.js
 
-// Delete messages every half an hour
-// Using client.setinterval instead of our own since it automatically deletes itself when we destory the client.
-client.setInterval(()=>{
-    client.sweepMessages(300); // Seconds
-}, 300000) // MS
-
-
 // Processing (should move to another folder)
 
 process.stdin.resume();
@@ -126,7 +119,7 @@ process.stdin.resume();
 wtf.setLogger('error', (err)=>{this.sendmessage(err)});
 function exit_gracefully(SIG)
 {
-    log(`${SIG} recieved attemptikng to close.`)
+    log(`${SIG} recieved attempting to close.`)
 
     try
     {
@@ -164,8 +157,6 @@ process.on('beforeExit', (exitcode) => log(`Bot is about to exit with ${exitcode
 process.on('exit', (exitcode) => {log(`Bot is exiting with exit code of ${exitcode}`);})
 process.on('SIGINT', (code)=> exit_gracefully(code));
 process.on('SIGTERM', (code)=> exit_gracefully(code));
-
 process.on('SIGUSR1', (code)=> exit_gracefully(code));
 process.on('SIGUSR2', (code)=> exit_gracefully(code));
-
 process.on('SIGHUP', (code)=> exit_gracefully(code));
