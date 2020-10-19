@@ -255,9 +255,9 @@ async function monkeyreddit(msg)
             console.error(e);
             monkeygoogle(msg);  // Go to google searcher instead if reddit doesn't work
         });                    // Request reddit json list
-        if(body === parseInt(body, 10)) return monkeygoogle(msg);
+        if(body === parseInt(body, 10) || body['data'] === undefined) return monkeygoogle(msg);
         log(`Fetching from reddit https://www.reddit.com/r/${random_sr}`, msg)
-    
+
         const valid = body['data']['children'].filter(post=>!post.data.over_18);                                                    // Make sure the post is PG
         const rm = Math.floor(Math.random()*valid.length);
         const rp = valid[rm]['data'];                                                                                               // Grab random POST
