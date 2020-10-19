@@ -8,16 +8,6 @@ const { DataBase } = require('./db');
 
 module.exports.client = client;
 module.exports.DB = new DataBase();
-<<<<<<< HEAD
-module.exports.uptime = new Date().toISOString();
-module.exports.DEV = () =>
-{
-    const args = process.argv.slice(2);
-    if(args[0] == dev) return true;
-    else return false;
-}
-=======
->>>>>>> 1a00a8427a8d6be73f41245af07d326587921f5b
 this.DB.conn();
 
 module.exports.sendmessage = async (desc) =>
@@ -50,7 +40,7 @@ client.on('ready', async ()=>{
     {
         const args = process.argv.slice(2);
         log(`Logged in as ${`${client.user.username}`.underline}.`)
-        if(/dev/gi.test(args[0]))
+        if(/debugging/gi.test(args[1]))
         {
             client.user.setPresence({activity:{name: "In debugging mode"},status: "dnd"})
         }else{

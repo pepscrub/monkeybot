@@ -207,7 +207,6 @@ module.exports.play = async (msg, args) =>
                         dispatcher = connection.play(sc_stream);
                     break;
                     default:
-                        return sendmessage(`Cannot play this video`);
                         ytsr.getFilters(queue).then(async (filters1) =>
                         {
                             filter1 = filters1.get('Type').find(o => o.name === 'Video');
