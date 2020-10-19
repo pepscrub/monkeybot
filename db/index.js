@@ -1,9 +1,10 @@
 require('dotenv').config();
 const mongo = require('mongodb');
 const assert = require('assert');
-const password = process.env.DBPASS || 'Your password here'
-const clustername = process.env.DBCLUSTER || 'Your cluster here'
-const dbname = process.env.DBNAME || 'Your db name here'
+const { devmode } = require('./index');
+const password = process.env.DBPASS || 'Your password here';
+const dbname = process.env.DBNAME || 'Your db name here';
+const clustername = devmode ? process.env.TEST_DBCLUSER : process.env.DBCLUSTER || 'Your cluster here';
 const { log } = require('../commands/helpers.js');
 
 

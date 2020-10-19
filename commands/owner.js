@@ -2,6 +2,7 @@ const errh = require('./helpers.js').err;
 const discord = require('discord.js');
 const { log, randomnoise, checkurl, sendmessage } = require('./helpers.js');
 const { DB } = require('../index');
+const { devmode } = require('./index');
 
 function isowner(msg)
 {
@@ -116,6 +117,25 @@ module.exports.servers = (msg, args) =>
         if(length_check < 6000) embed.addField(header, body)
     })
     msg.channel.send(embed)
+}
+
+module.exports.reply = async (msg, args) =>
+{
+    if(!/^[0-9]*$/gi.test(args[0])) return sendmessage(msg, `Need user ID`);
+    const uid = args[0];
+    args.shift();
+    const response = args.join(' ');
+    const user = await msg.client.users.fetch(uid);
+
+    const embed = new discord.MessageEmbed()
+    .setColor(process.env.BOT_COLOR)
+    .setDescription(`\`\`\`swift\nIn response to your suggestion on monkey bot.\n\
+    \n${response}\
+    \`\`\``)
+
+
+    user.send(embed);
+    sendmessage(user, response);
 }
 
 module.exports.ban = async (command, msg, args) =>

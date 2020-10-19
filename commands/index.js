@@ -1,11 +1,12 @@
 const discord = require('discord.js');
-const { status, servers, ban } = require('./owner.js');
+const { status, servers, ban, reply, updateDB } = require('./owner.js');
 const { play, skip, stop, queue, disconnect} = require('./youtube');
 const { monkey } = require('./google');
 const { bcommand } = require('./commands');
 const { changes } = require('./changes');
 const { invite } = require('./invite');
 const { log_commands } = require('../db/logging.js');
+const { suggest } = require('./suggestion');
 const { toggleVote } = require('./settings');
 const { leaderboard } = require('./leaderboard');
 const { report } = require('./report');
@@ -15,30 +16,44 @@ const del = require('./admin.js').delete;
 const { DB } = require('../index');
 const { empty, errh, Perms, err } = require('./helpers.js');
 
+const argsc = process.argv.slice(2);
 
+module.exports.devmode = /dev/gi.test(argsc[0]) ? true : false;
 
-const prefix = process.env.PREFIX || '`';                                  // Import prefix from 
+const prefix = this.devmode ? process.env.TEST_PREFIX : process.env.PREFIX || '`';
+const dm_id = 765792276713963560;
 
 module.exports = async (msg) =>
 {
     try
     {
+
+        const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
+        if(args.length == 0 || args[0].charAt(0) !== prefix) return;
+        const command = args.shift().substr(1);
+
+        
+        if(msg.channel.type == 'dm' && msg.channel.id == dm_id)
+        {
+            switch(command)
+            {
+                case "reply":
+                    reply(msg, args);
+                break;
+            }
+        }
+
+
         const perms = new Perms(msg);
         // Bot ignoring stuff
         if(msg.author.bot) return;
         if(msg.guild == null) return;
         if(!perms.viewchat()) return; // Do not have permission to view the chat
-        const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
-        if(args.length == 0 || args[0].charAt(0) !== prefix) return;
-        const command = args.shift().substr(1);
-
 
         const table_raw = await DB.tablequery('ratelimit', {"user_id": msg.author.id});
         const table_arr = await table_raw.toArray();
-
         // Development mode
-        const argsc = process.argv.slice(2);
-        if(/dev/gi.test(argsc[0]))
+        if(this.devmode)
         {
             if(msg.author.id != 507793672209825792) return;
         }else
@@ -95,6 +110,10 @@ module.exports = async (msg) =>
 
             case 'report': case 'bug': case 'issue': case 'request':
                 report(msg, args);
+            break;
+
+            case 'suggest':
+                suggest(msg, args);
             break;
 
             case 'uptime':
