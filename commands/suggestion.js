@@ -13,10 +13,8 @@ module.exports.suggest = async (msg, args) =>
             .setColor(process.env.BOT_COLOR)
             .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
             .setTimestamp()
-            .setDescription(`\`\`\`swift\n${msg.author.username}: ${timestamp()}\
-            \n${msg.author.id}\
-            \n${args.join(' ')}\
-            \`\`\``)
+            .setAuthor(`${msg.author.id}`)
+            .setDescription(`${args.join(' ')}`)
             if(msg.channel == undefined) return;
             else
             {

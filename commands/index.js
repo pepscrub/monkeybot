@@ -14,7 +14,7 @@ const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
 const del = require('./admin.js').delete;
 const { DB } = require('../index');
-const { empty, errh, Perms, err } = require('./helpers.js');
+const { empty, errh, Perms, err, sendmessage } = require('./helpers.js');
 
 const argsc = process.argv.slice(2);
 
@@ -31,8 +31,6 @@ module.exports = async (msg) =>
         const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
         if(args.length == 0 || args[0].charAt(0) !== prefix) return;
         const command = args.shift().substr(1);
-
-        
         if(msg.channel.type == 'dm' && msg.channel.id == dm_id)
         {
             switch(command)
@@ -51,6 +49,7 @@ module.exports = async (msg) =>
         if(!perms.viewchat()) return; // Do not have permission to view the chat
 
         const table_raw = await DB.tablequery('ratelimit', {"user_id": msg.author.id});
+        if(!table_raw) return;
         const table_arr = await table_raw.toArray();
         // Development mode
         if(this.devmode)

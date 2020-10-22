@@ -150,8 +150,8 @@ process.on('uncaughtException', (err, origin) => {this.sendmessage(`Execption: $
 process.on('uncaughtExceptionMonitor', (err, origin) => {this.sendmessage(`Execption: ${err}\nOrigin${origin}`)});
 
 process.on('unhandledRejection', (reason, promise) => {
-    if(typeof promise === 'object') this.sendmessage(`Unhandled rejection at: ${JSON.stringify(promise)}\nReason: ${reason}`)
-    else this.sendmessage(`Unhandled rejection at: ${promise}\nReason: ${reason}`)
+    if(typeof promise === 'object') this.sendmessage(`Unhandled rejection at: ${JSON.stringify(promise)}\nReason: ${reason.stack || reason}`)
+    else this.sendmessage(`Unhandled rejection at: ${promise}\nReason: ${reason.stack || reason}`)
 });
 process.on('beforeExit', (exitcode) => log(`Bot is about to exit with ${exitcode}`));
 process.on('exit', (exitcode) => {log(`Bot is exiting with exit code of ${exitcode}`);})

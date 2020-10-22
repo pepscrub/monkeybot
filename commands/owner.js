@@ -121,18 +121,25 @@ module.exports.servers = (msg, args) =>
 
 module.exports.reply = async (msg, args) =>
 {
-    if(!/^[0-9]*$/gi.test(args[0])) return sendmessage(msg, `Need user ID`);
-    const uid = args[0];
+    const m_id = args[0];
+    const suggestion = await msg.channel.messages.fetch(m_id)
+
+    const author = suggestion.embeds[0].author.name;
+    const desc = suggestion.embeds[0].description;
+
     args.shift();
     const response = args.join(' ');
-    const user = await msg.client.users.fetch(uid);
 
     const embed = new discord.MessageEmbed()
     .setColor(process.env.BOT_COLOR)
-    .setDescription(`\`\`\`swift\nIn response to your suggestion on monkey bot.\n\
-    \n${response}\
-    \`\`\``)
+    .setTitle(`${msg.author.username} has replied to your suggestion`)
+    .setDescription(`
+    > ${desc}
+    \`\`\`swift\n${response}\`\`\``)
+    .setFooter(`${msg.author.username}#${msg.author.discriminator} | ${msg.author.id == 507793672209825792 ? 'Lead Developer' : ''}`, checkurl(msg.author.avatarURL()))
+    const user = await msg.client.users.fetch(author);
 
+    log(`Replying to user ${user.username}#${user.discriminator} on: ${desc}`)
 
     user.send(embed);
     sendmessage(user, response);
