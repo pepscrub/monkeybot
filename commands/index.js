@@ -5,7 +5,6 @@ const { monkey } = require('./google');
 const { bcommand } = require('./commands');
 const { changes } = require('./changes');
 const { invite } = require('./invite');
-const { log_commands } = require('../db/logging.js');
 const { suggest } = require('./suggestion');
 const { toggleVote } = require('./settings');
 const { leaderboard } = require('./leaderboard');

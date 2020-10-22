@@ -19,6 +19,8 @@ let reactions = null;
  */
 let colors = null;
 
+let search_term = null;
+
 // This is better than trying to connect
 // to the database twice and waiting for the repsonse promise
 
@@ -28,10 +30,11 @@ const t = setInterval(async ()=>
     {
         const coll = await DB.tablequery("settings");
         if(!coll) return;
-        coll.forEach(doc=>{
-            colors = doc['colors']
-            reactions = doc['reactions']
-        })
+        const doc = await coll.toArray();
+
+        colors = doc[0]['colors'];
+        reactions = doc[0]['reactions'];
+        search_term = doc[0]['search_terms'];
         clearInterval(t)
     }
 },250)
@@ -255,9 +258,9 @@ async function monkeyreddit(msg)
             console.error(e);
             monkeygoogle(msg);  // Go to google searcher instead if reddit doesn't work
         });                    // Request reddit json list
-        if(body === parseInt(body, 10)) return monkeygoogle(msg);
+        if(body === parseInt(body, 10) || body['data'] === undefined) return monkeygoogle(msg);
         log(`Fetching from reddit https://www.reddit.com/r/${random_sr}`, msg)
-    
+
         const valid = body['data']['children'].filter(post=>!post.data.over_18);                                                    // Make sure the post is PG
         const rm = Math.floor(Math.random()*valid.length);
         const rp = valid[rm]['data'];                                                                                               // Grab random POST
@@ -322,34 +325,11 @@ async function monkeygoogle(msg)
     try
     {
         // Huge god damn array
-        const monkeytype = [
-            '', '', 
-            'silly', 
-            'stupid', 
-            'funny', 
-            'laughing', 
-            'banana', 
-            'hehe haha', 
-            'kung fu panda', 
-            'youtube', 
-            'halo', 
-            'minecraft', 
-            'epic',
-            'tf2',
-            'harambe',
-            'kong',
-            'cool',
-            'epic',
-            'gay',
-            'bush',
-            'reddit',
-            'cursed'
-        ];
         const token = quote_reached ? process.env.SEARCH_KEY_SECOND : process.env.SEARCH_KEY;
         const randomstart = Math.floor(Math.random()*100);              // Random index start 
-        let monkeyvers = Math.floor(Math.random()*monkeytype.length);   // Random index out of 10 (Max items is 10)
+        let monkeyvers = Math.floor(Math.random()*search_term.length);   // Random index out of 10 (Max items is 10)
         const searchengine = process.env.SEARCH_ENGINE;                 // Search engine to use (enable global search in control panel)
-        let monkey = `monkey ${monkeytype[monkeyvers]}`;                // Updating search query
+        let monkey = `monkey ${search_term[monkeyvers]}`;                // Updating search query
         // God damn that's a long url
         const url = `https://www.googleapis.com/customsearch/v1?key=${token}&cx=${searchengine}&q=${monkey}&searchType=image&start=${randomstart}`;
 
@@ -368,12 +348,6 @@ async function monkeygoogle(msg)
                         try
                         {
                             log(`Quota maxed out on key number: ${quote_reached}`, msg)
-                            const d = new Date();                                                           // Creating new date to get PT time off of
-                            const PT = d.toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles' });  // Getting PT time (string)
-                            let time = PT.split(':');                                                       // Splitting on :
-                            let hours = time[2].includes('PM') ? 12 - time[0] : 24 - time[0];               // Since we're on 12 hour time format we check to see if it's PM and - a different value
-                            let mins = 60 - time[1];                                                        // Just get the amount of minutes
-                            mins == 0 ? '' : hours = hours - 1;
                             quote_reached++;
                             if(quote_reached >= 2) return monkeyreddit(msg);
                             else return monkeyreddit(msg);

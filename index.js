@@ -40,7 +40,7 @@ client.on('ready', async ()=>{
     try
     {
         log(`Logged in as ${`${client.user.username}`.underline}.`)
-        if(/dev/gi.test(args[0]))
+        if(/debugging/gi.test(args[1]))
         {
             client.user.setPresence({activity:{name: "In debugging mode"},status: "dnd"})
         }else{
@@ -142,7 +142,8 @@ function exit_gracefully(SIG)
         log(`Failed to log out of discord!`)
     }
     log(`Terminating parent process with ${SIG}`);
-    process.kill(process.pid, SIG)
+    process.kill(process.pid, SIG);
+    process.exit();
 }
 
 process.on('warning', (warn) => {this.sendmessage(`Warning: ${warn}`)});

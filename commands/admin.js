@@ -38,6 +38,7 @@ module.exports.delete = (msg, args) =>
                     }
                     else
                     {
+                        if(count >= 101) return sendmessage(msg, "Cannot delete more than 100 messages");  
                         msg.channel.messages.fetch({limit: count})
                         .then(messages=>{
                             messages.forEach(re=>{re.delete();count++;});
