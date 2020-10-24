@@ -21,8 +21,11 @@ module.exports.leaderboard = async (msg, args) =>
         if(args[0] === 'server') options = {"server.id": msg.guild.id}  // Udating to search for the server this was called from
         const table = await DB.tablequery('commands', options);         // Querying BD
         const array = await table.toArray();                            // Returning results
+        const server_count = await table.count();
+
         const output = [];                                              // Empty array to plug our shit into
-        const topusers = array                                          // The fun begins -----
+
+        array                                                           // The fun begins -----
         .map(server=>{                                                  // Mapping results to get individual servers [1->2->3]
             return server['users'].map((arr)=>{return arr[0]})          // Returning all the individual users [users->user->0{userdata}]
         })
@@ -76,7 +79,7 @@ module.exports.leaderboard = async (msg, args) =>
         }
         else
         {
-            embed.setAuthor(`Top ${count} of all servers`);
+            embed.setAuthor(`Top ${count} out of ${server_count} servers.`);
         }
     
         for(let i = 1; i < count; i++)
