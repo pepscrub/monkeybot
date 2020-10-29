@@ -94,7 +94,7 @@ module.exports.servers = (msg, args) =>
     {
         if(i >= 24 || length_check >= 6000) return;
         const owner = server.owner;
-        const o_string = `${owner.user.username}#${owner.user.discriminator} ${owner.nickname ? '| '+owner.nickname : ''}`
+        const o_string = owner != null ? `${owner.user.username}#${owner.user.discriminator} ${owner.nickname ? '| '+owner.nickname : ''}` : `No owner`;
         const s_name = server.name;
         const s_count = server.memberCount;
         const s_partnered = server.partnered;

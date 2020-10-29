@@ -1,6 +1,7 @@
 const wtf = require('wtfnode');
-const discord = require('discord.js');                                                                              // Discordjs library
-const client = new discord.Client();                                                                                // new instance of bot
+const mongo = require('mongodb');
+const discord = require('discord.js');
+const client = new discord.Client();
 const colors = require('colors');
 const { log } = require('./commands/helpers.js');
 const { DataBase } = require('./db');
@@ -116,7 +117,6 @@ client.on('message', commands); // Messages event listener, commands found in ./
 
 process.stdin.resume();
 
-wtf.setLogger('error', (err)=>{this.sendmessage(err)});
 function exit_gracefully(SIG)
 {
     log(`${SIG} recieved attempting to close.`)
@@ -145,6 +145,9 @@ function exit_gracefully(SIG)
     process.kill(process.pid, SIG);
     process.exit();
 }
+
+
+wtf.setLogger('error', (err)=>{this.sendmessage(err)});
 
 process.on('warning', (warn) => {this.sendmessage(`Warning: ${warn}`)});
 process.on('uncaughtException', (err, origin) => {this.sendmessage(`Execption: ${err}\nOrigin${origin}`)});
