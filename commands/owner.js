@@ -1,8 +1,12 @@
+'use strict';
 const errh = require('./helpers.js').err;
 const discord = require('discord.js');
 const { log, randomnoise, checkurl, sendmessage } = require('./helpers.js');
 const { DB } = require('../index');
 const { devmode } = require('./index');
+const heapdump = require('heapdump');
+const { writeHeapSnapshot } = require('v8');
+
 
 function isowner(msg)
 {
@@ -171,4 +175,17 @@ module.exports.ban = async (command, msg, args) =>
         })
     }
 
+}
+
+module.exports.dump = async (msg) =>
+{
+    if(isowner(msg)) return;
+    log(`Writing Heap snapshot`);
+    try{
+        heapdump.writeSnapshot((e, f)=>{
+            if(e) errh(e);
+            log(`Successfully created heapfile: ${f}`);
+        });
+    }catch(e){errh(e, msg);};
+    return sendmessage(msg, `Created Heap Snapshot`);
 }

@@ -1,3 +1,4 @@
+'use strict';
 const wtf = require('wtfnode');
 const mongo = require('mongodb');
 const discord = require('discord.js');
@@ -5,7 +6,6 @@ const client = new discord.Client();
 const colors = require('colors');
 const { log } = require('./commands/helpers.js');
 const { DataBase } = require('./db');
-
 module.exports.client = client;
 module.exports.DB = new DataBase();
 this.DB.conn();
@@ -35,7 +35,8 @@ module.exports.sendmessage = async (desc) =>
 const commands = require('./commands');                                                     // Importing  commands index.js
 require('dotenv').config();                                                                 // doxenv allows us to read .env files as enviroment variables
 
-client.login(/dev/gi.test(args[0]) ? process.env.TEST_TOKEN : process.env.token);
+client.login(/dev/gi.test(args[0]) ? process.env.TEST_TOKEN : process.env.token)
+.catch((e)=>{log(`An error occured while bot was authentication.\n${e.stack || e}`);});
 
 client.on('ready', async ()=>{
     try
@@ -146,8 +147,6 @@ function exit_gracefully(SIG)
     process.exit();
 }
 
-
-wtf.setLogger('error', (err)=>{this.sendmessage(err)});
 
 process.on('warning', (warn) => {this.sendmessage(`Warning: ${warn}`)});
 process.on('uncaughtException', (err, origin) => {this.sendmessage(`Execption: ${err}\nOrigin${origin}`)});

@@ -1,6 +1,6 @@
 const discord = require('discord.js');
-const { status, servers, ban, reply, updateDB } = require('./owner.js');
-const { play, skip, stop, queue, disconnect} = require('./youtube');
+const { status, servers, ban, reply, updateDB, dump } = require('./owner.js');
+const { play, skip, stop, queue, disconnect } = require('./youtube');
 const { monkey } = require('./google');
 const { bcommand } = require('./commands');
 const { changes } = require('./changes');
@@ -127,6 +127,9 @@ module.exports = async (msg) =>
             break;
             case 'ban': case 'unban':
                 ban(command, msg, args);
+            break;
+            case 'dump': case 'heapdump':
+                dump(msg);
             break;
         }
     }catch(e)

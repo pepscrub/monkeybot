@@ -8,6 +8,7 @@
     "colors": "^1.4.0",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
+    "heapdump": "^0.3.15",
     "helmet": "^4.1.1",
     "html-to-markdown": "^1.0.0",
     "icy": "^2.1.0",

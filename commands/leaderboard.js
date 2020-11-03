@@ -3,6 +3,7 @@ const ta = require('time-ago')
 const {DB} = require('../index');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
+const {Worker, isMainedThread, parentPort} = require('worker_threads');
 
 /**
  * @description Gets the logged amount of commands from each server
@@ -24,15 +25,14 @@ module.exports.leaderboard = async (msg, args) =>
         const server_count = await table.count();
 
         const output = [];                                              // Empty array to plug our shit into
-
-        array                                                           // The fun begins -----
-        .map(server=>{                                                  // Mapping results to get individual servers [1->2->3]
-            return server['users'].map((arr)=>{return arr[0]})          // Returning all the individual users [users->user->0{userdata}]
+        array
+        // Mapping out the server
+        .map(server=>{
+            // Flatenning all the users in the server
+            // [users->user->userdata]
+            return server['users'].flat();
         })
-        .reduce((pre, cur)=>                                            // Merging all the users together
-        {                                                               // FUN LAGGY TIME
-            return pre.concat(cur);                                     // [{user}][{user}]--> [{user},{user}]
-        })
+        .flat()
         .sort((a,b)=>                                                   // Sorting all the users from most to least
         {
             return b['commandusage'].length - a['commandusage'].length
@@ -42,10 +42,9 @@ module.exports.leaderboard = async (msg, args) =>
             {
                 return v.name == item.name; // Yes this is supposed to be item
             })
-            if(existing.length)                                         // Fun fun array check
+            if(existing.length)
             {
-                const existingIndex = output.indexOf(existing[0]);      // Check to see if the item is indexed
-                                                                        // Mergy mergy fun times.
+                const existingIndex = output.indexOf(existing[0]);
                 output[existingIndex].commandusage = output[existingIndex].commandusage.concat(item.commandusage);
             }
             else
@@ -53,14 +52,12 @@ module.exports.leaderboard = async (msg, args) =>
                 output.push(item);  // If not indexed in our array we just push the result
             }
         })
-        output.forEach(user=>{                  // Loop through all the results
-            user['commandusage'].sort((a,b)=>   // Sort from latest command to oldest
-            {
-                return a[1] - b[1];
-            })
-        })
+
+        // Re-sort the list from server merging
+        // from newest to oldest
+        output.forEach(user=>{user['commandusage'].sort((a,b)=>{return a[1] - b[1];})});
         let count = output.length < 5 ? output.length : 5 // Limit the display to 5 (Yes we did all that and dumped a fuck ton of result)
-        const top = output[0]                       // Get the first user
+        const top = output[0];
         const top_date = ta.ago(top['commandusage'][top['commandusage'].length-1][1]);
 
         const embed = new discord.MessageEmbed()

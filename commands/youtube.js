@@ -1,3 +1,4 @@
+'use strict';
 const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
 const discord = require('discord.js');
