@@ -36,7 +36,10 @@ const commands = require('./commands');                                         
 require('dotenv').config();                                                                 // doxenv allows us to read .env files as enviroment variables
 
 client.login(/dev/gi.test(args[0]) ? process.env.TEST_TOKEN : process.env.token)
-.catch((e)=>{log(`An error occured while bot was authentication.\n${e.stack || e}`);});
+.catch((e)=>{
+    log(`An error occured while bot was authentication.\n${e.stack || e}`);
+    process.exit('SIGTERM');
+});
 
 client.on('ready', async ()=>{
     try
@@ -124,15 +127,18 @@ function exit_gracefully(SIG)
 
     try
     {
-        if(this.DB !== undefined)
+        if(!this.DB)
         {
-            this.DB.close();
+            if(this.DB.connected())
+            {
+                this.DB.close();
+            }
             log(`Sucessfully disconnected from DB!`);
         }else{
             log(`Can't read DB.`);
         }
     }catch(e){
-        log(`Failed to disconnect from DB!\n${e}`)
+        log(`Failed to disconnect from DB!\n${e.stack || e}`)
     }
 
     try
@@ -156,8 +162,10 @@ process.on('unhandledRejection', (reason, promise) => {
     if(typeof promise === 'object') this.sendmessage(`Unhandled rejection at: ${JSON.stringify(promise)}\nReason: ${reason.stack || reason}`)
     else this.sendmessage(`Unhandled rejection at: ${promise}\nReason: ${reason.stack || reason}`)
 });
-process.on('beforeExit', (exitcode) => log(`Bot is about to exit with ${exitcode}`));
-process.on('exit', (exitcode) => {log(`Bot is exiting with exit code of ${exitcode}`);})
+process.on('exit', (exitcode) => {
+    log(`Bot is exiting with exit code of ${exitcode}`);
+    exit_gracefully(exitcode);
+})
 process.on('SIGINT', (code)=> exit_gracefully(code));
 process.on('SIGTERM', (code)=> exit_gracefully(code));
 process.on('SIGUSR1', (code)=> exit_gracefully(code));

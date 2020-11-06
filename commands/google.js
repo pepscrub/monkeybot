@@ -39,9 +39,6 @@ const t = setInterval(async ()=>
     }
 },250)
 
-// --------------------
-// Modifiable globals
-
 /**
  * @description When we get a result from the Google Custom Search Engine API
  * we want to hold onto all the results until we use them up. For the time been

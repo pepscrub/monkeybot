@@ -8,9 +8,8 @@ module.exports.changes = async (msg) =>
 {
     try
     {
-        const username = process.env.GIT_UNAME || "your username here";                                             // Github username
-        const password = process.env.GIT_PASSWORD || "your password here";                                          // Github password
-        const headers ={"Authorization": `Basic ${Buffer.from(`${username}:${password}`).toString('base64')}`};     // Header authorization
+        const token = process.env.GIT_TOKEN || "your git token";                                                    // Github username
+        const headers ={"Authorization": `token ${token}`};                                                         // Header authorization
         const url = `https://api.github.com/repos/pepscrub/monkeybot/commits/master`;                               // RESTAPI for github (returns last commit)
         const options = {"method": "GET", "headers": headers};                                                      // Options for fetch
         const commits = await fetch(url, options);   

@@ -3,7 +3,6 @@ const ta = require('time-ago')
 const {DB} = require('../index');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const {Worker, isMainedThread, parentPort} = require('worker_threads');
 
 /**
  * @description Gets the logged amount of commands from each server
@@ -23,40 +22,38 @@ module.exports.leaderboard = async (msg, args) =>
         const table = await DB.tablequery('commands', options);         // Querying BD
         const array = await table.toArray();                            // Returning results
         const server_count = await table.count();
-
-        const output = [];                                              // Empty array to plug our shit into
+        const output = [];
         array
         // Mapping out the server
         .map(server=>{
             // Flatenning all the users in the server
-            // [users->user->userdata]
+            // [(0)users->(0)user->(0...5)userdata]
+            // [(1)users->(0)user->(0...999)userdata]
+            // Into
+            // [(0)user->(0...5)userdata]
+            // [(1)user->(0...999)userdata]
             return server['users'].flat();
         })
         .flat()
-        .sort((a,b)=>                                                   // Sorting all the users from most to least
+        // Merging any duplicates (Same user different server)
+        .forEach(item=>
         {
-            return b['commandusage'].length - a['commandusage'].length
-        }).forEach(item=>                                               // Looping through all the results
-        {
-            let existing = output.filter((v,i)=>                        // Checking to see if the user has any duplicates (Multiple servers same user)
+            let existing = array.filter((v,i)=>
             {
-                return v.name == item.name; // Yes this is supposed to be item
+                return v.name == item.name;
             })
             if(existing.length)
             {
-                const existingIndex = output.indexOf(existing[0]);
-                output[existingIndex].commandusage = output[existingIndex].commandusage.concat(item.commandusage);
-            }
-            else
-            {
-                output.push(item);  // If not indexed in our array we just push the result
+                const existingIndex = array.indexOf(existing[0]);
+                array[existingIndex].commandusage = array[existingIndex].commandusage.concat(item.commandusage);
+            }else{
+                output.push(item);
             }
         })
+        output.sort((a,b)=>{return b['commandusage'].length - a['commandusage'].length})
 
-        // Re-sort the list from server merging
-        // from newest to oldest
-        output.forEach(user=>{user['commandusage'].sort((a,b)=>{return a[1] - b[1];})});
-        let count = output.length < 5 ? output.length : 5 // Limit the display to 5 (Yes we did all that and dumped a fuck ton of result)
+        // Todo: Add argv with a max of 25 instead of 5
+        let count = output.length < 5 ? output.length : 5;
         const top = output[0];
         const top_date = ta.ago(top['commandusage'][top['commandusage'].length-1][1]);
 
@@ -72,7 +69,7 @@ module.exports.leaderboard = async (msg, args) =>
     
         if(args[0] === "server")
         {
-            embed.setAuthor(array[0]['server']['name'], array[0]['server']['icon']);
+            embed.setAuthor(output[0]['server']['name'], output[0]['server']['icon']);
         }
         else
         {

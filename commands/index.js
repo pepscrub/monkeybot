@@ -26,7 +26,6 @@ module.exports = async (msg) =>
 {
     try
     {
-
         const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
         if(args.length == 0 || args[0].charAt(0) !== prefix) return;
         const command = args.shift().substr(1);
