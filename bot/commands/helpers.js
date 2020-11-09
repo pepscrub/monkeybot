@@ -16,15 +16,15 @@ module.exports.timestamp = () =>new Date().toLocaleString()
  * @param {Object} msg 
  * @param {String} text
  */
-module.exports.log = (text, msg = null) =>
+module.exports.log = (text, msg = null, origin = '[Monkey Bot]'.bold.green) =>
 {
     // Only enable for debug reasons
     const args = process.argv.slice(2);
     if(/dev/gi.test(args[0]))
     {
         if(typeof(text) == 'object') text = JSON.stringify(text);
-        if(!msg) console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${text}`)
-        else console.log(`${'[Monkey]'.bold.green} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
+        if(!msg) console.log(`${origin} ${this.timestamp()} ${text}`)
+        else console.log(`${origin} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
     }
 }
 

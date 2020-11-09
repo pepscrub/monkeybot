@@ -13,7 +13,7 @@ const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
 const del = require('./admin.js').delete;
 const { DB } = require('../index');
-const { empty, errh, Perms, err, sendmessage } = require('./helpers.js');
+const { empty, errh, Perms, err, sendmessage} = require('./helpers.js');
 
 const argsc = process.argv.slice(2);
 
