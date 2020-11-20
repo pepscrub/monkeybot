@@ -1,8 +1,8 @@
 // Imports
 const discord = require('discord.js');
 const fetch = require('node-fetch');
-const errh = require('./helpers.js').err;
-const { randomnoise, Perms, truncate, empty, sendmessage, checkurl} = require('./helpers.js')
+const errh = require('../../global/helpers').err;
+const { randomnoise, Perms, truncate, empty, sendmessage, checkurl} = require('../../global/helpers')
 const { log } = require('../../global/helpers');
 const { DB } = require('../index.js');
 const { log_commands } = require('../db/logging.js');

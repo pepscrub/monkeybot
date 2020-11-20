@@ -1,5 +1,5 @@
 'use strict';
-const errh = require('./helpers.js').err;
+const errh = require('../../global/helpers').err;
 const { DB } = require('../index.js');
 
 

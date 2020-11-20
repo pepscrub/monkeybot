@@ -2,9 +2,8 @@
 const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
 const discord = require('discord.js');
-const errh = require('./helpers.js').err;
-const { sendmessage, randomnoise, Perms, empty, intwithcommas, truncate, checkurl} = require('./helpers.js');
-const { log } = require('../../global/helpers');
+const errh = require('../../global/helpers').err;
+const { log, sendmessage, randomnoise, Perms, empty, intwithcommas, truncate, checkurl} = require('../../global/helpers');
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 const icy = require('icy'); // Might want to look into this for more music bot capabilities

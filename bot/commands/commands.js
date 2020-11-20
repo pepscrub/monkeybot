@@ -1,6 +1,6 @@
 const discord = require('discord.js');
-const errh = require('./helpers.js').err;
-const { randomnoise, checkurl } = require('./helpers.js');
+const errh = require('../../global/helpers').err;
+const { randomnoise, checkurl } = require('../../global/helpers');
 const { log } = require('../../global/helpers');
 
 /**

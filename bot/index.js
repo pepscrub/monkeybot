@@ -180,7 +180,6 @@ process.on('uncaughtException', (err, origin) => {
         console.log('[ERROR]'.bold.red, e.stack || e)
     }
     process.kill(process.pid, "SIGINT")
-        // process.exit();
 });
 process.on('uncaughtExceptionMonitor', (err, origin) => {
     try
@@ -191,7 +190,7 @@ process.on('uncaughtExceptionMonitor', (err, origin) => {
     {
         console.log('[ERROR]'.bold.red, e.stack || e)
     }
-    // process.kill(process.pid, "SIGINT");
+    process.kill(process.pid, "SIGINT");
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -205,7 +204,7 @@ process.on('unhandledRejection', (reason, promise) => {
     }
     console.log(promise);
     console.log(reason.stack || reason);
-    // process.kill(process.pid, "SIGINT");
+    process.kill(process.pid, "SIGINT");
 });
 process.on('exit', (exitcode) => {
     log(`Bot is exiting with exit code of ${exitcode}`);

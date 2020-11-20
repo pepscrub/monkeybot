@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
-const errh = require('./helpers.js').err;
+const errh = require('../../global/helpers').err;
 const ta = require('time-ago')
-const {checkurl, sendmessage} = require('./helpers.js');
+const {checkurl, sendmessage} = require('../../global/helpers');
 const discord = require('discord.js');
 
 module.exports.changes = async (msg) =>

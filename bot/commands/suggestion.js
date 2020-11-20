@@ -1,8 +1,7 @@
 const {DB} = require('../index');
 const discord = require('discord.js');
-const { sendmessage, checkurl } = require('./helpers');
-const { timestamp } = require('../../global/helpers');
-const errh = require('./helpers.js').err;
+const { sendmessage, checkurl } = require('../../global/helpers');
+const errh = require('../../global/helpers').err;
 
 module.exports.suggest = async (msg, args) =>
 {

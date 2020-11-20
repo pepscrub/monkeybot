@@ -1,7 +1,6 @@
 const { DB } = require('../index');
-const errh = require('../commands/helpers.js').err;
-const { empty } = require('../commands/helpers.js')
-const { log } = require('../../global/helpers');
+const errh = require('../../global/helpers').err;
+const { log, empty } = require('../../global/helpers');
 
 
 module.exports.log_commands = async (msg, ...users) =>

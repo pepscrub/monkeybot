@@ -1,8 +1,8 @@
-const { randomnoise, intwithcommas } = require('./helpers');
+const { randomnoise, intwithcommas } = require('../../global/helpers');
 const ta = require('time-ago')
 const {DB} = require('../index');
 const discord = require('discord.js');
-const errh = require('./helpers.js').err;
+const errh = require('../../global/helpers').err;
 
 /**
  * @description Gets the logged amount of commands from each server

@@ -1,4 +1,4 @@
-const { err, Perms, UserPerms, sendmessage} = require('./helpers.js');
+const { err, Perms, UserPerms, sendmessage} = require('../../global/helpers');
 const discord = require('discord.js');
 const ta = require('time-ago');
 

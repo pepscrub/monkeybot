@@ -1,7 +1,7 @@
 'use strict';
-const errh = require('./helpers.js').err;
+const errh = require('../../global/helpers').err;
 const discord = require('discord.js');
-const { log, randomnoise, checkurl, sendmessage } = require('./helpers.js');
+const { log, randomnoise, checkurl, sendmessage } = require('../../global/helpers');
 const { DB } = require('../index');
 const { devmode } = require('./index');
 const heapdump = require('heapdump');

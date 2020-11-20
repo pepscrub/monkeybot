@@ -1,8 +1,8 @@
-const {checkurl} = require('./helpers.js')
+const {checkurl} = require('../../global/helpers')
 const {DB} = require('../index');
 const ta = require('time-ago');
 const discord = require('discord.js');
-const errh = require('./helpers.js').err;
+const errh = require('../../global/helpers').err;
 
 module.exports.send_uptime = (msg) =>
 {

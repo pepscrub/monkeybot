@@ -1,7 +1,7 @@
 // Imports
-const errh = require('./helpers.js').err;
+const errh = require('../../global/helpers').err;
 const { log } = require('../../global/helpers');
-const { randomnoise, Perms, truncate, empty, sendmessage} = require('./helpers.js')
+const { randomnoise, Perms, truncate, empty, sendmessage} = require('../../global/helpers')
 const { DB } = require('../index.js');
 
 async function updateVote(msg, bool = false)

@@ -13,7 +13,7 @@ const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
 const del = require('./admin.js').delete;
 const { DB, dev } = require('../index');
-const { empty, Perms, err, sendmessage} = require('./helpers.js');
+const { empty, Perms, err, sendmessage} = require('../../global/helpers');
 
 const prefix = dev ? process.env.TEST_PREFIX : process.env.PREFIX || '`';
 const dm_id = 765792276713963560;
