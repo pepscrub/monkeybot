@@ -2,7 +2,8 @@
 const discord = require('discord.js');
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
-const { log, randomnoise, Perms, truncate, empty, sendmessage, checkurl} = require('./helpers.js')
+const { randomnoise, Perms, truncate, empty, sendmessage, checkurl} = require('./helpers.js')
+const { log } = require('../../global/helpers');
 const { DB } = require('../index.js');
 const { log_commands } = require('../db/logging.js');
 const { enable } = require('colors');
@@ -174,7 +175,7 @@ async function Reaction_Result(msg, e, res)
     
         output[0][2].cache.forEach(user=>{
             {
-                if(!(msg.author.id == user.id || user.bot))
+                if(!(user.bot))
                 {
                     log_commands(msg, user);
                     users.push(`${user.username}`)
@@ -185,7 +186,51 @@ async function Reaction_Result(msg, e, res)
         e.delete().catch();                        // Delete the message sent for voting
         if(output[0][0] === '❌') return;         // If we didn't like the monkey we delete the message
         if(output[0][1] - 1 == 0) return;
+
+        console.log(output);
     
+        const table = await DB.table('monkey_rankings');
+        const index = await table.find({"url": res['link']});
+        const exist = await index.toArray();
+
+        if(exist == null || empty(exist) || exist[0] == undefined)    // No doc in DB
+        {
+            await table.insertOne({
+                "url": res['link'],
+                "rank": [output[0][0]],
+                "color": [colors[output[0][0]][0]],
+                "users": [users],
+            })
+        }else{
+            // TODO: Make this code less bad
+            const rank = [];
+            exist[0]['rank'].forEach(r=>
+            {
+                rank.push(r)
+            })
+            rank.push(output[0][0])
+            const color = [];
+            exist[0]['color'].forEach(colors=>
+            {
+                color.push(colors)
+            })
+            color.push(colors[output[0][0]][0])
+            const user = [];
+            user.push(exist[0]['users']);
+            user.push(users);
+            
+            table.updateOne(  // Voting_enabled endpoint not set
+            {"url": res['link']},
+            {"$set":
+                {
+                    "rank": rank,
+                    "color": color,
+                    "users": users
+                }
+            }
+            );
+        }
+
         log(`Sending result`, msg)
     
         const title = truncate(res['title'], 256);
@@ -197,7 +242,7 @@ async function Reaction_Result(msg, e, res)
         .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, checkurl(msg.author.avatarURL()))
         .setTimestamp();
         
-        msg.channel.send(embed)
+        msg.channel.send(embed);
     }catch(e)
     {
         errh(e, msg);
@@ -285,12 +330,14 @@ module.exports.monkey = async (msg) =>
 {
     try
     {
+
         if(!msg.guild) return sendmessage(msg, "Couldn't get server object.");
         if(!msg.guild.id) return sendmessage(msg, "Couldn't get server ID.");
         
         const table = await DB.table('vote');
         const index = await table.find({"s_id": msg.guild.id});
         const vote = await index.toArray();
+
         if(index == null || empty(vote) || vote[0] == undefined)    // No doc in DB
         {
             await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": false})

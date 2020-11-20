@@ -1,12 +1,11 @@
 require('dotenv').config();
 const mongo = require('mongodb');
 const assert = require('assert');
-const { devmode } = require('./index');
+const { dev } = require('../index');
 const password = process.env.DBPASS || 'Your password here';
 const dbname = process.env.DBNAME || 'Your db name here';
-const clustername = devmode ? process.env.TEST_DBCLUSER : process.env.DBCLUSTER || 'Your cluster here';
-const { log } = require('../commands/helpers.js');
-
+const clustername = dev ? process.env.TEST_DBCLUSER : process.env.DBCLUSTER || 'Your cluster here';
+const { log } = require('../../global/helpers');
 
 const url = `mongodb+srv://admin:${password}@${dbname}.xbm61.mongodb.net/${clustername}?retryWrites=true&w=majority`
 

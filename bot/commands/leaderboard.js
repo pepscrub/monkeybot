@@ -69,7 +69,12 @@ module.exports.leaderboard = async (msg, args) =>
     
         if(args[0] === "server")
         {
-            embed.setAuthor(output[0]['server']['name'], output[0]['server']['icon']);
+            if(output[0]['server'] !== undefined)
+            {
+                embed.setAuthor(output[0]['server']['name'], output[0]['server']['icon']);
+            }else{
+                embed.setAuthor(`Couldn't read server info`);
+            }
         }
         else
         {

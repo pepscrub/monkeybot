@@ -1,32 +1,12 @@
 const discord = require('discord.js');
 const ta = require('time-ago')
+const { dev } = require('../index');
 
 module.exports.intwithcommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 module.exports.truncate = (str, n) => {try{return str.length > n ? `${str.substr(0, n-1)}…` : str;}catch(e){console.error(e);}}
-
-/**
- * @description gets the current date in a 12 hour format
- */
-module.exports.timestamp = () =>new Date().toLocaleString()
-/**
- * @description It's just a fancier console.log
- * @param {Object} msg 
- * @param {String} text
- */
-module.exports.log = (text, msg = null, origin = '[Monkey Bot]'.bold.green) =>
-{
-    // Only enable for debug reasons
-    const args = process.argv.slice(2);
-    if(/dev/gi.test(args[0]))
-    {
-        if(typeof(text) == 'object') text = JSON.stringify(text);
-        if(!msg) console.log(`${origin} ${this.timestamp()} ${text}`)
-        else console.log(`${origin} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
-    }
-}
 
 module.exports.checkurl = (url) =>
 {

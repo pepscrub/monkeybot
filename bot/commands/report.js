@@ -1,6 +1,7 @@
 const {DB} = require('../index');
 const discord = require('discord.js');
-const { timestamp, sendmessage, checkurl } = require('./helpers');
+const { sendmessage, checkurl } = require('./helpers');
+const { timestamp } = require('../../global/helpers');
 const errh = require('./helpers.js').err;
 
 module.exports.report = async (msg, args) =>

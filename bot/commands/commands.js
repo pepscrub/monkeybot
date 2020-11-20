@@ -1,6 +1,7 @@
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { randomnoise, log, checkurl } = require('./helpers.js');
+const { randomnoise, checkurl } = require('./helpers.js');
+const { log } = require('../../global/helpers');
 
 /**
  * @description Sends a message of all the commands the bot responds too.

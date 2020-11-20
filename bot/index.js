@@ -2,14 +2,24 @@
 const mongo = require('mongodb');
 const discord = require('discord.js');
 const client = new discord.Client();
-const { log } = require('./commands/helpers.js');
+const { log } = require('../global/helpers');
 const { DataBase } = require('./db');
 module.exports.client = client;
 module.exports.DB = new DataBase();
 this.DB.conn();
 
 const args = process.argv.slice(2);
+let dev = false;
+let debug = false;
 
+args.forEach(arg=>
+{
+    if(/dev/gi.test(arg)) dev = true;
+    if(/debug/gi.test(arg)) debug = true;
+})
+
+module.exports.dev = dev;
+module.exports.debug = debug;
 module.exports.sendmessage = async (desc) =>
 {
     try
@@ -33,7 +43,7 @@ module.exports.sendmessage = async (desc) =>
 const commands = require('./commands');                                                     // Importing  commands index.js
 require('dotenv').config();                                                                 // doxenv allows us to read .env files as enviroment variables
 
-client.login(/dev/gi.test(args[0]) ? process.env.TEST_TOKEN : process.env.token)
+client.login(this.dev ? process.env.TEST_TOKEN : process.env.token)
 .catch((e)=>{
     log(`An error occured while bot was authentication.\n${e.stack || e}`);
     process.exit('SIGTERM');
@@ -117,7 +127,10 @@ client.on('message', commands); // Messages event listener, commands found in ./
 
 client.on('debug', (info)=>
 {
-    log(info.italic.gray, null, '[Debug]'.bold.yellow);
+    if(this.debug)
+    {
+        log(info.italic.gray, null, '[Debug]'.bold.yellow);
+    }
 })
 
 // Processing (should move to another folder)
@@ -159,22 +172,26 @@ process.on('warning', (warn) => {this.sendmessage(`Warning: ${warn}`)});
 process.on('uncaughtException', (err, origin) => {
     try
     {
-        log(`Execption: ${err.stack || err}\nOrigin${origin}`)
-        this.sendmessage(`Execption: ${err}\nOrigin${origin}`)
+        console.log(`${'[ERROR]'.bold.red} uncaughtException: ${err.stack || err}\nOrigin${origin}`)
+        this.sendmessage(`Execption: ${err}\nOrigin${origin}`);
+        
     }catch(e)
     {
-        log(e.stack || e, null, '[ERROR]'.bold.red)
+        console.log('[ERROR]'.bold.red, e.stack || e)
     }
+    process.kill(process.pid, "SIGINT")
+        // process.exit();
 });
 process.on('uncaughtExceptionMonitor', (err, origin) => {
     try
     {
-        log(`Execption: ${err.stack || err}\nOrigin${origin}`)
+        console.log(`${'[ERROR]'.bold.red} uncaughtExceptionMonitor: ${err.stack || err}\nOrigin${origin}`)
         this.sendmessage(`Execption: ${err}\nOrigin${origin}`)
     }catch(e)
     {
-        log(e.stack || e, null, '[ERROR]'.bold.red)
+        console.log('[ERROR]'.bold.red, e.stack || e)
     }
+    process.kill(process.pid, "SIGINT");
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -184,8 +201,9 @@ process.on('unhandledRejection', (reason, promise) => {
         else this.sendmessage(`Unhandled rejection at: ${promise}\nReason: ${reason.stack || reason}`)
     }catch(e)
     {
-        log(e.stack || e, null, '[ERROR]'.bold.red)
+        console.log('[ERROR]'.bold.red, e.stack || e)
     }
+    process.kill(process.pid, "SIGINT");
 });
 process.on('exit', (exitcode) => {
     log(`Bot is exiting with exit code of ${exitcode}`);

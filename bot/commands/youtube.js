@@ -3,7 +3,8 @@ const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { log, sendmessage, randomnoise, Perms, empty, intwithcommas, truncate, checkurl} = require('./helpers.js');
+const { sendmessage, randomnoise, Perms, empty, intwithcommas, truncate, checkurl} = require('./helpers.js');
+const { log } = require('../../global/helpers');
 const urlmetadata = require('url-metadata');
 const { DB } = require('../index');
 const icy = require('icy'); // Might want to look into this for more music bot capabilities
@@ -365,6 +366,8 @@ module.exports.queue = async (msg) =>
     {
         const table =await DB.tablequery('music', {"id": msg.guild.id})
         const query = await table.toArray();
+        
+        if(query[0] == undefined || empty(query[0])) return sendmessage(msg, "Couldn't read the servers queue.");
         let music_arr = query[0]['queue'];
         if(music_arr[0] == null) shiftqueue(msg); 
         let guildqueue = music_arr === undefined || empty(music_arr) ? 

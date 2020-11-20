@@ -1,6 +1,7 @@
 const discord = require('discord.js');
 const errh = require('./helpers.js').err;
-const { randomnoise, log, intwithcommas, checkurl, Perms, sendmessage } = require('./helpers.js');
+const { randomnoise, intwithcommas, checkurl, Perms, sendmessage } = require('./helpers.js');
+const { log } = require('../../global/helpers');
 
 /**
  * @description Creates an invite link for the bot so users can add the bot to their own servers.

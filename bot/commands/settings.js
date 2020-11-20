@@ -1,6 +1,7 @@
 // Imports
 const errh = require('./helpers.js').err;
-const { log, randomnoise, Perms, truncate, empty, sendmessage} = require('./helpers.js')
+const { log } = require('../../global/helpers');
+const { randomnoise, Perms, truncate, empty, sendmessage} = require('./helpers.js')
 const { DB } = require('../index.js');
 
 async function updateVote(msg, bool = false)
@@ -44,8 +45,11 @@ module.exports.toggleVote = async (msg, args) =>
             await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": false})
             return this.toggleVote(msg)
         }
-        if(args[0] == 'enable' || args[0] == 'on') updateVote(msg, true)
-        else if(args[0] == 'disable' || args[0] == 'off') updateVote(msg, false)
+        if(args != undefined)
+        {
+            if(args[0] == 'enable' || args[0] == 'on') updateVote(msg, true)
+            else if(args[0] == 'disable' || args[0] == 'off') updateVote(msg, false)
+        }
         else
         {
             vote[0]['voting_enabled'] ? updateVote(msg, false) : updateVote(msg, true);

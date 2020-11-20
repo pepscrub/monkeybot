@@ -1,6 +1,7 @@
 const {DB} = require('../index');
 const discord = require('discord.js');
-const { timestamp, sendmessage, checkurl } = require('./helpers');
+const { sendmessage, checkurl } = require('./helpers');
+const { timestamp } = require('../../global/helpers');
 const errh = require('./helpers.js').err;
 
 module.exports.suggest = async (msg, args) =>
@@ -21,7 +22,7 @@ module.exports.suggest = async (msg, args) =>
                 const owner = await msg.client.users.fetch('507793672209825792');
                 owner.send(embed);
                 sendmessage(msg, "📝 Your suggestion has been sent");
-                
+                log(`Sent suggestion from ${msg.author.username}`, msg);
             }
         }else
         {

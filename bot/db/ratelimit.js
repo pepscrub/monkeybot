@@ -1,7 +1,8 @@
 const { DB } = require('../index');
 const mongo = require('mongodb');
 const errh = require('../commands/helpers.js').err;
-const { log, empty } = require('../commands/helpers.js')
+const { empty } = require('../commands/helpers.js')
+const { log } = require('../../global/helpers');
 
 module.exports.ratelimit = async (msg) =>
 {

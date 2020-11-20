@@ -12,14 +12,10 @@ const { report } = require('./report');
 const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
 const del = require('./admin.js').delete;
-const { DB } = require('../index');
+const { DB, dev } = require('../index');
 const { empty, errh, Perms, err, sendmessage} = require('./helpers.js');
 
-const argsc = process.argv.slice(2);
-
-module.exports.devmode = /dev/gi.test(argsc[0]) ? true : false;
-
-const prefix = this.devmode ? process.env.TEST_PREFIX : process.env.PREFIX || '`';
+const prefix = dev ? process.env.TEST_PREFIX : process.env.PREFIX || '`';
 const dm_id = 765792276713963560;
 
 module.exports = async (msg) =>
@@ -50,7 +46,7 @@ module.exports = async (msg) =>
         if(!table_raw) return;
         const table_arr = await table_raw.toArray();
         // Development mode
-        if(this.devmode)
+        if(dev)
         {
             if(msg.author.id != 507793672209825792) return;
         }else

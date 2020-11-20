@@ -1,7 +1,7 @@
 const fetch = require('node-fetch');
 const errh = require('./helpers.js').err;
 const ta = require('time-ago')
-const {checkurl} = require('./helpers.js');
+const {checkurl, sendmessage} = require('./helpers.js');
 const discord = require('discord.js');
 
 module.exports.changes = async (msg) =>
@@ -24,6 +24,8 @@ module.exports.changes = async (msg) =>
         {
             total_commits += all_arr[i]['total'];
         }
+
+        if(commitsarr['commit'] == undefined) return sendmessage(msg, "Couldn't get latest commit.");
 
         const message = commitsarr['commit']['message'];
 
