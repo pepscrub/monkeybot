@@ -16,6 +16,7 @@ const server = app.listen(port, ()=>{
     // log(`Server is listening on port: ${port}`, null, '[nodeJS]'.bold.lime);
 });
 
+module.exports.server = server;
 
 // Middle ware
 // --------------------

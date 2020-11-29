@@ -123,7 +123,7 @@ module.exports.DataBase = class DataBase
             {
                 if(err) throw err
                 resolve(true)
-                log('Connected to database')
+                log('Connected to database', null, `[DB]`.bold.yellow)
                 this.db = res.db();
             })
         })
@@ -137,7 +137,7 @@ module.exports.DataBase = class DataBase
             {
                 if(err) throw err
                 resolve(true)
-                log('Disconnected from database')
+                log('Disconnected from database', null, `[DB]`.bold.yellow)
             })
         })
     }
