@@ -1,3 +1,5 @@
+const { wss, sockets } = require('../webapp/ws');
+const ansispan = require('ansispan');
 const discord = require('discord.js');
 const ta = require('time-ago')
 const args = process.argv.slice(2);
@@ -25,6 +27,14 @@ module.exports.log = (text, msg = null, origin = '[Monkey Bot]'.bold.green) =>
             if(!msg) console.log(`${origin} ${this.timestamp()} ${text}`)
             else console.log(`${origin} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
         }
+
+        sockets.forEach(socket=>
+        {
+            if(typeof(text) == 'object') text = JSON.stringify(text);
+            if(!msg) socket.send(`${ansispan(origin)} ${this.timestamp()} ${ansispan(text)}`)
+            else socket.send(`${ansispan(origin)} ${this.timestamp()} ${ansispan(`${msg.guild.name}`.italic.cyan)} ${ansispan(text)}`)
+        })
+
     }catch(e)
     {
         console.log(e)

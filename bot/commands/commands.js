@@ -18,12 +18,12 @@ module.exports.bcommand = async (msg) =>
         .addField(`Monkey commands`, `\`\`\`swift\n
         \n🐒 | \`monkey searches randomly for pictures of monkeys\
         \n🗳️ | \`vote (on or off) toggles voting message off.\`\`\``, false)
-        .addField(`Music commands`, `\`\`\`swift\n
-        \n🎧 | \`play Plays youtube or soundcloud link\
-        \n🎧 | \`skip Skips the current song\
-        \n🎧 | \`queue Lists all songs/videos in queue\
-        \n🎧 | \`stop Removes all songs in queue and leaves voice chat\
-        \n🎧 | \`disconnect Disconnects from the voice chat\`\`\``, false)
+        // .addField(`Music commands`, `\`\`\`swift\n
+        // \n🎧 | \`play Plays youtube or soundcloud link\
+        // \n🎧 | \`skip Skips the current song\
+        // \n🎧 | \`queue Lists all songs/videos in queue\
+        // \n🎧 | \`stop Removes all songs in queue and leaves voice chat\
+        // \n🎧 | \`disconnect Disconnects from the voice chat\`\`\``, false)
         .addField(`Utility commands`, `\`\`\`swift\n
         \n🏆 | \`leaderboard (server | none)\
         \n📚 | \`changes See the last update to the bot\

@@ -15,12 +15,11 @@ module.exports.invite = (msg) =>
         const perms = new Perms(msg);
 
         if(!perms.invite()) return sendmessage(msg, "Can't sent instant invite (missing permissions)");
-        
         const s_count = intwithcommas(msg.client.guilds.cache.array().length);
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setTitle(`Invite me to your server! (Click here)`)
-        .setURL(`https://discord.com/api/oauth2/authorize?client_id=737600967301922846&permissions=3468640&scope=bot`)
+        .setURL(`https://discord.com/api/oauth2/authorize?client_id=${msg.client.user.id}&permissions=3468640&scope=bot`)
         .addField(`Some general information`, `\`\`\`swift
         \n🎮 | I'm in ${s_count} servers!\
         \n📜 | \`monkey (Yes this is the whole reason this bot exists)\

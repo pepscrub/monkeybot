@@ -68,21 +68,21 @@ module.exports = async (msg) =>
             case 'monkey':
                 monkey(msg);
             break;
-            case 'queue':
-                queue(msg);
-            break;
-            case 'play': 
-                play(msg, args);
-            break;
-            case 'disconnect': case 'leave':
-                disconnect(msg);
-            break;
-            case 'skip': case 'next':
-                skip(msg);
-            break;
-            case 'stop':
-                stop(msg);
-            break;
+            // case 'queue':
+            //     queue(msg);
+            // break;
+            // case 'play': 
+            //     play(msg, args);
+            // break;
+            // case 'disconnect': case 'leave':
+            //     disconnect(msg);
+            // break;
+            // case 'skip': case 'next':
+            //     skip(msg);
+            // break;
+            // case 'stop':
+            //     stop(msg);
+            // break;
             case 'commands': case 'command': case 'help':
                 bcommand(msg);
             break;

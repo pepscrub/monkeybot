@@ -45,7 +45,7 @@ async function sendplaymessage(msg, info, queue)
             {name: `Description`, value: shortdesc}
         )
         .setImage(tn)
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.thumbnails[0].url))
         .setTimestamp();
     
         if(search)

@@ -46,7 +46,7 @@ require('dotenv').config();                                                     
 client.login(this.dev ? process.env.TEST_TOKEN : process.env.token)
 .catch((e)=>{
     log(`An error occured while bot was authentication.\n${e.stack || e}`);
-    process.exit('SIGTERM');
+    // process.exit('SIGTERM');
 });
 
 client.on('ready', async ()=>{
@@ -131,4 +131,14 @@ client.on('debug', (info)=>
     {
         log(info.italic.gray, null, '[Debug]'.bold.yellow);
     }
+})
+
+client.on('guildCreate', guild =>
+{
+    log(`Joined '${guild.name}' server (${guild.memberCount} members)`);
+})
+
+client.on('guildDelete', guild =>
+{
+    log(`Removed fropm '${guild.name}' server (${guild.memberCount} members)`);
 })

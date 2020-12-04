@@ -3,6 +3,7 @@ const { client, DB, sendmessage } = require('../bot')
 const { server } = require('../webapp');
 
 process.stdin.resume();
+process.setMaxListeners(0);
 
 function exit_gracefully(SIG)
 {

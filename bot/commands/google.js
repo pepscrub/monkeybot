@@ -377,7 +377,7 @@ async function monkeygoogle(msg)
         // God damn that's a long url
         const url = `https://www.googleapis.com/customsearch/v1?key=${token}&cx=${searchengine}&q=${monkey}&searchType=image&start=${randomstart}`;
 
-        if(google_results.length > 0) return getmonkey(msg);                        // No results? We recall this function
+        if(google_results == undefined || google_results.length > 0) return getmonkey(msg);
         log(`Fetching using key: ${quote_reached} and searching ${monkey}`, msg)
         fetch(url)                                                                  // Fetch API
         .then(res=>{return res.json()})
