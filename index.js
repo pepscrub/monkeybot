@@ -1,5 +1,5 @@
 'use strict';
-require('./bot/index');
+// require('./bot/index');
 require('./webapp/index');
 require('./global/processes');
 const colors = require('colors');
