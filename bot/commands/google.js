@@ -130,7 +130,7 @@ async function sendMessage(msg, res)
         }
         else
         {
-            google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
+            if(!google_results) google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
             const random = Math.floor(Math.random() * Object.keys(colors).length);
             const key = Object.keys(colors)[random];
             const ran_colour = colors[key][0]
