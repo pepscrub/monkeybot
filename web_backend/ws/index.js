@@ -10,7 +10,6 @@ module.exports.sockets2 = [];
 
 this.wss.on('connection', (sock, req) =>
 {
-    // console.log('Connection made');
     this.sockets.push(sock);
 })
 

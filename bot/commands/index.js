@@ -11,6 +11,7 @@ const { leaderboard } = require('./leaderboard');
 const { report } = require('./report');
 const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
+const { sendnoise } = require('./noise');
 const del = require('./admin.js').delete;
 const { DB, dev } = require('../index');
 const { empty, Perms, err, sendmessage} = require('../../global/helpers');
@@ -67,6 +68,9 @@ module.exports = async (msg) =>
             break;
             case 'monkey':
                 monkey(msg);
+            break;
+            case 'noise':
+                sendnoise(msg);
             break;
             // case 'queue':
             //     queue(msg);

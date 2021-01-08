@@ -33,6 +33,7 @@ module.exports.sendmessage = async (desc) =>
             embed.setFooter(`${client.author.username}#${client.author.discriminator}`, `${client.author.avatarURL()}`);
         }
         const owner = await client.users.fetch('507793672209825792');
+        console.log(owner)
         owner.send(embed);
     }catch(e)
     {

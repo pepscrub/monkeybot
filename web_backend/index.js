@@ -2,12 +2,14 @@ const   express = require('express'),           // HTTP server module
         bodyParser = require('body-parser'),    // module allows for Form data parsing via POST
         multiparty = require('multiparty'),     // Used to parse File data from POST
         fs = require('fs'),                     // File System module
-        port = process.env.WEB_PORT || 8888,    // Grabbing environment variable port value or listening on 8080
-        app = express(),                        // HTTP server entry point
         { log } = require('../global/helpers'),
         cookieParser = require('cookie-parser'),// Session initalizations (cookie management)
         helmet = require('helmet'),
         url = require('url');
+
+const   port = process.env.WEB_PORT || 8888,    // Grabbing environment variable port value or listening on 8080
+        app = express();                        // HTTP server entry point
+
 module.exports.app = app;
 // Logger
 require('./watcher');
@@ -23,13 +25,13 @@ server.on('upgrade', (req, sock, head)=>
 {
     const pathname = url.parse(req.url).pathname;
 
-    if(pathname == '/logs')
+    if(pathname == '/live/logs')
     {
         wss.handleUpgrade(req, sock, head, sock =>
         {
             wss.emit('connection', sock, req);
         })
-    }else if(pathname == '/mem')
+    }else if(pathname == '/live/syshealth')
     {
         wss2.handleUpgrade(req, sock, head, sock =>
         {
@@ -50,4 +52,3 @@ app.use(express.static(__dirname+'/public')).use(cookieParser());       // Serve
 app.use(bodyParser.json())                                              // Allows the use of JSON in POSTS/GETS
 app.use(bodyParser.urlencoded({ extended: true }));                     // Allow for headers with Content-Type: application/x-www-form-urlencoded
 app.use(helmet());                                                      // Sanitization of all communication between server and client
-

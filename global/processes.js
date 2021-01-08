@@ -1,6 +1,6 @@
 const { log } = require('./helpers')
 const { client, DB, sendmessage } = require('../bot')
-const { server } = require('../webapp');
+const { server } = require('../web_backend');
 
 process.stdin.resume();
 process.setMaxListeners(0);

@@ -1,6 +1,6 @@
 'use strict';
-const errh = require('../../global/helpers').err;
-const { DB } = require('../index.js');
+import errh from ('../../global/helpers').err;
+import { DB } from ('../index.js');
 
 
 module.exports.st = async (msg, args) =>
