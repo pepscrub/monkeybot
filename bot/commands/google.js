@@ -288,7 +288,7 @@ async function monkeyreddit(msg)
 {
     try
     {
-        const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics']                                                             // Subreddits
+        const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics', 'Monke']
         const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
         const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(async res=>
         {

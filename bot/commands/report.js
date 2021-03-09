@@ -10,6 +10,7 @@ module.exports.report = async (msg, args) =>
         if(args.length != 0)
         {
             let embed = new discord.MessageEmbed()
+            .setAuthor(`${msg.author.id}`)
             .setColor(process.env.BOT_COLOR_ERR)
             .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
             .setTimestamp()

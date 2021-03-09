@@ -12,6 +12,7 @@ const { report } = require('./report');
 const { send_uptime } = require('./uptime.js');
 const { ratelimit } = require('../db/ratelimit.js');
 const { sendnoise } = require('./noise');
+const { mcount } = require('./monkeycount')
 const del = require('./admin.js').delete;
 const { DB, dev } = require('../index');
 const { empty, Perms, err, sendmessage} = require('../../global/helpers');
@@ -50,15 +51,14 @@ module.exports = async (msg) =>
         if(dev)
         {
             if(msg.author.id != 507793672209825792) return;
-        }else
-        {
-            if(!empty(table_arr))
-            {
-                if(table_arr[0]['msg_disabled']) return true;
-            }
-    
-            ratelimit(msg);
         }
+
+        if(!empty(table_arr))
+        {
+            if(table_arr[0]['msg_disabled']) return true;
+        }
+    
+        ratelimit(msg);
 
 
         switch(command)
@@ -71,6 +71,9 @@ module.exports = async (msg) =>
             break;
             case 'noise':
                 sendnoise(msg);
+            break;
+            case 'total': case 'monkey count': case 'count': case 'random':
+                mcount(msg)
             break;
             // case 'queue':
             //     queue(msg);
