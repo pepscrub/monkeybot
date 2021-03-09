@@ -171,25 +171,12 @@ module.exports.ban = async (command, msg, args) =>
         log(`Banning ${user.username}`);
         table.updateOne({"user_id": user.id},{$set: {"msg_disabled": true}});
         sendmessage(msg, `I am now ignoring ${user.username}'s commands`);
-        try{
-            user.send(`Your access to monkey bot and its commands have been revoked.`);
-        }catch(e){
-            // Cannot send message to the user (permission stuff)
-        }
     }
     else if(command == 'unban')
     {
-        msg.mentions.users.forEach(user=>
-        {
-            log(`Unbanning ${user.username}`);
-            table.updateOne({"user_id": user.id},{$set: {"msg_disabled": false}})
-            sendmessage(msg, `I am now listening to ${user.username}'s commands`);
-            try{
-                user.send(`Your access to monkey bot and its commands have been reinstated.`);
-            }catch(e){
-                // Cannot send message to the user (permission stuff)
-            }
-        })
+        log(`Unbanning ${user.username}`);
+        table.updateOne({"user_id": user.id},{$set: {"msg_disabled": false}})
+        sendmessage(msg, `I am now listening to ${user.username}'s commands`);
     }
 
 }
