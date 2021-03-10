@@ -33,6 +33,7 @@ module.exports.sendmessage = async (desc) =>
             embed.setFooter(`${client.author.username}#${client.author.discriminator}`, `${client.author.avatarURL()}`);
         }
         const owner = await client.users.fetch('507793672209825792');
+
         console.log(owner)
         owner.send(embed);
     }catch(e)
@@ -64,7 +65,8 @@ client.on('ready', async ()=>{
         // process.kill(process.pid, 15);
     }catch(e)
     {
-        this.sendmessage(`An error occured while bot was starting up.\n${e}`);
+        console.log(`An error occured while bot was starting up.\n${e}`)
+        // this.sendmessage(`An error occured while bot was starting up.\n${e}`);
     }
 }) 
 
