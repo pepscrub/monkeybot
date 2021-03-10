@@ -22,24 +22,25 @@ module.exports.dev = dev;
 module.exports.debug = debug;
 module.exports.sendmessage = async (desc) =>
 {
-    try
-    {
-        const embed = new discord.MessageEmbed()
-        .setColor(process.env.BOT_COLOR)
-        .setTitle(`${desc}`)
-        .setTimestamp();
-        if(client.author !== undefined)
-        {
-            embed.setFooter(`${client.author.username}#${client.author.discriminator}`, `${client.author.avatarURL()}`);
-        }
-        const owner = await client.users.fetch('507793672209825792');
+    console.log(desc)
+    // try
+    // {
+    //     const embed = new discord.MessageEmbed()
+    //     .setColor(process.env.BOT_COLOR)
+    //     .setTitle(`${desc}`)
+    //     .setTimestamp();
+    //     if(client.author !== undefined)
+    //     {
+    //         embed.setFooter(`${client.author.username}#${client.author.discriminator}`, `${client.author.avatarURL()}`);
+    //     }
+    //     const owner = await client.users.fetch('507793672209825792');
 
-        console.log(owner)
-        owner.send(embed);
-    }catch(e)
-    {
-        console.log(`An eror occured when attempting to send message\n${e}`);
-    }
+    //     console.log(owner)
+    //     owner.send(embed);
+    // }catch(e)
+    // {
+    //     console.log(`An eror occured when attempting to send message\n${e}`);
+    // }
 }
 // Commands index.js
 const commands = require('./commands');                                                     // Importing  commands index.js
