@@ -66,7 +66,7 @@ module.exports = async (msg) =>
             case 'delete': case 'remove': case 'purge': case 'clean':
                 del(msg, args);
             break;
-            case 'monkey':
+            case 'monkey': case 'monke':
                 monkey(msg);
             break;
             case 'noise':
