@@ -138,7 +138,6 @@ async function sendMessage(msg, res)
             .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
             .setColor(ran_colour)
             .setTitle(title)
-            .setDescription(`\n${perms.react() ? `\`voting to enable voting.` : ``}`)
             .setImage(res['link'])
             .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
             .setTimestamp();
@@ -240,7 +239,7 @@ async function Reaction_Result(msg, e, res)
         .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, checkurl(msg.author.avatarURL()))
         .setTimestamp();
         
-        msg.channel.send(embed);
+        msg.edit(embed);
     }catch(e)
     {
         errh(e, msg);
@@ -262,6 +261,9 @@ function getmonkey(msg)
 
         let imglink = google_results[0]['link'];
         let linktest = !/(?:jpg|jpeg|gif|png)$/.test(imglink);
+        
+        log(`Using random monkey in memory`, msg);
+
         /**
          * If the URL we are given is invalid loop recursively through this function 
          */
