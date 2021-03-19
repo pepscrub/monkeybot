@@ -27,6 +27,9 @@ module.exports = async (msg) =>
         const args = msg.content.split(" ");                            // Split based on space e.g. !play" "link" "volume
         if(args.length == 0 || args[0].charAt(0) !== prefix) return;
         const command = args.shift().substr(1);
+
+
+
         if(msg.channel.type == 'dm' && msg.channel.id == dm_id)
         {
             switch(command)
@@ -36,7 +39,6 @@ module.exports = async (msg) =>
                 break;
             }
         }
-
 
         const perms = new Perms(msg);
         // Bot ignoring stuff

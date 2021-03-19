@@ -127,7 +127,7 @@ async function sendMessage(msg, res)
             .setImage(res['link'])
             .setFooter(`This vote will expire in ${expirey} seconds`);
             // Send message and wait for reactions
-            msg.edit(embed).then(async e=>Reaction_Result(msg, e, res))
+            msg.channel.send(embed).then(async e=>Reaction_Result(msg, e, res))
         }
         else
         {
@@ -139,7 +139,6 @@ async function sendMessage(msg, res)
             .setColor(ran_colour)
             .setTitle(title)
             .setImage(res['link'])
-            .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
             .setTimestamp();
             msg.edit(embed);
         }
@@ -236,7 +235,7 @@ async function Reaction_Result(msg, e, res)
         .setColor(colors[output[0][0]][0])
         .setTitle(title)
         .setImage(res['link'])
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}${empty(users) ? '' : `, votes from: ${users}`}`, checkurl(msg.author.avatarURL()))
+        .setFooter(`${empty(users) ? '' : `, votes from: ${users}`}`, checkurl(msg.author.avatarURL()))
         .setTimestamp();
         
         msg.edit(embed);
@@ -321,7 +320,6 @@ async function monkeyreddit(msg)
         .setTitle(`Fetching from https://www.reddit.com/r/${random_sr}\
         ${(!/(?:jpg|jpeg|gif|png)/.test(media) || /mp4|gifv/.test(media) || !media) ? `Post is not an image` : `Valid post`}`)
         .setDescription(`Grabbing post ${rm} out of ${valid.length}` )
-        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
         .setTimestamp();
 
         msg.edit(embed);
