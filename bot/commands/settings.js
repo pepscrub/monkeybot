@@ -45,14 +45,12 @@ module.exports.toggleVote = async (msg, args) =>
             await table.insertOne({"s_id": msg.guild.id, "vote": false, "voting_enabled": false})
             return this.toggleVote(msg)
         }
+        console.log(args);
         if(args != undefined)
         {
             if(args[0] == 'enable' || args[0] == 'on') updateVote(msg, true)
             else if(args[0] == 'disable' || args[0] == 'off') updateVote(msg, false)
-        }
-        else
-        {
-            vote[0]['voting_enabled'] ? updateVote(msg, false) : updateVote(msg, true);
+            else vote[0]['voting_enabled'] ? updateVote(msg, false) : updateVote(msg, true);
         }
         let text = vote[0]['voting_enabled'] ? 'Switching voting Off' : 'Switching voting On';
         sendmessage(msg, text);

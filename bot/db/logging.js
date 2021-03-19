@@ -93,7 +93,7 @@ module.exports.log_commands = async (msg, ...users) =>
                             [{
                                 "id": `${user_vote.id}`,
                                 "name": `${user_vote.username}#${user_vote.discriminator}`,
-                                "pfp": e.avatarURL(),
+                                "pfp": user_vote.avatarURL(),
                                 "commandusage": ["voted", date]
                             }]
                         }}

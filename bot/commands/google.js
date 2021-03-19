@@ -104,11 +104,12 @@ async function sendMessage(msg, res)
         const vote = await index.toArray();
         const enabled = vote[0]['voting_enabled'];
 
+        if(google_results != undefined) google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
+
         if(perms.del() && perms.react() && enabled) // Check to see if we have permissions to modify chat and add reactions
         {
             updateVote(msg, true);
             const expirey = timer/1000; // Timer in seconds
-            if(google_results != undefined) google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
             vote[msg.guild.id] = true;  // Voting is in progress
 
             // Embed messiness
@@ -126,11 +127,10 @@ async function sendMessage(msg, res)
             .setImage(res['link'])
             .setFooter(`This vote will expire in ${expirey} seconds`);
             // Send message and wait for reactions
-            msg.channel.send(embed).then(async e=>Reaction_Result(msg, e, res))
+            msg.edit(embed).then(async e=>Reaction_Result(msg, e, res))
         }
         else
         {
-            if(!google_results) google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
             const random = Math.floor(Math.random() * Object.keys(colors).length);
             const key = Object.keys(colors)[random];
             const ran_colour = colors[key][0]
@@ -142,7 +142,7 @@ async function sendMessage(msg, res)
             .setImage(res['link'])
             .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
             .setTimestamp();
-            msg.channel.send(embed);
+            msg.edit(embed);
         }
    }catch(e)
    {
@@ -186,8 +186,6 @@ async function Reaction_Result(msg, e, res)
         e.delete().catch();                        // Delete the message sent for voting
         if(output[0][0] === '❌') return;         // If we didn't like the monkey we delete the message
         if(output[0][1] - 1 == 0) return;
-
-        console.log(output);
     
         const table = await DB.table('monkey_rankings');
         const index = await table.find({"url": res['link']});
@@ -313,6 +311,19 @@ async function monkeyreddit(msg)
                         (/mp4|gifv/.test(rp['media']['fallback_url']) ? null : 
                         (rp['media']['type'] != undefined ? rp['media']['oembed']['thumbnail_url'] : null));
         const formatted = {'title': rp['title'], 'link': media}                                                            // Reformat into google data
+
+
+        const embed = new discord.MessageEmbed()
+        .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+        .setColor(process.env.BOT_COLOR)
+        .setTitle(`Fetching from https://www.reddit.com/r/${random_sr}\
+        ${(!/(?:jpg|jpeg|gif|png)/.test(media) || /mp4|gifv/.test(media) || !media) ? `Post is not an image` : `Valid post`}`)
+        .setDescription(`Grabbing post ${rm} out of ${valid.length}` )
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
+        .setTimestamp();
+
+        msg.edit(embed);
+
         if(!/(?:jpg|jpeg|gif|png)/.test(media) || /mp4|gifv/.test(media) || !media) return monkeyreddit(msg);
         else sendMessage(msg, formatted);   
     }catch(e)
@@ -351,8 +362,23 @@ module.exports.monkey = async (msg) =>
         if(vote[0]['vote']) return; // If there's currently a vote in 
         log_commands(msg);
         const random = Math.round(Math.random());
-        log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}\n`, msg)
-        random ? monkeygoogle(msg) : monkeyreddit(msg);        
+        log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}\n`, msg);
+
+
+        const embed = new discord.MessageEmbed()                                  // Creating a new embed
+        .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+        .setColor(process.env.BOT_COLOR)
+        .setTitle("Getting image")
+        .setDescription(`:coin: RNG between google and reddit: ${random ? "**Google**" : "**Reddit**"}`)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
+        .setTimestamp();
+
+
+        const newmsg = await msg.channel.send(embed);
+
+
+
+        random ? monkeygoogle(newmsg) : monkeyreddit(newmsg);        
     }catch(e)
     {
         errh(e, msg);
@@ -378,6 +404,16 @@ async function monkeygoogle(msg)
         const url = `https://www.googleapis.com/customsearch/v1?key=${token}&cx=${searchengine}&q=${monkey}&searchType=image&start=${randomstart}`;
 
         if(google_results == undefined || google_results.length > 0) return getmonkey(msg);
+
+        const embed = new discord.MessageEmbed()
+        .setTitle("Searching google for")
+        .setDescription(`***${monkey}***`)
+        .setColor(process.env.BOT_COLOR)
+        .setFooter(`${msg.author.username}#${msg.author.discriminator}`, checkurl(msg.author.avatarURL()))
+        .setTimestamp()
+
+        msg.edit(embed);
+
         log(`Fetching using key: ${quote_reached} and searching ${monkey}`, msg)
         fetch(url)                                                                  // Fetch API
         .then(res=>{return res.json()})
