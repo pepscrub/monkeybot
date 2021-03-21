@@ -103,6 +103,19 @@ async function sendMessage(msg, res)
         const index = await table.find({"s_id": msg.guild.id});
         const vote = await index.toArray();
         const enabled = vote[0]['voting_enabled'];
+        const video = vote[0]['video']
+        
+        
+
+
+        if(res['link'].includes('.gifv'))
+        {
+            const imgurcontent = await fetch(res['link']).then(res=>res.text())
+            const regexurl = new RegExp(`${res['link'].substring(6, res['link'].length-5)}.*"`, 'gmi');
+            const matches = imgurcontent.match(regexurl);
+            const output = {title: res['title'], link: `https:${matches[6].replace('"','')}`}
+            return sendMessage(msg, output)
+        }
 
         if(google_results != undefined) google_results.shift();     // Delete an instance of google images in storage (dumb and stupid, is called when do reddit as well) 
 
@@ -131,16 +144,48 @@ async function sendMessage(msg, res)
         }
         else
         {
-            const random = Math.floor(Math.random() * Object.keys(colors).length);
-            const key = Object.keys(colors)[random];
-            const ran_colour = colors[key][0]
-            const embed = new discord.MessageEmbed()
-            .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
-            .setColor(ran_colour)
-            .setTitle(title)
-            .setImage(res['link'])
-            .setTimestamp();
-            msg.edit(embed);
+            if((/(?:mp4)/.test(res['link'])))
+            {
+                if(video)
+                {
+                    const random = Math.floor(Math.random() * Object.keys(colors).length);
+                    const key = Object.keys(colors)[random];
+                    const ran_colour = colors[key][0]
+                    const embed = new discord.MessageEmbed()
+                    .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+                    .setColor(ran_colour)
+                    .setTitle(title)
+                    .setURL(res['link'])
+                    .setDescription(`Please wait for the video to load`)
+                    .setTimestamp();
+                    msg.edit(embed)
+                    msg.channel.send(``, {files: [res['link']]})
+                }else{
+                    const random = Math.floor(Math.random() * Object.keys(colors).length);
+                    const key = Object.keys(colors)[random];
+                    const ran_colour = colors[key][0]
+                    const embed = new discord.MessageEmbed()
+                    .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+                    .setColor(ran_colour)
+                    .setTitle(title)
+                    .setDescription(`Click the url to view the video or enable via \`video`)
+                    .setURL(res['link'])
+                    .setImage(res['link'].replace('.mp4', '.jpg'))
+                    .setTimestamp();
+                    msg.edit(embed)
+                }
+            }else{
+                const random = Math.floor(Math.random() * Object.keys(colors).length);
+                const key = Object.keys(colors)[random];
+                const ran_colour = colors[key][0]
+                const embed = new discord.MessageEmbed()
+                .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
+                .setColor(ran_colour)
+                .setTitle(title)
+                .setImage(res['link'])
+                .setTimestamp();
+                msg.edit(embed);
+            }
         }
    }catch(e)
    {
@@ -235,7 +280,7 @@ async function Reaction_Result(msg, e, res)
         .setColor(colors[output[0][0]][0])
         .setTitle(title)
         .setImage(res['link'])
-        .setFooter(`${empty(users) ? '' : `, votes from: ${users}`}`, checkurl(msg.author.avatarURL()))
+        .setFooter(`${empty(users) ? '' : `Votes from: ${users}`}`, checkurl(msg.author.avatarURL()))
         .setTimestamp();
         
         msg.edit(embed);
@@ -259,7 +304,8 @@ function getmonkey(msg)
         if(google_results == undefined || google_results.length == 0) return Math.round(Math.random()) ? monkeygoogle(msg) : monkeyreddit(msg);
 
         let imglink = google_results[0]['link'];
-        let linktest = !/(?:jpg|jpeg|gif|png)$/.test(imglink);
+        // let linktest = !/(?:jpg|jpeg|gif|png|mp4)$/.test(imglink);
+        let linktest = !/(?:mp4)$/.test(imglink);
         
         log(`Using random monkey in memory`, msg);
 
@@ -287,6 +333,19 @@ async function monkeyreddit(msg)
 {
     try
     {
+        // VIDEO DEBUGGING
+        // ---------------
+        // const body = await fetch(`https://www.reddit.com/r/monkeypics.json?&limit=600`).then(res=>{return res.json()});
+        // const rp = body['data']['children'].filter(post=>!post.data.over_18)[20]['data'];
+
+        // const media =   rp['media'] === null ?  rp['url'] : 
+        // rp['media']['fallback_url'] ? null : 
+        // (rp['media']['type'] != undefined ? rp['media']['oembed']['thumbnail_url'] : null);
+
+        // const formatted = {title: `Idek`, link: media}
+        // return sendMessage(msg, formatted)
+
+
         const subreddits = ['monkeys','ape','MonkeyMemes','monkeypics', 'Monke']
         const random_sr = subreddits[Math.floor(Math.random() * subreddits.length)]                                                 // Random subreddit from list
         const body = await fetch(`https://www.reddit.com/r/${random_sr}.json?&limit=600`).then(async res=>
@@ -309,22 +368,22 @@ async function monkeyreddit(msg)
         log(`Got post ${rm} out of ${valid.length}`, msg);
     
         const media =   rp['media'] === null ?  rp['url'] : 
-                        (/mp4|gifv/.test(rp['media']['fallback_url']) ? null : 
-                        (rp['media']['type'] != undefined ? rp['media']['oembed']['thumbnail_url'] : null));
+        rp['media']['fallback_url'] ? null : 
+        (rp['media']['type'] != undefined ? rp['media']['oembed']['thumbnail_url'] : null);
         const formatted = {'title': rp['title'], 'link': media}                                                            // Reformat into google data
-
 
         const embed = new discord.MessageEmbed()
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .setColor(process.env.BOT_COLOR)
-        .setTitle(`Fetching from https://www.reddit.com/r/${random_sr}\
-        ${(!/(?:jpg|jpeg|gif|png)/.test(media) || /mp4|gifv/.test(media) || !media) ? `Post is not an image` : `Valid post`}`)
+        // Had to make this line longer for formatting reasons (would break indenting)
+        .setTitle(`Fetching from https://www.reddit.com/r/${random_sr} ${(!/(?:jpg|jpeg|gif|png|mp4|gifv|gif)/.test(media) || !media) ? `Post is not an image` : `Valid post`}`)
         .setDescription(`Grabbing post ${rm} out of ${valid.length}` )
         .setTimestamp();
 
         msg.edit(embed);
 
-        if(!/(?:jpg|jpeg|gif|png)/.test(media) || /mp4|gifv/.test(media) || !media) return monkeyreddit(msg);
+        if(media === null) return monkeyreddit(msg);    // Does not work without this line????
+        if(!(/(?:jpg|jpeg|gif|png|mp4|gifv|gif)/.test(media) || media == null)) return monkeyreddit(msg);
         else sendMessage(msg, formatted);   
     }catch(e)
     {
@@ -361,7 +420,8 @@ module.exports.monkey = async (msg) =>
         
         if(vote[0]['vote']) return; // If there's currently a vote in 
         log_commands(msg);
-        const random = Math.round(Math.random());
+        // const random = Math.round(Math.random());
+        const random = 0;
         log(`RNG Google or Reddit: ${random ? 'Google'.bold : 'Reddit'.bold}\n`, msg);
 
 

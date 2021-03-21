@@ -17,7 +17,8 @@ module.exports.bcommand = async (msg) =>
         .setAuthor(randomnoise(), msg.client.user.displayAvatarURL())
         .addField(`Monkey commands`, `\`\`\`swift\n
         \n🐒 | \`monkey searches randomly for pictures of monkeys\
-        \n🐒 | \`count / random (Gets count and random image of monkey from our collection)\
+        \n🐒 | \`count / random (Selects monkey from database)\
+        \n🐒 | \`video (on or off) enable videos (does not work with voting)\
         \n🗳️ | \`vote (on or off) toggles voting message off.\`\`\``, false)
         // .addField(`Music commands`, `\`\`\`swift\n
         // \n🎧 | \`play Plays youtube or soundcloud link\

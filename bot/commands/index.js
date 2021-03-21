@@ -6,7 +6,7 @@ const { bcommand } = require('./commands');
 const { changes } = require('./changes');
 const { invite } = require('./invite');
 const { suggest } = require('./suggestion');
-const { toggleVote } = require('./settings');
+const { toggleVote, toggleVideo } = require('./settings');
 const { leaderboard } = require('./leaderboard');
 const { report } = require('./report');
 const { send_uptime } = require('./uptime.js');
@@ -105,7 +105,9 @@ module.exports = async (msg) =>
             case 'vote': case 'voting': case 'votes':
                 toggleVote(msg, args);
             break;
-
+            case 'video':
+                toggleVideo(msg, args)
+            break;
             case 'changes': case 'whats new': case 'what\'s new': case 'update': case 'last update': case "new":
                 changes(msg);
             break;
@@ -121,7 +123,6 @@ module.exports = async (msg) =>
             case 'uptime':
                 send_uptime(msg);
             break;
-
             // Owner only stuff
             case 'status':
                 status(msg, args);
