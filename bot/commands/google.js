@@ -113,10 +113,6 @@ async function sendMessage(msg, res)
             const imgurcontent = await fetch(res['link']).then(res=>res.text())
             const regexurl = new RegExp(`${res['link'].substring(6, res['link'].length-5)}.*"`, 'gmi');
             const matches = imgurcontent.match(regexurl);
-            if(matches == null)
-            {
-                errh(`URL: ${res['link']}Imgur content: ${imgurcontent}\nRegex url: ${regexurl}\nMatches${matches}`, msg);
-            }
             const output = {title: res['title'], link: `https:${matches[6].replace('"','')}`}
             return sendMessage(msg, output)
         }
@@ -193,7 +189,7 @@ async function sendMessage(msg, res)
         }
    }catch(e)
    {
-       errh(e, msg);
+    errh(`URL: ${res['link']}Imgur content: ${imgurcontent}\nRegex url: ${regexurl}\nMatches${matches}`, msg);
    }
 }
 /**
