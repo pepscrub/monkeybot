@@ -36,7 +36,7 @@ module.exports.leaderboard = async (msg, args) =>
         })
         .flat()
         // Merging any duplicates (Same user different server)
-        .forEach(item=>
+        .map(item=>
         {
             let existing = array.filter((v,i)=>
             {
@@ -80,7 +80,7 @@ module.exports.leaderboard = async (msg, args) =>
         {
             embed.setAuthor(`Top ${count} out of ${server_count} servers.`);
         }
-    
+
         for(let i = 1; i < count; i++)
         {
     

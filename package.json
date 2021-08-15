@@ -5,20 +5,13 @@
   "dependencies": {
     "ansispan": "0.0.4",
     "assert": "^2.0.0",
-    "body-parser": "^1.19.0",
-    "brain.js": "^2.0.0-beta.2",
     "chart.js": "^2.9.4",
     "colors": "^1.4.0",
-    "cookie-parser": "^1.4.5",
     "discord.js": "^12.3.1",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "heapdump": "^0.3.15",
-    "helmet": "^4.1.1",
     "html-to-markdown": "^1.0.0",
-    "icy": "^2.1.0",
+    "install": "^0.13.0",
     "mongodb": "^3.6.2",
-    "multiparty": "^4.2.2",
     "node-fetch": "^2.6.1",
     "node-lame": "^1.2.2",
     "node-opus": "^0.3.3",
@@ -33,7 +26,6 @@
     "ytdl-core": "^4.1.1",
     "ytsr": "^1.0.4"
   },
-  "devDependencies": {},
   "scripts": {
     "start": "node index.js"
   },

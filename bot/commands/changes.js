@@ -20,10 +20,12 @@ module.exports.changes = async (msg) =>
 
         let total_commits = 0;
 
-        for(let i = 0; i < all_arr.length; i++)
+        if(!all_arr) return errh(`Fetch from github went wrong`, msg);
+
+        all_arr.map((k,i)=>
         {
-            total_commits += all_arr[i]['total'];
-        }
+            total_commits += k['total'];
+        })
 
         if(commitsarr['commit'] == undefined) return sendmessage(msg, "Couldn't get latest commit.");
 
@@ -42,7 +44,7 @@ module.exports.changes = async (msg) =>
         const embed = new discord.MessageEmbed()
         .setColor(process.env.BOT_COLOR)
         .setAuthor(user['login'], user['avatar_url'])
-        .setDescription(`\`\`\`swift\n${date_formated} (${ta.ago(date_formated)})\ 
+        .setDescription(`\`\`\`swift\n${date_formated} (${ta.ago(new Date(date))})\ 
         \n📜 ${ta.mintoread(changes)}\
         \n🚧 Commits (${total_commits} total)\
         \n${changes}\

@@ -1,11 +1,9 @@
 'use strict';
 const errh = require('../../global/helpers').err;
 const discord = require('discord.js');
-const { log, randomnoise, checkurl, sendmessage } = require('../../global/helpers');
+const { log, randomnoise, checkurl, sendmessage, intwithcommas } = require('../../global/helpers');
 const { DB } = require('../index');
 const { devmode } = require('./index');
-const heapdump = require('heapdump');
-
 
 function isowner(msg)
 {
@@ -74,26 +72,29 @@ module.exports.status = (msg, args) =>
 module.exports.servers = (msg, args) =>
 {
     if(isowner(msg)) return;
-    const servers = msg.client.guilds.cache.sort((a,b)=>{return b.memberCount - a.memberCount});
+    const cache = msg.client.guilds.cache.filter(server=> server.memberCount > 500);
+    const servers = cache.sort((a,b)=>{return b.memberCount - a.memberCount})
+    servers.array().slice(0,5);
     let length_check = 0;
     let members = 0;
-    servers.array().forEach((server)=>{members += server.memberCount})
+    msg.client.guilds.cache.map((server)=>{members += server.memberCount})
     const title = `Bot servers list`;
     const description = `\`\`\`swift\nGeneral information\
-    \nNumber of servers bot is in: ${servers.array().length}\
-    \nNumber of users in all servers: ${members}\
+    \nNumber of servers bot is in: ${intwithcommas(msg.client.guilds.cache.size)}\
+    \nNumber of users in all servers: ${intwithcommas(members)}\
     \`\`\``;
 
     length_check += title.length;
     length_check += description.length;
 
-
+    console.log(servers.length)
     let i = 0;
+
     const embed = new discord.MessageEmbed()
     .setTitle(title)
     .setDescription(description)
     .setColor(process.env.BOT_COLOR)
-    servers.forEach(server=>
+    servers.map(server=>
     {
         if(i >= 24 || length_check >= 6000) return;
         const owner = server.owner;
@@ -114,9 +115,9 @@ module.exports.servers = (msg, args) =>
         \n🚀| Nitro boosted: ${s_boosted}\
         \n🌌| Nitro server teir: ${s_teir}\
         \`\`\``
-        i++;
         length_check += header.length;
         length_check += body.length;
+        i++;
         if(length_check < 6000) embed.addField(header, body)
     })
     msg.channel.send(embed)

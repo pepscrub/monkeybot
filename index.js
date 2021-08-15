@@ -1,6 +1,5 @@
 // 'use strict';
-require('./web_backend/index');
-require('./global/processes');
+require('./bot');
 const colors = require('colors');
 const { log } = require('./global/helpers');
 

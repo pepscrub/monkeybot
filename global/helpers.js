@@ -1,4 +1,3 @@
-const { wss, sockets } = require('../web_backend/ws');
 const ansispan = require('ansispan');
 const discord = require('discord.js');
 const ta = require('time-ago')
@@ -27,14 +26,6 @@ module.exports.log = (text, msg = null, origin = '[Monkey Bot]'.bold.green) =>
             if(!msg) console.log(`${origin} ${this.timestamp()} ${text}`)
             else console.log(`${origin} ${this.timestamp()} ${`${msg.guild.name}`.italic.cyan} ${text}`)
         }
-
-        sockets.forEach(socket=>
-        {
-            if(typeof(text) == 'object') text = JSON.stringify(text);
-            if(!msg) socket.send(`${ansispan(origin)} | ${this.timestamp()} | ${ansispan(text)}`)
-            else socket.send(`${ansispan(origin)} | ${this.timestamp()} | ${ansispan(`${msg.guild.name}`.italic.cyan)} | ${ansispan(text)}`)
-        })
-
     }catch(e)
     {
         console.log(e)
@@ -265,6 +256,7 @@ module.exports.UserPerms = class UserPerms
          if(msg == null || msg.channel == undefined) return;
          else
          {
+             console.log()
              const problem_file = e.stack.toString().match(/\(.*?js.*/gm)[0];
              const embed = new discord.MessageEmbed()
              .setColor(process.env.BOT_COLOR_ERR)

@@ -1,6 +1,5 @@
 const discord = require('discord.js');
 const { status, servers, ban, reply, updateDB, dump } = require('./owner.js');
-const { play, skip, stop, queue, disconnect } = require('./youtube');
 const { monkey } = require('./google');
 const { bcommand } = require('./commands');
 const { changes } = require('./changes');
@@ -77,21 +76,6 @@ module.exports = async (msg) =>
             case 'total': case 'monkey count': case 'count': case 'random':
                 mcount(msg)
             break;
-            // case 'queue':
-            //     queue(msg);
-            // break;
-            // case 'play': 
-            //     play(msg, args);
-            // break;
-            // case 'disconnect': case 'leave':
-            //     disconnect(msg);
-            // break;
-            // case 'skip': case 'next':
-            //     skip(msg);
-            // break;
-            // case 'stop':
-            //     stop(msg);
-            // break;
             case 'commands': case 'command': case 'help':
                 bcommand(msg);
             break;

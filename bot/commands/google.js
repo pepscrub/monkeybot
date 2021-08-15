@@ -204,19 +204,19 @@ async function Reaction_Result(msg, e, res)
 {
     try
     {
-        reactions.forEach(square=>{e.react(square)})                                                                    // Reacting with the voting squares 
+        reactions.map(square=>{e.react(square)})                                                                    // Reacting with the voting squares 
 
         const filter = async (reaction, user) => reactions.includes(reaction.emoji.name) && user.id === msg.author.id;  // Some filtering shit?
         const result = await e.awaitReactions(filter, {time: timer})                                                    // Reactions from users
         updateVote(msg, false);
     
         let output = [], i = 0, users = [];                                                                                 // Settings up objects for next 
-        result.forEach(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
+        result.map(t=>{output.push([t._emoji['name'], t.count, t.users]);i++;});                                        // Looping trhough the reactions and pushing the results into an array
         output.reverse();                       // Reverse results so we're going lowest rank to highest
         output.sort((a,b)=>{return b[1] - a[1]})// Sort by count
         if(output[0] === undefined) return e.delete() && log("No one voted :(");     // If no one votes
     
-        output[0][2].cache.forEach(user=>{
+        output[0][2].cache.map(user=>{
             {
                 if(!(user.bot))
                 {
@@ -245,13 +245,13 @@ async function Reaction_Result(msg, e, res)
         }else{
             // TODO: Make this code less bad
             const rank = [];
-            exist[0]['rank'].forEach(r=>
+            exist[0]['rank'].map(r=>
             {
                 rank.push(r)
             })
             rank.push(output[0][0])
             const color = [];
-            exist[0]['color'].forEach(colors=>
+            exist[0]['color'].map(colors=>
             {
                 color.push(colors)
             })
@@ -494,7 +494,7 @@ async function monkeygoogle(msg)
                         }catch(e)
                         {
                             errh(e, msg);
-                            sendmessage(msg, `This error was most likely occured due to our API limit been exhausted.`);
+                            sendmessage(msg, `This error was most likely occured due to our API limit been exhausted. use \`random to get some monkies`);
                         }
                     break;
                     default: console.log(res['error']);
