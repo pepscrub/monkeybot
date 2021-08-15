@@ -86,8 +86,6 @@ module.exports.servers = (msg, args) =>
 
     length_check += title.length;
     length_check += description.length;
-
-    console.log(servers.length)
     let i = 0;
 
     const embed = new discord.MessageEmbed()

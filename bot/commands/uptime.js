@@ -22,7 +22,4 @@ module.exports.send_uptime = (msg) =>
     {
         errh(e, msg);
     }
-
-
-
 }
