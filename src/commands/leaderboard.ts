@@ -59,7 +59,7 @@ export const leaderBoard: Command = {
         embed
             .setColor('#42b983')
             .setTitle(`1. 🎉${output[0].name}🎉`)
-            .setDescription(`\`\`\`swift ${intwithcommas(output[0].commandUsage.length)} interactions POG \`\`\``)
+            .setDescription(`\`\`\`swift\n${intwithcommas(output[0].commandUsage.length)} interactions POG \`\`\``)
             .setThumbnail(output[0].pfp)
             .setURL(output[0].pfp)
 
@@ -68,7 +68,7 @@ export const leaderBoard: Command = {
         for(let i = 1; i < length; i++) {
             embed.addField(
                 `${i+1}. ${output[i+1].name}`,
-                `\`\`\`swift ${intwithcommas(output[i].commandUsage.length)} interactions! \`\`\``
+                `\`\`\`swift\n${intwithcommas(output[i].commandUsage.length)} interactions! \`\`\``
             );
         };
 
